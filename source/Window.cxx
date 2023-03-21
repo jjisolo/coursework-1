@@ -34,6 +34,9 @@ namespace gl {
     	        return false;
             }
 
+            m_uVertexBufferArray   = gl::util::createVertexBufferArray();
+            m_uVertexBufferObjects = gl::util::createVertexBufferObjects();
+
             m_bInitialized = true;
         }
 

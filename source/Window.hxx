@@ -8,6 +8,8 @@
 
 #include "../vendor/glad.h"
 
+#include "rendering/GlUtils.hxx"
+
 #include <iostream>
 #include <cstdint>
 #include <cassert>
@@ -31,6 +33,9 @@ namespace gl {
     private:
         GLFWwindow *m_pWindow;
         GLuint      m_bInitialized;
+
+        Gluint      m_uVertexBufferObjects;
+        Gluint      m_uVertexBufferArray;
 
         glm::vec2   m_WindowSize;
     };
