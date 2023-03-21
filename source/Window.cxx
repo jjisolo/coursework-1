@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../vendor/stb_image.h"
 
-namespace gl {
+namespace GL {
     void frameBufferCallback(GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
     }
@@ -33,9 +33,6 @@ namespace gl {
 	   	        glfwTerminate();
     	        return false;
             }
-
-            m_uVertexBufferArray   = gl::util::createVertexBufferArray();
-            m_uVertexBufferObjects = gl::util::createVertexBufferObjects();
 
             m_bInitialized = true;
         }

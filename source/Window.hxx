@@ -14,7 +14,11 @@
 #include <cstdint>
 #include <cassert>
 
-namespace gl {
+namespace GL {
+    struct VertexBufferChain {
+        unsigned int vertexBufferObject;
+        unsigned int vertexBufferArray;
+    };
 
     class Window 
     {
@@ -33,9 +37,6 @@ namespace gl {
     private:
         GLFWwindow *m_pWindow;
         GLuint      m_bInitialized;
-
-        Gluint      m_uVertexBufferObjects;
-        Gluint      m_uVertexBufferArray;
 
         glm::vec2   m_WindowSize;
     };

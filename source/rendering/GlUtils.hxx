@@ -1,15 +1,15 @@
 #pragma once
 
-namespace gl {
-    namespace util {
-        static int unsigned createVertexBufferArray() const {
+namespace GL {
+    namespace Utils {
+        int unsigned createVertexBufferArray() const {
             unsigned int vertexBufferArray;
 
             glGenVertexArrays(1, &vertexBufferArray);
             glBindVertexArray(vertexBufferArray);
         }
 
-        static int unsigned createVertexBufferObjects(float *verticies, size_t verticiesSizeBytes) const {
+        int unsigned createVertexBufferObjects(float *verticies, size_t verticiesSizeBytes) const {
             unsigned int vertexBufferObjects;
 
             glGenBuffers(1, &vertexBufferObjects);
