@@ -13,7 +13,7 @@
 
 namespace GL {
 
-class ShaderManager 
+class ShaderManager
 {
 public:
   ShaderManager(const std::string &vertexShaderPath, const std::string &fragmentShaderPath);

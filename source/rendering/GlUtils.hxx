@@ -2,10 +2,10 @@
 
 #include "../../vendor/glad.h"
 
-namespace GL {
-namespace Utils {
-  int unsigned createVertexBufferArray();
+namespace GL::Utils {
 
-  int unsigned createVertexBufferObjects(float *verticies, int unsigned verticiesSizeBytes);
-}// namespace Utils
-}// namespace GL
+int unsigned createVertexBufferArray();
+
+int unsigned createVertexBufferObjects(float *verticies, int unsigned verticiesSizeBytes);
+
+}// namespace GL::Utils

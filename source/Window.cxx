@@ -7,6 +7,7 @@
 #include "rendering/GlUtils.hxx"
 
 namespace GL {
+
 void frameBufferCallback(GLFWwindow *window, int width, int height)
 {
   glViewport(0, 0, width, height);
