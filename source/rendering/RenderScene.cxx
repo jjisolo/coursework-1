@@ -60,4 +60,13 @@ void pushToRenderGroup(const std::string &renderGroupName, const TextureDescript
   pushToRenderGroup(m_mRenderGroupNames[renderGroupName], std::move(textureDescriptor));
 }
 
+void enableRenderGroup(const RenderGroupID &renderGroupID) const noexcept
+{
+  auto renderGroupValidIndex = getRenderGroupByID(renderGroupID);
+
+  // Iterate through each render object at the render group, which id is provided by the user
+  for (auto &renderObject : m_vRenderGroups.at(renderGroupValidIndex)) {
+  }
+}
+
 }// namespace GL
