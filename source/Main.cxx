@@ -1,7 +1,9 @@
 #include "Window.hxx"
 
+#include "game/Card.hxx"
+
 int main(int argc, char* argv[]) {
-  gl::Window applicationWindow({640, 480});
+  GL::Window applicationWindow({640, 480});
   applicationWindow.initialize();
   applicationWindow.render();
   applicationWindow.release();

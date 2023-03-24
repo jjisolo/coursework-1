@@ -3,6 +3,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../vendor/stb_image.h"
 
+#include "rendering/ShaderManager.hxx"
+#include "rendering/GlUtils.hxx"
+
 namespace GL {
     void frameBufferCallback(GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
@@ -29,7 +32,7 @@ namespace GL {
             glfwSetFramebufferSizeCallback(m_pWindow, frameBufferCallback);
 
 	        if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
-                fprintf(stderr, "Error: Unable to load gladLoadGLLoader")
+                fprintf(stderr, "Error: Unable to load gladLoadGLLoader");
 	   	        glfwTerminate();
     	        return false;
             }

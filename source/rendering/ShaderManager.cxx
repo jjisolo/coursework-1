@@ -1,7 +1,6 @@
 #include "ShaderManager.hxx"
 
 namespace GL {
-
     ShaderManager::ShaderManager(const std::string& vertexShaderPath,const std::string& fragmentShaderPath)
     {
         // Load shaders from the file
@@ -41,9 +40,6 @@ namespace GL {
 
         const char* vShaderCode = vShaderSource.c_str();
         const char* fShaderCode = fShaderSource.c_str();
-
-        // Compile shaders
-
 
         // Compile vertex shader
         GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
