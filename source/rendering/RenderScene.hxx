@@ -28,8 +28,11 @@ public:
   // Alias render group to some unique string
   void aliasRenderGroup(const RenderGroupID &renderGroupID, const std::string &renderGroupName) const noexcept;
 
-  // Push the texture descriptor to the render group
+  // Push the texture descriptor to the render group using ID
   void pushToRenderGroup(const RenderGroupID &renderGroupID, const TextureDescriptor &textureDescriptor) const noexcept;
+
+  // Push the texture descriptor to the render group using aliased Name
+  void pushToRenderGroup(const std::string &renderGroupName, const TextureDescriptor &textureDescriptor) const noexcept;
 
 private:
   RenderGroupContainer m_vRenderGroups;

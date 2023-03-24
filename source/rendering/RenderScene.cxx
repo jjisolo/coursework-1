@@ -48,4 +48,16 @@ void pushToRenderGroup(const RenderGroupID &renderGroupID, const TextureDescript
   m_vRenderGroups.at(renderGroupIndex).push_back(std::move(textureDescriptor));
 }
 
+void pushToRenderGroup(const std::string &renderGroupName, const TextureDescriptor &textureDescriptor) const noexcept
+{
+  // Check if this name exists in the name container, if it
+  // does not create it and asign to the current id.
+  if (!m_mRenderGroupNames.contains(renderGroupName)) {
+    aliasRenderGroup(getDistinctRenderGroupID(), renderGroupName);
+  }
+
+  // Otherwise id is exists, so we just pull it from the map
+  pushToRenderGroup(m_mRenderGroupNames[renderGroupName], std::move(textureDescriptor));
+}
+
 }// namespace GL
