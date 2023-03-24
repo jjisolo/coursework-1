@@ -1,142 +1,136 @@
 #include "ShaderManager.hxx"
 
 namespace GL {
-    ShaderManager::ShaderManager(const std::string& vertexShaderPath,const std::string& fragmentShaderPath)
-    {
-        // Load shaders from the file
-        std::string   vShaderSource;
-        std::string   fShaderSource;
+ShaderManager::ShaderManager(const std::string &vertexShaderPath, const std::string &fragmentShaderPath)
+{
+  // Load shaders from the file
+  std::string vShaderSource;
+  std::string fShaderSource;
 
-        std::ifstream vShaderFile(vertexShaderPath,   std::ios::in);
-        std::ifstream fShaderFile(fragmentShaderPath, std::ios::in);
+  std::ifstream vShaderFile(vertexShaderPath, std::ios::in);
+  std::ifstream fShaderFile(fragmentShaderPath, std::ios::in);
 
-        if(!vShaderFile || !fShaderFile) {
-            std::cerr << "Cannot open shader files!";
-            return;
-        }
+  if (!vShaderFile || !fShaderFile) {
+    std::cerr << "Cannot open shader files!";
+    return;
+  }
 
-        vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
-        try
-        {
-            std::stringstream vShaderStream;
-            std::stringstream fShaderStream;
+  try {
+    std::stringstream vShaderStream;
+    std::stringstream fShaderStream;
 
-            vShaderStream << vShaderFile.rdbuf();
-            fShaderStream << fShaderFile.rdbuf();		
-        
-            vShaderFile.close();
-            fShaderFile.close();
-        
-            vShaderSource = vShaderStream.str();
-            fShaderSource = fShaderStream.str();	
+    vShaderStream << vShaderFile.rdbuf();
+    fShaderStream << fShaderFile.rdbuf();
 
-        }
-        catch(std::ifstream::failure e)
-        {
-            std::cout << "Cannot read shader files" << e.what() << std::endl;
-        }
+    vShaderFile.close();
+    fShaderFile.close();
 
-        const char* vShaderCode = vShaderSource.c_str();
-        const char* fShaderCode = fShaderSource.c_str();
+    vShaderSource = vShaderStream.str();
+    fShaderSource = fShaderStream.str();
 
-        // Compile vertex shader
-        GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertex, 1, &vShaderCode, NULL);
-        glCompileShader(vertex);
-        checkCompilationErrors(vertex, "VERTEX");
+  } catch (std::ifstream::failure e) {
+    std::cout << "Cannot read shader files" << e.what() << std::endl;
+  }
 
-        // Compile fragment shader
-        GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragment, 1, &fShaderCode, NULL);
-        glCompileShader(fragment);
-        checkCompilationErrors(fragment, "FRAGMENT");
+  const char *vShaderCode = vShaderSource.c_str();
+  const char *fShaderCode = fShaderSource.c_str();
 
-        // Create shader program
-        m_ProgramID = glCreateProgram();
-        glAttachShader(m_ProgramID, vertex);
-        glAttachShader(m_ProgramID, fragment);
-        glLinkProgram(m_ProgramID);
-        checkCompilationErrors(m_ProgramID, "PROGRAM");
-        
-        // delete the shaders as they're linked into our program now and no longer necessary
-        glDeleteShader(vertex);
-        glDeleteShader(fragment);
-    }
+  // Compile vertex shader
+  GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(vertex, 1, &vShaderCode, NULL);
+  glCompileShader(vertex);
+  checkCompilationErrors(vertex, "VERTEX");
 
-    void ShaderManager::checkCompilationErrors(GLuint shader, std::string type)
-    {
-        int success;
-        char infoLog[1024];
-        if (type != "PROGRAM")
-        {
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-            if (!success)
-            {
-                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-            }
-        }
-        else
-        {
-            glGetProgramiv(shader, GL_LINK_STATUS, &success);
-            if (!success)
-            {
-                glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-            }
-        }
-    }
+  // Compile fragment shader
+  GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fragment, 1, &fShaderCode, NULL);
+  glCompileShader(fragment);
+  checkCompilationErrors(fragment, "FRAGMENT");
 
+  // Create shader program
+  m_ProgramID = glCreateProgram();
+  glAttachShader(m_ProgramID, vertex);
+  glAttachShader(m_ProgramID, fragment);
+  glLinkProgram(m_ProgramID);
+  checkCompilationErrors(m_ProgramID, "PROGRAM");
 
-    void ShaderManager::execute() const
-    {
-        glUseProgram(m_ProgramID);
-    }
-
-    void ShaderManager::setBoolean(const std::string& uniformTag, GLboolean value) const
-    {
-        glUniform1i(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), static_cast<int>(value));
-    }
-
-    void ShaderManager::setInteger(const std::string& uniformTag, GLint value) const
-    {
-        glUniform1i(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), value);
-    }
-
-    void ShaderManager::setFloat(const std::string& uniformTag, GLfloat value) const
-    {
-        glUniform1f(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), value);
-    }
-
-    void ShaderManager::setVec2(const std::string& uniformTag, const glm::vec2& value) const 
-    {
-        glUniform2fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, &value[0]); 
-    }
-
-    void ShaderManager::setVec3(const std::string& uniformTag, const glm::vec3& value) const 
-    {
-        glUniform3fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, &value[0]); 
-    }
-
-    void ShaderManager::setVec4(const std::string& uniformTag, const glm::vec4& value) const 
-    {
-        glUniform4fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, &value[0]); 
-    }
-
-    void ShaderManager::setMat2(const std::string& uniformTag, const glm::mat2& value) const 
-    {
-        glUniformMatrix2fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, GL_FALSE, &value[0][0]);
-    }
-
-    void ShaderManager::setMat3(const std::string& uniformTag, const glm::mat3& value) const 
-    {
-        glUniformMatrix3fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, GL_FALSE, &value[0][0]);
-    }
-
-    void ShaderManager::setMat4(const std::string& uniformTag, const glm::mat4& value) const 
-    {
-        glUniformMatrix4fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, GL_FALSE, &value[0][0]);
-    }
+  // delete the shaders as they're linked into our program now and no longer necessary
+  glDeleteShader(vertex);
+  glDeleteShader(fragment);
 }
+
+void ShaderManager::checkCompilationErrors(GLuint shader, std::string type)
+{
+  int success;
+  char infoLog[1024];
+  if (type != "PROGRAM") {
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+      glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+      std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n"
+                << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+    }
+  } else {
+    glGetProgramiv(shader, GL_LINK_STATUS, &success);
+    if (!success) {
+      glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+      std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n"
+                << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+    }
+  }
+}
+
+
+void ShaderManager::execute() const
+{
+  glUseProgram(m_ProgramID);
+}
+
+void ShaderManager::setBoolean(const std::string &uniformTag, GLboolean value) const
+{
+  glUniform1i(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), static_cast<int>(value));
+}
+
+void ShaderManager::setInteger(const std::string &uniformTag, GLint value) const
+{
+  glUniform1i(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), value);
+}
+
+void ShaderManager::setFloat(const std::string &uniformTag, GLfloat value) const
+{
+  glUniform1f(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), value);
+}
+
+void ShaderManager::setVec2(const std::string &uniformTag, const glm::vec2 &value) const
+{
+  glUniform2fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, &value[0]);
+}
+
+void ShaderManager::setVec3(const std::string &uniformTag, const glm::vec3 &value) const
+{
+  glUniform3fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, &value[0]);
+}
+
+void ShaderManager::setVec4(const std::string &uniformTag, const glm::vec4 &value) const
+{
+  glUniform4fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, &value[0]);
+}
+
+void ShaderManager::setMat2(const std::string &uniformTag, const glm::mat2 &value) const
+{
+  glUniformMatrix2fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, GL_FALSE, &value[0][0]);
+}
+
+void ShaderManager::setMat3(const std::string &uniformTag, const glm::mat3 &value) const
+{
+  glUniformMatrix3fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, GL_FALSE, &value[0][0]);
+}
+
+void ShaderManager::setMat4(const std::string &uniformTag, const glm::mat4 &value) const
+{
+  glUniformMatrix4fv(glGetUniformLocation(m_ProgramID, uniformTag.c_str()), 1, GL_FALSE, &value[0][0]);
+}
+}// namespace GL

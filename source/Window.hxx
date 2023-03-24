@@ -15,29 +15,29 @@
 #include <cassert>
 
 namespace GL {
-    struct VertexBufferChain {
-        unsigned int vertexBufferObject;
-        unsigned int vertexBufferArray;
-    };
+struct VertexBufferChain
+{
+  unsigned int vertexBufferObject;
+  unsigned int vertexBufferArray;
+};
 
-    class Window 
-    {
-    public:
-        explicit Window(glm::vec2 aWindowSize):
-            m_WindowSize(aWindowSize), m_bInitialized(false)
-        {
-        }
+class Window
+{
+public:
+  explicit Window(glm::vec2 aWindowSize) : m_WindowSize(aWindowSize), m_bInitialized(false)
+  {
+  }
 
-        bool initialize();
+  bool initialize();
 
-        void render() const;
+  void render() const;
 
-        void release() const;
+  void release() const;
 
-    private:
-        GLFWwindow *m_pWindow;
-        GLuint      m_bInitialized;
+private:
+  GLFWwindow *m_pWindow;
+  GLuint m_bInitialized;
 
-        glm::vec2   m_WindowSize;
-    };
-}
+  glm::vec2 m_WindowSize;
+};
+}// namespace GL

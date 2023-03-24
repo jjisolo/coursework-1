@@ -3,9 +3,9 @@
 #include "../../vendor/glad.h"
 
 namespace GL {
-    namespace Utils {
-        int unsigned createVertexBufferArray();
+namespace Utils {
+  int unsigned createVertexBufferArray();
 
-        int unsigned createVertexBufferObjects(float *verticies, int unsigned verticiesSizeBytes);
-    }
-}
+  int unsigned createVertexBufferObjects(float *verticies, int unsigned verticiesSizeBytes);
+}// namespace Utils
+}// namespace GL

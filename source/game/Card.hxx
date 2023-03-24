@@ -4,10 +4,9 @@
 
 namespace Game {
 
-    class Card: public GL::Intf::AddVertexData<6> {
-        public:
-        
-        private:
-
-    };
-}
+class Card : public GL::Intf::AddVertexData<6>
+{
+public:
+private:
+};
+}// namespace Game

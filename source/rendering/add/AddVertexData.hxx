@@ -2,24 +2,27 @@
 
 namespace GL::Intf {
 
-    template<size_t VerticiesCount> class AddVertexData {
-        public:
-            explicit AddVertexData(float vertexData[VerticiesCount]):
-                m_fVerticies(vertexData)
-            {
-            }
+template<size_t VerticiesCount>
+class AddVertexData
+{
+public:
+  explicit AddVertexData(float vertexData[VerticiesCount]) : m_fVerticies(vertexData)
+  {
+  }
 
-            virtual ~AddVertexData();
+  virtual ~AddVertexData();
 
-            inline float* getVerticies() const {
-                return m_fVerticies;
-            }
+  inline float *getVerticies() const
+  {
+    return m_fVerticies;
+  }
 
-            inline void setVerticies(float newVertexData[VerticiesCount]) {
-                m_fVerticies = newVertexData;
-            }
+  inline void setVerticies(float newVertexData[VerticiesCount])
+  {
+    m_fVerticies = newVertexData;
+  }
 
-        protected:
-            float m_fVerticies[VerticiesCount];
-    };
-}
+protected:
+  float m_fVerticies[VerticiesCount];
+};
+}// namespace GL::Intf
