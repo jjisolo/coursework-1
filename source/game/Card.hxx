@@ -6,7 +6,7 @@ namespace Game {
 
     class Card: public GL::Intf::AddVertexData<6> {
         public:
-
+        
         private:
 
     };

@@ -44,11 +44,13 @@ namespace GL {
     }
 
     void Window::render() const {
-        if(!m_bInitialized) {
+        if(!m_bInitialized) 
+        {
             return;
         }
 
-        while (!glfwWindowShouldClose(m_pWindow)) {
+        while (!glfwWindowShouldClose(m_pWindow))
+        {
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear     (GL_COLOR_BUFFER_BIT);
 
