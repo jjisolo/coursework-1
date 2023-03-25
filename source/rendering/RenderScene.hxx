@@ -34,6 +34,7 @@ public:
   // Push the texture descriptor to the render group using aliased Name
   void pushToRenderGroup(const std::string &renderGroupName, const TextureDescriptor &textureDescriptor) const noexcept;
 
+  // Enable the current render group
   void enableRenderGroup(const RenderGroupID &renderGroupID) const noexcept;
 
 private:
