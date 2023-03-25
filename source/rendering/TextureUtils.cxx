@@ -1,16 +1,10 @@
-#pragma once
+#include "TextureUtils.hxx"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "../../../vendor/stb_image.h"
-#include "../../../vendor/glad.h"
+#include "../../vendor/stb_image.h"
+#include "../../vendor/glad.h"
 
-namespace GL::Utils {
-
-class TextureManager
+unsigned int GL::Utils::loadTexture2D(const std::string &texturePath)
 {
-public:
-  static unsigned int loadTexture2D(const std::string &texturePath, bool presentAlpha = true)
-  {
     unsigned int textureDescriptor;
 
     glGenTextures(1, &textureDescriptor);
@@ -30,9 +24,7 @@ public:
       0);
 
     if (textureData) {
-      bool textureFormat = presentAlpha ? GL_RGBA : GL_RGB;
-
-      glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, textureWidth, textureHeight, 0, textureFormat, GL_UNSIGNED_BYTE, textureData);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
       glGenerateMipmap(GL_TEXTURE_2D);
     } else {
       // TODO: logging
@@ -40,7 +32,10 @@ public:
 
     stbi_image_free(textureData);
     return textureDescriptor;
-  }
-};
+}
 
-}// namespace GL::Utils
+unsigned int GL::Utils::releaseTexture2D(unsigned int *textureDescriptor)
+{
+    glDeleteTextures(1, textureDescriptor);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}

@@ -47,8 +47,11 @@ public:
   // Push the render object to the render group using aliased Name
   void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) noexcept;
 
-  // Enable the current render group
+  // Disable the render group using its ID
   void enableRenderGroup(const RenderGroupID renderGroupID) noexcept;
+
+  // Disable the render group using its ID
+  void releaseRenderGroup(const RenderGroupID renderGroupID) noexcept;
 
 private:
   //  Get the render group using its ID
@@ -57,7 +60,7 @@ private:
 private:
   std::vector<RenderGroup> m_vRenderGroups;
   std::vector<RenderGroupID> m_vRenderGroupIDtoInternalID;
-  std::vector<RenderGroupID> m_vEnabledRenderGroups;
+  std::list<RenderGroupID> m_vEnabledRenderGroups;
   std::unordered_map<std::string, RenderGroupID> m_mRenderGroupNames;
 };
 
