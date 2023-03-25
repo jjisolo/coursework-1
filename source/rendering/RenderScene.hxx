@@ -41,19 +41,19 @@ public:
   // Alias render group to some unique string
   void aliasRenderGroup(const RenderGroupID renderGroupID, const std::string &renderGroupName);
 
-  // Push the texture descriptor to the render group using ID
+  // Push the render object to the render group using ID
   void pushToRenderGroup(const RenderGroupID renderGroupID, const RenderObject &renderObject) noexcept;
 
-  // Push the texture descriptor to the render group using aliased Name
+  // Push the render object to the render group using aliased Name
   void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) noexcept;
 
   // Enable the current render group
   void enableRenderGroup(RenderGroupID renderGroupID) noexcept;
 
 private:
-  std::vector<RenderGroup>     m_vRenderGroups;
-  std::vector<RenderGroupID>   m_vRenderGroupIDtoInternalID;
-  std::vector<RenderGroupID>   m_vEnabledRenderGroups;
+  std::vector<RenderGroup> m_vRenderGroups;
+  std::vector<RenderGroupID> m_vRenderGroupIDtoInternalID;
+  std::vector<RenderGroupID> m_vEnabledRenderGroups;
   std::unordered_map<std::string, RenderGroupID> m_mRenderGroupNames;
 };
 
