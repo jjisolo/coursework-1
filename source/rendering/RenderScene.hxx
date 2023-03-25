@@ -17,6 +17,14 @@ using RenderGroupIDList = std::list<RenderGroupID>;
 using RenderGroupIDContainer = std::vector<RenderGroupID>;
 using RenderGroupNameContainer = std::unordered_map<std::string, RenderGroupID>;
 
+
+// Render scene is a container for a different render groups(which are build
+// from the groups of render objects). The common practise is to split the 
+// render scene in different render groups and then enable or disable some
+// of them.
+//
+// Render group management is handled using render group ID's and names
+// (which can be aliased to some ID).
 class RenderScene
 {
   friend class RenderingManager;
