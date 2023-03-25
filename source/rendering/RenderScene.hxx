@@ -48,7 +48,11 @@ public:
   void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) noexcept;
 
   // Enable the current render group
-  void enableRenderGroup(RenderGroupID renderGroupID) noexcept;
+  void enableRenderGroup(const RenderGroupID renderGroupID) noexcept;
+
+private:
+  //  Get the render group using its ID
+  std::ptrdiff_t getRenderGroupByID(const RenderGroupID renderGroupID) const;
 
 private:
   std::vector<RenderGroup> m_vRenderGroups;

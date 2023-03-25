@@ -73,4 +73,17 @@ void RenderScene::enableRenderGroup(const RenderGroupID renderGroupID) noexcept
     renderObject.textureDescriptor = Utils::TextureManager::loadTexture2D(renderObject.texturePath);
 }
 
+std::ptrdiff_t RenderScene::getRenderGroupByID(const RenderGroupID renderGroupID) const
+{
+  // Translate the user ID to the internal DS ID
+  auto vectorIterator = VectorFind(m_vRenderGroupIDtoInternalID, renderGroupID);
+
+  // If we found something calculate from the start of the vector
+	// to the element(read: find its index) and return it
+  if (vectorIterator != m_vRenderGroupIDtoInternalID.end())
+		return std::distance(m_vRenderGroupIDtoInternalID.begin(), vectorIterator);
+
+  throw std::invalid_argument("ID" + std::to_string(renderGroupID) + " does not exists in the table");
+}
+
 }// namespace GL
