@@ -1,6 +1,5 @@
 #include "RenderScene.hxx"
-
-#include "mgr/TextureManager.hxx"
+#include "TextureUtils.hxx"
 
 #define VectorFind(vector, item) (std::find((vector).begin(), (vector).end(), (item)))
 #define VectorFindBinary(vector, item) ((VectorFind((vector), (item)) != (vector).end()))
@@ -64,13 +63,22 @@ void RenderScene::pushToRenderGroup(const std::string &renderGroupName, const Re
 
 void RenderScene::enableRenderGroup(const RenderGroupID renderGroupID) noexcept
 {
-  // Mark the current scene as `enabled`
+  // Mark the current scene `enabled`
   m_vEnabledRenderGroups.push_back(renderGroupID);
 
   // Iterate through each render object at the render group, which id is provided by the user
   // and load the each render object to the graphics card RAM
   for (auto &renderObject : m_vRenderGroups.at(getRenderGroupByID(renderGroupID)))
-    renderObject.textureDescriptor = Utils::TextureManager::loadTexture2D(renderObject.texturePath);
+    renderObject.textureDescriptor = Utils::loadTexture2D(renderObject.texturePath);
+}
+
+void RenderScene::releaseRenderGroup(const RenderGroupID renderGroupID) noexcept
+{
+  // Make the current scene `disabled`
+  m_vEnabledRenderGroups.remove(renderGroupID);
+
+  for (auto &renderObject : m_vRenderGroups.at(getRenderGroupByID(renderGroupID)))
+    Utils::releaseTexture2D(&renderObject.textureDescriptor);
 }
 
 std::ptrdiff_t RenderScene::getRenderGroupByID(const RenderGroupID renderGroupID) const
@@ -79,9 +87,9 @@ std::ptrdiff_t RenderScene::getRenderGroupByID(const RenderGroupID renderGroupID
   auto vectorIterator = VectorFind(m_vRenderGroupIDtoInternalID, renderGroupID);
 
   // If we found something calculate from the start of the vector
-	// to the element(read: find its index) and return it
+  // to the element(read: find its index) and return it
   if (vectorIterator != m_vRenderGroupIDtoInternalID.end())
-		return std::distance(m_vRenderGroupIDtoInternalID.begin(), vectorIterator);
+    return std::distance(m_vRenderGroupIDtoInternalID.begin(), vectorIterator);
 
   throw std::invalid_argument("ID" + std::to_string(renderGroupID) + " does not exists in the table");
 }
