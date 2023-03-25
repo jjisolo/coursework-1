@@ -1,5 +1,6 @@
 #include "Window.hxx"
 
+#include "rendering/RenderScene.hxx"
 #include "game/Card.hxx"
 
 int main(int argc, char *argv[])

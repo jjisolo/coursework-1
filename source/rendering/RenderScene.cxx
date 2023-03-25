@@ -1,5 +1,7 @@
 #include "RenderScene.hxx"
 
+#include "mgr/TextureManager.hxx"
+
 #define VectorFind(vector, item) (std::find((vector).begin(), (vector).end(), (item)))
 #define VectorFindBinary(vector, item) ((VectorFind((vector), (item)) != (vector).end()))
 
@@ -27,7 +29,7 @@ void aliasRenderGroup(const RenderGroupID &renderGroupID, const std::string &ren
   m_mRenderGroupNames[renderGroupName] = id;
 }
 
-void pushToRenderGroup(const RenderGroupID &renderGroupID, const TextureDescriptor &textureDescriptor) const noexcept
+void pushToRenderGroup(const RenderGroupID &renderGroupID, const RenderObject &renderObject) const noexcept
 {
   // The index of the render group associated with the renderGroupID
   std::ptrdiff_t renderGroupIndex{ 0 };
@@ -45,10 +47,10 @@ void pushToRenderGroup(const RenderGroupID &renderGroupID, const TextureDescript
   }
 
   // Move the element to the render group
-  m_vRenderGroups.at(renderGroupIndex).push_back(std::move(textureDescriptor));
+  m_vRenderGroups.at(renderGroupIndex).push_back(std::move(renderObject));
 }
 
-void pushToRenderGroup(const std::string &renderGroupName, const TextureDescriptor &textureDescriptor) const noexcept
+void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) const noexcept
 {
   // Check if this name exists in the name container, if it
   // does not create it and asign to the current id.
@@ -57,16 +59,16 @@ void pushToRenderGroup(const std::string &renderGroupName, const TextureDescript
   }
 
   // Otherwise id is exists, so we just pull it from the map
-  pushToRenderGroup(m_mRenderGroupNames[renderGroupName], std::move(textureDescriptor));
+  pushToRenderGroup(m_mRenderGroupNames[renderGroupName], std::move(renderObject));
 }
 
 void enableRenderGroup(const RenderGroupID &renderGroupID) const noexcept
 {
-  auto renderGroupValidIndex = getRenderGroupByID(renderGroupID);
+  m_enabled_render_groups.push_back(static_cast<int>(render_group_id));
 
   // Iterate through each render object at the render group, which id is provided by the user
-  for (auto &renderObject : m_vRenderGroups.at(renderGroupValidIndex)) {
-  }
+  for (auto &renderObject : m_vRenderGroups.at(getRenderGroupByID(renderGroupID)))
+    renderObject.textureDescriptor = Utils::loadTexture2D(renderObject.texturePath);
 }
 
 }// namespace GL

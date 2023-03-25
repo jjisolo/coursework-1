@@ -17,9 +17,20 @@ using RenderGroupIDList = std::list<RenderGroupID>;
 using RenderGroupIDContainer = std::vector<RenderGroupID>;
 using RenderGroupNameContainer = std::unordered_map<std::string, RenderGroupID>;
 
+struct RenderObject
+{
+  RenderObject(const std::string &texturePath, const unsigned int textureDescriptor) : texturePath(texturePath), textureDescriptor(textureDescriptor), isInitialized(false)
+  {
+  }
+
+  std::string texturePath;
+  unsigned int textureDescriptor;
+  bool isInitialized;
+};
+
 
 // Render scene is a container for a different render groups(which are build
-// from the groups of render objects). The common practise is to split the 
+// from the groups of render objects). The common practise is to split the
 // render scene in different render groups and then enable or disable some
 // of them.
 //
@@ -37,10 +48,10 @@ public:
   void aliasRenderGroup(const RenderGroupID &renderGroupID, const std::string &renderGroupName) const noexcept;
 
   // Push the texture descriptor to the render group using ID
-  void pushToRenderGroup(const RenderGroupID &renderGroupID, const TextureDescriptor &textureDescriptor) const noexcept;
+  void pushToRenderGroup(const RenderGroupID &renderGroupID, const RenderObject &renderObject) const noexcept;
 
   // Push the texture descriptor to the render group using aliased Name
-  void pushToRenderGroup(const std::string &renderGroupName, const TextureDescriptor &textureDescriptor) const noexcept;
+  void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) const noexcept;
 
   // Enable the current render group
   void enableRenderGroup(const RenderGroupID &renderGroupID) const noexcept;
