@@ -30,9 +30,9 @@ public:
       0);
 
     if (textureData) {
-      bool textureFormat = (presentAlpha) ? GL_RGBA : GL_RGB;
+      bool textureFormat = presentAlpha ? GL_RGBA : GL_RGB;
 
-      glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, width, height, 0, textureFormat, GL_UNSIGNED_BYTE, data);
+      glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, textureWidth, textureHeight, 0, textureFormat, GL_UNSIGNED_BYTE, textureData);
       glGenerateMipmap(GL_TEXTURE_2D);
     } else {
       // TODO: logging

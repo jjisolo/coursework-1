@@ -7,7 +7,7 @@
 
 namespace GL {
 
-RenderGroupID RenderScene::getDistinctRenderGroupID(void) const noexcept
+RenderScene::RenderGroupID RenderScene::getDistinctRenderGroupID(void) const noexcept
 {
   RenderGroupID renderGroupIdIterator{ 0 };
 
@@ -18,7 +18,7 @@ RenderGroupID RenderScene::getDistinctRenderGroupID(void) const noexcept
   return renderGroupIdIterator;
 }
 
-void aliasRenderGroup(const RenderGroupID &renderGroupID, const std::string &renderGroupName) const noexcept
+void RenderScene::aliasRenderGroup(const RenderGroupID renderGroupID, const std::string &renderGroupName)
 {
   // If the render group with the same name is already exists
   if (m_mRenderGroupNames.contains(renderGroupName)) {
@@ -26,10 +26,10 @@ void aliasRenderGroup(const RenderGroupID &renderGroupID, const std::string &ren
   }
 
   // Otherwise perform the aliasing
-  m_mRenderGroupNames[renderGroupName] = id;
+  m_mRenderGroupNames[renderGroupName] = renderGroupID;
 }
 
-void pushToRenderGroup(const RenderGroupID &renderGroupID, const RenderObject &renderObject) const noexcept
+void RenderScene::pushToRenderGroup(const RenderGroupID renderGroupID, const RenderObject &renderObject) noexcept
 {
   // The index of the render group associated with the renderGroupID
   std::ptrdiff_t renderGroupIndex{ 0 };
@@ -43,14 +43,14 @@ void pushToRenderGroup(const RenderGroupID &renderGroupID, const RenderObject &r
     m_vRenderGroupIDtoInternalID.push_back(renderGroupID);
     m_vRenderGroups.emplace_back();
 
-    render_group_index = static_cast<std::ptrdiff_t>(m_vRenderGroupIDtoInternalID.size() - 1);
+    renderGroupIndex = static_cast<std::ptrdiff_t>(m_vRenderGroupIDtoInternalID.size() - 1);
   }
 
   // Move the element to the render group
   m_vRenderGroups.at(renderGroupIndex).push_back(std::move(renderObject));
 }
 
-void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) const noexcept
+void RenderScene::pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) noexcept
 {
   // Check if this name exists in the name container, if it
   // does not create it and asign to the current id.
@@ -62,13 +62,15 @@ void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &r
   pushToRenderGroup(m_mRenderGroupNames[renderGroupName], std::move(renderObject));
 }
 
-void enableRenderGroup(const RenderGroupID &renderGroupID) const noexcept
+void RenderScene::enableRenderGroup(const RenderGroupID renderGroupID) noexcept
 {
-  m_enabled_render_groups.push_back(static_cast<int>(render_group_id));
+  // Mark the current scene as `enabled`
+  m_vEnabledRenderGroups.push_back(renderGroupID);
 
   // Iterate through each render object at the render group, which id is provided by the user
+  // and load the each render object to the graphics card RAM
   for (auto &renderObject : m_vRenderGroups.at(getRenderGroupByID(renderGroupID)))
-    renderObject.textureDescriptor = Utils::loadTexture2D(renderObject.texturePath);
+    renderObject.textureDescriptor = Utils::TextureManager::loadTexture2D(renderObject.texturePath);
 }
 
 }// namespace GL

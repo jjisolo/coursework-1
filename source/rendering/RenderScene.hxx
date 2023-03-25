@@ -3,19 +3,11 @@
 #include <stdexcept>
 #include <string>
 
+#include <unordered_map>
 #include <vector>
 #include <list>
 
 namespace GL {
-
-using TextureDescriptor = unsigned int;
-using RenderGroup = std::vector<TextureDescriptor>;
-using RenderGroupCointainer = std::vector<RenderGroup>;
-
-using RenderGroupID = unsigned int;
-using RenderGroupIDList = std::list<RenderGroupID>;
-using RenderGroupIDContainer = std::vector<RenderGroupID>;
-using RenderGroupNameContainer = std::unordered_map<std::string, RenderGroupID>;
 
 struct RenderObject
 {
@@ -28,7 +20,6 @@ struct RenderObject
   bool isInitialized;
 };
 
-
 // Render scene is a container for a different render groups(which are build
 // from the groups of render objects). The common practise is to split the
 // render scene in different render groups and then enable or disable some
@@ -38,6 +29,9 @@ struct RenderObject
 // (which can be aliased to some ID).
 class RenderScene
 {
+  using RenderGroupID = unsigned int;
+  using RenderGroup = std::vector<RenderObject>;
+
   friend class RenderingManager;
 
 public:
@@ -45,22 +39,22 @@ public:
   RenderGroupID getDistinctRenderGroupID(void) const noexcept;
 
   // Alias render group to some unique string
-  void aliasRenderGroup(const RenderGroupID &renderGroupID, const std::string &renderGroupName) const noexcept;
+  void aliasRenderGroup(const RenderGroupID renderGroupID, const std::string &renderGroupName);
 
   // Push the texture descriptor to the render group using ID
-  void pushToRenderGroup(const RenderGroupID &renderGroupID, const RenderObject &renderObject) const noexcept;
+  void pushToRenderGroup(const RenderGroupID renderGroupID, const RenderObject &renderObject) noexcept;
 
   // Push the texture descriptor to the render group using aliased Name
-  void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) const noexcept;
+  void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) noexcept;
 
   // Enable the current render group
-  void enableRenderGroup(const RenderGroupID &renderGroupID) const noexcept;
+  void enableRenderGroup(RenderGroupID renderGroupID) noexcept;
 
 private:
-  RenderGroupContainer m_vRenderGroups;
-  RenderGroupIDList m_lEnabledRenderGroups;
-  RenderGroupIDContainer m_vRenderGroupIDtoInternalID;
-  RenderGroupNameContainer m_mRenderGroupNames;
+  std::vector<RenderGroup>     m_vRenderGroups;
+  std::vector<RenderGroupID>   m_vRenderGroupIDtoInternalID;
+  std::vector<RenderGroupID>   m_vEnabledRenderGroups;
+  std::unordered_map<std::string, RenderGroupID> m_mRenderGroupNames;
 };
 
 }// namespace GL

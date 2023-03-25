@@ -8,6 +8,8 @@ namespace Utils {
 
     glGenVertexArrays(1, &vertexBufferArray);
     glBindVertexArray(vertexBufferArray);
+
+    return vertexBufferArray;
   }
 
   int unsigned createVertexBufferObjects(float *verticies, unsigned int verticiesSizeBytes)
@@ -17,6 +19,8 @@ namespace Utils {
     glGenBuffers(1, &vertexBufferObjects);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjects);
     glBufferData(GL_ARRAY_BUFFER, verticiesSizeBytes, verticies, GL_STATIC_DRAW);
+
+    return vertexBufferObjects;
   }
 }// namespace Utils
 }// namespace GL
