@@ -49,9 +49,14 @@ public:
 
   // Disable the render group using its ID
   void enableRenderGroup(const RenderGroupID renderGroupID) noexcept;
+  // Disable the render group using its Name
+  void enableRenderGroup(const std::string &renderGroupName);
+  
 
   // Disable the render group using its ID
   void releaseRenderGroup(const RenderGroupID renderGroupID) noexcept;
+  // Disable render group using its aliased name
+  void releaseRenderGroup(const std::string &renderGroupName);
 
 private:
   //  Get the render group using its ID
