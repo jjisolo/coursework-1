@@ -51,7 +51,6 @@ public:
   void enableRenderGroup(const RenderGroupID renderGroupID) noexcept;
   // Disable the render group using its Name
   void enableRenderGroup(const std::string &renderGroupName);
-  
 
   // Disable the render group using its ID
   void releaseRenderGroup(const RenderGroupID renderGroupID) noexcept;

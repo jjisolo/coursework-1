@@ -74,12 +74,12 @@ void RenderScene::enableRenderGroup(const RenderGroupID renderGroupID) noexcept
 
 void RenderScene::enableRenderGroup(const std::string &renderGroupName)
 {
-    // Check if this name exists in the name container, if it does not create it and assign to the current id
-    if (!m_mRenderGroupNames.contains(renderGroupName))
-        throw std::invalid_argument("Render group name `" + renderGroupName + "` does not binded to any ID");
+  // Check if this name exists in the name container, if it does not create it and assign to the current id
+  if (!m_mRenderGroupNames.contains(renderGroupName))
+    throw std::invalid_argument("Render group name `" + renderGroupName + "` does not binded to any ID");
 
-    // Otherwise ID is exists, so we just pull it from the map
-    enableRenderGroup(m_mRenderGroupNames[renderGroupName]);
+  // Otherwise ID is exists, so we just pull it from the map
+  enableRenderGroup(m_mRenderGroupNames[renderGroupName]);
 }
 
 void RenderScene::releaseRenderGroup(const RenderGroupID renderGroupID) noexcept
@@ -93,13 +93,13 @@ void RenderScene::releaseRenderGroup(const RenderGroupID renderGroupID) noexcept
 
 void RenderScene::releaseRenderGroup(const std::string &renderGroupName)
 {
-    // Check if this name exists in the name container, if it does not create it and assign to the current id
-    if (!m_mRenderGroupNames.contains(renderGroupName)) {
-        throw std::invalid_argument("Render group name `" + renderGroupName + "` does not binded to any ID");
-    }
+  // Check if this name exists in the name container, if it does not create it and assign to the current id
+  if (!m_mRenderGroupNames.contains(renderGroupName)) {
+    throw std::invalid_argument("Render group name `" + renderGroupName + "` does not binded to any ID");
+  }
 
-    // Otherwise ID is exists, so we just pull it from the map
-    releaseRenderGroup(m_mRenderGroupNames[renderGroupName]);
+  // Otherwise ID is exists, so we just pull it from the map
+  releaseRenderGroup(m_mRenderGroupNames[renderGroupName]);
 }
 
 std::ptrdiff_t RenderScene::getRenderGroupByID(const RenderGroupID renderGroupID) const
