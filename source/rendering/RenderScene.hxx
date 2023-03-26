@@ -43,7 +43,6 @@ public:
 
   // Push the render object to the render group using ID
   void pushToRenderGroup(const RenderGroupID renderGroupID, const RenderObject &renderObject) noexcept;
-
   // Push the render object to the render group using aliased Name
   void pushToRenderGroup(const std::string &renderGroupName, const RenderObject &renderObject) noexcept;
 
