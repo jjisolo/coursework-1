@@ -2,6 +2,10 @@
 
 namespace GL {
 namespace Utils {
+  void clearScreen()
+  {
+  }
+
   int unsigned createVertexBufferArray()
   {
     unsigned int vertexBufferArray;

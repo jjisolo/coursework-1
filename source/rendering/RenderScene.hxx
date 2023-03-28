@@ -56,6 +56,12 @@ public:
   // Disable render group using its aliased name
   void releaseRenderGroup(const std::string &renderGroupName);
 
+  // Get the list of enabled render groups
+  inline std::list<RenderGroupID> getEnabledRenderGroups()
+  {
+    return m_vEnabledRenderGroups;
+  }
+
 private:
   //  Get the render group using its ID
   std::ptrdiff_t getRenderGroupByID(const RenderGroupID renderGroupID) const;
