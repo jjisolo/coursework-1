@@ -25,7 +25,7 @@ void GL::RenderingManager::render()
     auto enabledRenderGroupsList = activeRenderScene.getEnabledRenderGroups();
 
     // Clear the screen before any rendering happens
-    GL::Utils::ClearScreen(GL::Utils::ColorCode::Black);
+    GL::Utils::ClearScreen(GL::Utils::ColorCode::White);
 
   } catch (const std::out_of_range &exception) {
     throw std::runtime_error("Cannot get acces to the " + m_sActiveRenderScene + " render scene");

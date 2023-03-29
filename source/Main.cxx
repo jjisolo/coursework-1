@@ -17,13 +17,11 @@ int main(int argc, char *argv[])
 
   gameScene.pushToRenderGroup(1, std::move(GL::RenderObject("data/test.png")));
 
-  gameScene.enableRenderGroup(1);// TODO: Acess boundary error fix
-#if 0
+  gameScene.enableRenderGroup(1);
   globalRenderManager->bindRenderScene("Game Scene", std::move(gameScene));
   globalRenderManager->setActiveRenderScene("Game Scene");
-  applicationWindow->bindRenderManager( globalRenderManager );
-#endif
 
+  applicationWindow->bindRenderManager(globalRenderManager);
   applicationWindow->initialize();
   applicationWindow->render();
   applicationWindow->release();

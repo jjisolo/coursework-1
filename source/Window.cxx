@@ -53,6 +53,8 @@ void Window::render() const
   }
 
   while (!glfwWindowShouldClose(m_pWindow)) {
+    m_pBindedRenderManager->render();
+
     glfwSwapBuffers(m_pWindow);
     glfwPollEvents();
   }
