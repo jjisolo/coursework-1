@@ -11,7 +11,7 @@ namespace GL {
 
 struct RenderObject
 {
-  RenderObject(const std::string &texturePath, const unsigned int textureDescriptor) : texturePath(texturePath), textureDescriptor(textureDescriptor), isInitialized(false)
+  RenderObject(const std::string &texturePath) : texturePath(texturePath), textureDescriptor(0), isInitialized(false)
   {
   }
 

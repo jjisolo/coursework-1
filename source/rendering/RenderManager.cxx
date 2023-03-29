@@ -1,6 +1,6 @@
 #include "RenderManager.hxx"
 
-void GL::RenderingManager::bind(const std::string &renderSceneTag, RenderScene &&renderScene)
+void GL::RenderingManager::bindRenderScene(const std::string &renderSceneTag, RenderScene &&renderScene)
 {
   // If we are rewriting the render scene, it means we throw the exception
   // because we can't disable it
@@ -10,7 +10,7 @@ void GL::RenderingManager::bind(const std::string &renderSceneTag, RenderScene &
   m_mRenderSceneContainer.emplace(renderSceneTag, std::move(renderScene));
 }
 
-void GL::RenderingManager::setActive(const std::string &renderSceneTag)
+void GL::RenderingManager::setActiveRenderScene(const std::string &renderSceneTag)
 {
   if (!m_mRenderSceneContainer.contains(renderSceneTag))
     throw std::invalid_argument("Attempted to activate render scene with invalid tag");
@@ -28,6 +28,6 @@ void GL::RenderingManager::render()
     GL::Utils::ClearScreen(GL::Utils::ColorCode::Black);
 
   } catch (const std::out_of_range &exception) {
-    throw std::runtime_exception("Cannot get acces to the " + m_sActiveRenderScene + " render scene");
+    throw std::runtime_error("Cannot get acces to the " + m_sActiveRenderScene + " render scene");
   }
 }

@@ -9,6 +9,7 @@
 #include "../vendor/glad.h"
 
 #include "rendering/GlUtils.hxx"
+#include "rendering/RenderManager.hxx"
 
 #include <iostream>
 #include <cstdint>
@@ -34,7 +35,14 @@ public:
 
   void release() const;
 
+  void inline bindRenderManager(std::shared_ptr<RenderingManager> renderManager)
+  {
+    m_pBindedRenderManager = std::move(renderManager);
+  }
+
 private:
+  std::shared_ptr<RenderingManager> m_pBindedRenderManager;
+
   GLFWwindow *m_pWindow;
   GLuint m_bInitialized;
 

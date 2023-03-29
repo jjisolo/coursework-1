@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <stdexcept>
 #include <unordered_map>
 
+#include "GlUtils.hxx"
 #include "RenderScene.hxx"
 
 namespace GL {
@@ -11,10 +13,10 @@ class RenderingManager
 {
 public:
   // Bind new render scene
-  void bind(const std::string &renderSceneTag, RenderScene &&renderScene);
+  void bindRenderScene(const std::string &renderSceneTag, RenderScene &&renderScene);
 
   // Set one of render scene as active
-  void setActive(const std::string &renderSceneTag);
+  void setActiveRenderScene(const std::string &renderSceneTag);
 
   // Render the current active render scene
   void render();
