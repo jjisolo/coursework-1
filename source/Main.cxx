@@ -9,21 +9,20 @@
 
 int main(int argc, char *argv[])
 {
-  std::shared_ptr<GL::Window> applicationWindow( new GL::Window({ 640, 480 }) );
-  std::shared_ptr<GL::RenderingManager> globalRenderManager( new GL::RenderingManager() );
-  
+  std::shared_ptr<GL::Window> applicationWindow(new GL::Window({ 640, 480 }));
+  std::shared_ptr<GL::RenderingManager> globalRenderManager(new GL::RenderingManager());
+
   GL::RenderScene menuScene;
   GL::RenderScene gameScene;
 
-  gameScene.pushToRenderGroup(1, std::move(GL::RenderObject(
-   "data/test.png" 
-  )));
+  gameScene.pushToRenderGroup(1, std::move(GL::RenderObject("data/test.png")));
 
-  gameScene.enableRenderGroup(1); // TODO: Acess boundary error fix
-
+  gameScene.enableRenderGroup(1);// TODO: Acess boundary error fix
+#if 0
   globalRenderManager->bindRenderScene("Game Scene", std::move(gameScene));
   globalRenderManager->setActiveRenderScene("Game Scene");
   applicationWindow->bindRenderManager( globalRenderManager );
+#endif
 
   applicationWindow->initialize();
   applicationWindow->render();

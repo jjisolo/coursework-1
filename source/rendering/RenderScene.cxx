@@ -63,13 +63,29 @@ void RenderScene::pushToRenderGroup(const std::string &renderGroupName, const Re
 
 void RenderScene::enableRenderGroup(const RenderGroupID renderGroupID) noexcept
 {
-  // Mark the current scene `enabled`
-  m_vEnabledRenderGroups.push_back(renderGroupID);
+  // If there is no object contains in the scene
+  if (m_vRenderGroups.at(getRenderGroupByID(renderGroupID)).size() == 0) {
+    std::cerr << "Attempted to activate render scene with no RenderObject in it.\n";
+    return;
+  }
 
   // Iterate through each render object at the render group, which id is provided by the user
   // and load the each render object to the graphics card RAM
-  for (auto &renderObject : m_vRenderGroups.at(getRenderGroupByID(renderGroupID)))
-    renderObject.textureDescriptor = Utils::loadTexture2D(renderObject.texturePath);
+  for (auto &renderObject : m_vRenderGroups.at(getRenderGroupByID(renderGroupID))) {
+    try {
+      // Try to load the texture
+      renderObject.textureDescriptor = Utils::loadTexture2D(renderObject.texturePath);
+    } catch (const std::runtime_error &exception) {
+      // Logging is performed on the upper level
+      std::cerr << "Unable to load texture " << renderObject.texturePath << "\n";
+
+      // TODO: Load the `undefined` texture
+      continue;
+    }
+  }
+
+  // Mark the current scene `enabled`
+  m_vEnabledRenderGroups.push_back(renderGroupID);
 }
 
 void RenderScene::enableRenderGroup(const std::string &renderGroupName)
