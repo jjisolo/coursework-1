@@ -4,6 +4,9 @@
 #define VectorFind(vector, item) (std::find((vector).begin(), (vector).end(), (item)))
 #define VectorFindBinary(vector, item) ((VectorFind((vector), (item)) != (vector).end()))
 
+static constexpr const char *MISSING_CONTENT_PNG_PATH = "data/MISSING_CONTENT.png";
+static constexpr const char *MISSING_CONTENT_JPG_PATH = "data/MISSING_CONTENT.jpg";
+
 namespace GL {
 
 RenderScene::RenderGroupID RenderScene::getDistinctRenderGroupID(void) const noexcept
@@ -76,11 +79,12 @@ void RenderScene::enableRenderGroup(const RenderGroupID renderGroupID) noexcept
       // Try to load the texture
       renderObject.textureDescriptor = Utils::loadTexture2D(renderObject.texturePath);
     } catch (const std::runtime_error &exception) {
-      // Logging is performed on the upper level
       std::cerr << "Unable to load texture " << renderObject.texturePath << "\n";
 
-      // TODO: Load the `undefined` texture
-      continue;
+      // Load the undegined texture if the loading of main texture failed
+      //
+      // TODO: png/jpg depending on the alpha attribute
+      renderObject.textureDescriptor = Utils::loadTexture2D(MISSING_CONTENT_PNG_PATH);
     }
   }
 
