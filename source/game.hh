@@ -14,6 +14,7 @@ namespace Game {
       Board(Board&&) = delete;
       Board();
       
+      void shuffleCards();
 
     private:
       std::unique_ptr< Card[] > m_Cards;

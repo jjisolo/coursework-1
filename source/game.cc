@@ -2,6 +2,8 @@
 
 #include <cstdio>
 #include <memory>
+#include <random>
+#include <algorithm>
 
 static const constexpr std::size_t CARDS_NUM = 36;
 
@@ -19,6 +21,12 @@ Game::Board::Board()
       cardCounter++;
     }
   }
+}
+
+void Game::Board::shuffleCards() {
+  std::random_device randomDevice;
+  std::mt19937 randomGenerator(randomDevice());
+  std::shuffle(m_Cards.get(), m_Cards.get() + CARDS_NUM, randomGenerator);  
 }
 
 
