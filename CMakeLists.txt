@@ -12,9 +12,20 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(101 source/main.cc source/game.cc source/engine.cc)
+FetchContent_Declare(
+        spdlog
+        GIT_REPOSITORY https://github.com/gabime/spdlog.git
+        GIT_TAG        v1.x
+)
 
-target_link_libraries(101 PRIVATE sfml-graphics)
+FetchContent_GetProperties(spdlog)
+if (NOT spdlog_POPULATED)
+    FetchContent_Populate(spdlog)
+    add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})
+endif ()
+
+add_executable(101 source/main.cc source/game.cc source/engine.cc)
+target_link_libraries(101 PRIVATE sfml-graphics spdlog::spdlog)
 target_compile_features(101 PRIVATE cxx_std_20)
 
 
