@@ -46,7 +46,7 @@ void Core::Engine::update(float elapsedTime) {
 }
 
 void Core::Engine::render(void) {
-  m_RenderWindow.clear(sf::Color::White);
+  m_RenderWindow.clear(sf::Color::Green);
 
   m_RenderWindow.display();
 }
