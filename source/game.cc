@@ -12,14 +12,13 @@ Game::Board::Board()
 
   // Fill the cards array with unique values
   std::uint16_t cardCounter = 0u;
-  for(int cardSuit = Game::CardSuit::Diamonds; cardSuit != Game::CardSuit::Spades; ++cardSuit) {
-    for(int cardRank = Game::CardRank::Ace; cardRank != Game::CardRank::Six; ++cardRank) {
+  for(int cardSuit = Diamonds; cardSuit != Spades; ++cardSuit) {
+    for(int cardRank = Ace; cardRank != Six; ++cardRank) {
       m_Cards[cardCounter].setSuit(static_cast< Game::CardSuit >(cardSuit));
       m_Cards[cardCounter].setRank(static_cast< Game::CardRank >(cardRank));
       cardCounter++;
     }
   }
-
 }
 
 
