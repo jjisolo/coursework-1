@@ -5,6 +5,8 @@
 #include <random>
 #include <algorithm>
 
+#include <spdlog/spdlog.h>
+
 static const constexpr std::size_t CARDS_NUM = 36;
 static constexpr const char* CARDS_ASSET_FILENAME = "data/cards.png";
 
@@ -31,12 +33,16 @@ Game::Board::Board()
     cardTexture.loadFromFile(CARDS_ASSET_FILENAME);
     m_CardSprites[cardIndex].setTexture(cardTexture);
   }
+
+  spdlog::info("Game board has been created!");
 }
 
 void Game::Board::shuffleCards() {
   std::random_device randomDevice;
   std::mt19937 randomGenerator(randomDevice());
-  std::shuffle(m_Cards.get(), m_Cards.get() + CARDS_NUM, randomGenerator);  
+  std::shuffle(m_Cards.get(), m_Cards.get() + CARDS_NUM, randomGenerator);
+
+  spdlog::info("board is shuffled");
 }
 
 

@@ -2,6 +2,7 @@
 #define __ENGINE_HH__
 
 #include <SFML/Graphics.hpp>
+#include "game.hh"
 
 namespace Core {
 
@@ -22,6 +23,7 @@ class Engine
 
   private:
     sf::RenderWindow m_RenderWindow;
+    Game::Board      m_GameBoard;
 };
 
 }
