@@ -10,9 +10,6 @@ Core::Engine::Engine() {
 
   m_RenderWindow.create(sf::VideoMode(screenResolution.x, screenResolution.y),
                         WINDOW_TITLE, sf::Style::Fullscreen);
-  
-  //m_BackgroundTexture.loadFromFile(BACKGROUND_TEXTURE_PATH);
-  //m_BackgroundSrite.setTexture(m_BackgroundTexture);
 }
 
 void Core::Engine::run(void) {

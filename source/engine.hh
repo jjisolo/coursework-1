@@ -22,8 +22,6 @@ class Engine
 
   private:
     sf::RenderWindow m_RenderWindow;
-    sf::Sprite       m_BackgroundSrite;
-    sf::Texture      m_BackgroundTexture;
 };
 
 }
