@@ -2,6 +2,8 @@
 #define __GAME_HH__
 
 #include "card.hh"
+
+#include <SFML/Graphics.hpp>
 #include <vector>
 #include <memory>
 
@@ -16,8 +18,13 @@ namespace Game {
       
       void shuffleCards();
 
+      inline sf::Sprite* getCardSprites() {
+        return m_CardSprites.get();
+      }
+
     private:
       std::unique_ptr< Card[] > m_Cards;
+      std::unique_ptr< sf::Sprite[] > m_CardSprites;
   };
 }
 

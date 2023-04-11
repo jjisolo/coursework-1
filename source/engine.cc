@@ -1,4 +1,5 @@
 #include "engine.hh"
+#include "spdlog/spdlog.h"
 
 static constexpr const char* WINDOW_TITLE = "101";
 static constexpr const char* BACKGROUND_TEXTURE_PATH  = "data/background.jpg";
@@ -10,6 +11,9 @@ Core::Engine::Engine() {
 
   m_RenderWindow.create(sf::VideoMode(screenResolution.x, screenResolution.y),
                         WINDOW_TITLE, sf::Style::Fullscreen);
+
+
+  spdlog::info("Render window is initialized!");
 }
 
 void Core::Engine::run(void) {
@@ -43,7 +47,7 @@ void Core::Engine::update(float elapsedTime) {
 }
 
 void Core::Engine::render(void) {
-  m_RenderWindow.clear(sf::Color::Green);
+  m_RenderWindow.clear(sf::Color(38, 80, 14, 255));
 
   m_RenderWindow.display();
 }

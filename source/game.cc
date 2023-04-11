@@ -6,11 +6,14 @@
 #include <algorithm>
 
 static const constexpr std::size_t CARDS_NUM = 36;
+static constexpr const char* CARDS_ASSET_FILENAME = "data/cards.png";
 
 Game::Board::Board()
 {
-  // Allocate the memory for the card array
+  // Allocate the memory for the card array and corresponding cards sprites
+  m_CardSprites = std::unique_ptr< sf::Sprite[] >(new sf::Sprite[CARDS_NUM]);
   m_Cards = std::unique_ptr< Game::Card[] >(new Game::Card[CARDS_NUM]);
+
 
   // Fill the cards array with unique values
   std::uint16_t cardCounter = 0u;
@@ -20,6 +23,13 @@ Game::Board::Board()
       m_Cards[cardCounter].setRank(static_cast< Game::CardRank >(cardRank));
       cardCounter++;
     }
+  }
+
+  // Initialize the cards texture array
+  sf::Texture cardTexture;
+  for(int cardIndex = 0; cardIndex < CARDS_NUM; ++cardIndex) {
+    cardTexture.loadFromFile(CARDS_ASSET_FILENAME);
+    m_CardSprites[cardIndex].setTexture(cardTexture);
   }
 }
 
