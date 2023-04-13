@@ -2,7 +2,7 @@
 .vscode/*
 cmake-build-debug/**
 101
-
+build/**
 # Prerequisites
 *.d
 
