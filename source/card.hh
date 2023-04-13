@@ -25,9 +25,10 @@ namespace Game {
       void setSuit(CardSuit newSuit) { m_Suit = newSuit; }
       void setRank(CardRank newRank) { m_Rank = newRank; }
 
+      sf::Sprite& getSpriteRef() { return m_Sprite; }
+
     private:
-
-
+      sf::Sprite m_Sprite;
       CardSuit   m_Suit;
       CardRank   m_Rank;
   };

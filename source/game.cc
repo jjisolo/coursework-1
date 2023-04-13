@@ -15,18 +15,7 @@ static constexpr const char* CARDS_ATLAS_FILENAME = "data/cards.png";
 Game::Board::Board()
 {
   // Allocate the memory for the card array and corresponding cards sprites
-  m_CardSprites = std::unique_ptr< sf::Sprite[] >(new sf::Sprite[CARDS_NUM]);
   m_Cards = std::unique_ptr< Game::Card[] >(new Game::Card[CARDS_NUM]);
-
-  // Fill the cards array with unique values
-  std::uint16_t cardCounter = 0u;
-  for(int cardSuit = Diamonds; cardSuit != Spades; ++cardSuit) {
-    for(int cardRank = Ace; cardRank != Six; ++cardRank) {
-      m_Cards[cardCounter].setSuit(static_cast< Game::CardSuit >(cardSuit));
-      m_Cards[cardCounter].setRank(static_cast< Game::CardRank >(cardRank));
-      cardCounter++;
-    }
-  }
 
   // Initialize the cards texture array
   if(!m_CardTextureAtlas.loadFromFile(CARDS_ATLAS_FILENAME)) {
@@ -34,14 +23,29 @@ Game::Board::Board()
     exit(-1);
   }
 
-  for(int cardIndex = 0; cardIndex < CARDS_NUM; ++cardIndex) {
-    m_CardSprites[cardIndex].setTexture(m_CardTextureAtlas);
-    m_CardSprites[cardIndex].setTextureRect(
-      sf::IntRect(0, 0, CARD_ATLAS_CARD_WIDTH, CARD_ATLAS_CARD_HEIGHT)
-    );
+  for(int cardCounter= 0, cardSuit = Diamonds; cardSuit != Spades; ++cardSuit) {
+    for(int cardRank = Ace; cardRank != Six; ++cardRank) {
+      m_Cards[cardCounter].setSuit(static_cast< Game::CardSuit >(cardSuit));
+      m_Cards[cardCounter].setRank(static_cast< Game::CardRank >(cardRank));
+
+      m_Cards[cardCounter].getSpriteRef().setTexture(m_CardTextureAtlas);
+      m_Cards[cardCounter].getSpriteRef().setTextureRect(
+        sf::IntRect(0, 0, CARD_ATLAS_CARD_WIDTH, CARD_ATLAS_CARD_HEIGHT)
+      );
+
+      cardCounter++;
+    }
   }
 
   spdlog::info("Game board has been created!");
+}
+
+Game::Card Game::Board::getCard(int unsigned cardIndex) const {
+  if(cardIndex > CARDS_NUM || cardIndex < 0) {
+    spdlog::error("Requested inappropriate card index array(out of bounds): " + std::to_string(cardIndex));
+  }
+
+  return m_Cards[cardIndex];
 }
 
 void Game::Board::shuffleCards() {

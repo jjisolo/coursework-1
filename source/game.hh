@@ -22,9 +22,7 @@ namespace Game {
       
       void shuffleCards();
 
-      inline sf::Sprite* getCardSprites() {
-        return m_CardSprites.get();
-      }
+      Card getCard(int unsigned cardIndex) const;
 
     private:
       GameState m_GameState;
