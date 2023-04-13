@@ -10,6 +10,7 @@ class Engine
 {
   public:
     Engine(Engine&)  = delete;
+
     Engine(Engine&&) = delete;
     Engine();
 

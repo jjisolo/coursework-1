@@ -12,7 +12,6 @@ Core::Engine::Engine() {
   m_RenderWindow.create(sf::VideoMode(screenResolution.x, screenResolution.y),
                         WINDOW_TITLE, sf::Style::Fullscreen);
 
-
   spdlog::info("Render window is initialized!");
 }
 
@@ -48,6 +47,10 @@ void Core::Engine::update(float elapsedTime) {
 
 void Core::Engine::render(void) {
   m_RenderWindow.clear(sf::Color(38, 80, 14, 255));
+
+  sf::Sprite* cardsSpriteArray = m_GameBoard.getCardSprites();
+  for(int cardIndex = 0; cardIndex < 36; ++cardIndex)
+    m_RenderWindow.draw(cardsSpriteArray[cardIndex]);
 
   m_RenderWindow.display();
 }

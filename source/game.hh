@@ -8,7 +8,11 @@
 #include <memory>
 
 namespace Game {
-  
+  enum GameState
+  {
+    GAME_STATE_MAIN_MENU,
+  };
+
   class Board
   {
     public:
@@ -23,8 +27,12 @@ namespace Game {
       }
 
     private:
+      GameState m_GameState;
+      
+      sf::Texture m_CardTextureAtlas;
       std::unique_ptr< Card[] > m_Cards;
       std::unique_ptr< sf::Sprite[] > m_CardSprites;
+
   };
 }
 

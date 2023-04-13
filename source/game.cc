@@ -8,14 +8,15 @@
 #include <spdlog/spdlog.h>
 
 static const constexpr std::size_t CARDS_NUM = 36;
-static constexpr const char* CARDS_ASSET_FILENAME = "data/cards.png";
+static const constexpr std::size_t CARD_ATLAS_CARD_WIDTH  = 120;
+static const constexpr std::size_t CARD_ATLAS_CARD_HEIGHT = 80;
+static constexpr const char* CARDS_ATLAS_FILENAME = "data/cards.png";
 
 Game::Board::Board()
 {
   // Allocate the memory for the card array and corresponding cards sprites
   m_CardSprites = std::unique_ptr< sf::Sprite[] >(new sf::Sprite[CARDS_NUM]);
   m_Cards = std::unique_ptr< Game::Card[] >(new Game::Card[CARDS_NUM]);
-
 
   // Fill the cards array with unique values
   std::uint16_t cardCounter = 0u;
@@ -28,10 +29,16 @@ Game::Board::Board()
   }
 
   // Initialize the cards texture array
-  sf::Texture cardTexture;
+  if(!m_CardTextureAtlas.loadFromFile(CARDS_ATLAS_FILENAME)) {
+    spdlog::error("Unable to load cards texture atlas");
+    exit(-1);
+  }
+
   for(int cardIndex = 0; cardIndex < CARDS_NUM; ++cardIndex) {
-    cardTexture.loadFromFile(CARDS_ASSET_FILENAME);
-    m_CardSprites[cardIndex].setTexture(cardTexture);
+    m_CardSprites[cardIndex].setTexture(m_CardTextureAtlas);
+    m_CardSprites[cardIndex].setTextureRect(
+      sf::IntRect(0, 0, CARD_ATLAS_CARD_WIDTH, CARD_ATLAS_CARD_HEIGHT)
+    );
   }
 
   spdlog::info("Game board has been created!");

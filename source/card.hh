@@ -2,6 +2,7 @@
 #define __CARD_HH__
 
 #include <cstdint>
+#include <SFML/Graphics.hpp>
 
 namespace Game {
   
@@ -25,8 +26,10 @@ namespace Game {
       void setRank(CardRank newRank) { m_Rank = newRank; }
 
     private:
-     CardSuit m_Suit;
-     CardRank m_Rank;
+
+
+      CardSuit   m_Suit;
+      CardRank   m_Rank;
   };
 }
 
