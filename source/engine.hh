@@ -25,15 +25,40 @@ class Engine
     void switchGameState(Game::State newState);
     void initializeGraphics(void);
 
-    void processInput(void);
+
     void processEvents(void);
     void update(float elapsedTime, sf::Time deltaTime);
-    void render(void);
+
+    void guiRenderDebug(sf::Clock& clock);
+    void guiRenderMenu(void);
+
+    void render(sf::Clock& clock);
 
   private:
     sf::RenderWindow m_RenderWindow;
     Game::Board      m_GameBoard;
     Game::State      m_GameState;
+
+    // +-----+-----------------+
+    // | BIT | VALUE           |
+    // +-----+-----------------+
+    // | 0   | Debug Mode      |
+    // +-----+-----------------+
+    // | 1   | Open Cards Mode |
+    // +-----+-----------------+
+    // | 2   | Reserved        |
+    // +-----+-----------------+
+    // | 3   | Reserved        |
+    // +-----+-----------------+
+    // | 4   | Reserved        |
+    // +-----+-----------------+
+    // |  5   | Reserved       |
+    // +-----+-----------------+
+    // |  6  | Reserved        |
+    // +-----+-----------------+
+    // | 7   | Reserved        |
+    // +-----+-----------------+
+    std::uint16_t  m_ApplicationAttributes = 0x0;
 };
 
 }

@@ -14,6 +14,7 @@ namespace Game {
     STATE_UNASSIGNED,
     STATE_MAIN_MENU,
     STATE_OPTIONS,
+    STATE_GAME_START,
   };
 
   class Board

@@ -26,7 +26,14 @@ void Core::Engine::initializeGraphics() {
 
     m_RenderWindow.create(sf::VideoMode(screenResolution.x, screenResolution.y),
                           WINDOW_TITLE, sf::Style::Fullscreen);
+    m_RenderWindow.setFramerateLimit(75);
+    m_RenderWindow.setKeyRepeatEnabled(false);
+
     ImGui::SFML::Init(m_RenderWindow);
+
+    constexpr auto scaleFactor = 2.0;
+    ImGui::GetStyle().ScaleAllSizes(scaleFactor);
+    ImGui::GetIO().FontGlobalScale = scaleFactor;
 }
 
 Core::Engine::Engine() {
@@ -40,49 +47,87 @@ void Core::Engine::run(void) {
   sf::Clock clock;
   sf::Time  deltaTime;
   float     elapsedTime;
-  
+
   while(m_RenderWindow.isOpen()) {
     deltaTime = clock.restart();
     elapsedTime = deltaTime.asSeconds();
 
-    processInput();
     processEvents();
     update(elapsedTime, deltaTime);
-    render();
+    render(clock);
   }
 }
 
 void Core::Engine::processEvents(void) {
   for(sf::Event event; m_RenderWindow.pollEvent(event);) {
       ImGui::SFML::ProcessEvent(event);
+      switch(event.type) {
+          case sf::Event::KeyReleased:
+              switch(event.key.code) {
+                  case sf::Keyboard::D: // Set the debug mode
+                      m_ApplicationAttributes ^= 1ul << 0;
+                      spdlog::info("Debug mode has been toggled");
+                      break;
+                  case sf::Keyboard::Escape:
+                      spdlog::info("Requested to close the window");
+                      m_RenderWindow.close();
+                      break;
+                  default:
+                      break;
 
-      if(event.type == sf::Event::Closed) {
-          m_RenderWindow.close();
+              }
+              break;
+         case sf::Event::Closed:
+            m_RenderWindow.close();
+            break;
       }
   }
-}
-
-void Core::Engine::processInput(void) {
-  if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-    m_RenderWindow.close();
 }
 
 void Core::Engine::update(float elapsedTime, sf::Time deltaTime) {
     ImGui::SFML::Update(m_RenderWindow, deltaTime);
 }
 
-void Core::Engine::render(void) {
+void Core::Engine::render(sf::Clock& clock) {
   m_RenderWindow.clear(sf::Color(38, 80, 14, 255));
 
   for(int cardIndex = 0; cardIndex < 36; ++cardIndex)
     m_RenderWindow.draw(m_GameBoard.getCard(cardIndex).getSpriteRef());
 
-  ImGui::Begin("Hello, world!");
-  ImGui::Button("Look at this pretty button");
+  // If the current state is menu render the menu
+  if(m_GameState == Game::STATE_MAIN_MENU)  guiRenderMenu();
 
-  ImGui::End();
+  // If the debug mode is toggled show the debug window
+  if(((m_ApplicationAttributes >> 0) & 1u)) guiRenderDebug(clock);
+
   ImGui::SFML::Render(m_RenderWindow);
   m_RenderWindow.display();
+}
+
+void Core::Engine::guiRenderMenu(void) {
+  ImGui::Begin("MAIN MENU", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+
+  if(ImGui::Button("Start")) {
+    switchGameState(Game::STATE_GAME_START);
+  } ImGui::SameLine();
+
+  if(ImGui::Button("Options")) {
+    switchGameState(Game::STATE_OPTIONS);
+    m_RenderWindow.close();
+  } ImGui::SameLine();
+
+  if(ImGui::Button("Exit")) {
+    switchGameState(Game::STATE_UNASSIGNED);
+    m_RenderWindow.close();
+  } ImGui::SameLine();
+
+  ImGui::End();
+}
+
+void Core::Engine::guiRenderDebug(sf::Clock& clock) {
+    ImGui::Begin("Debug window");
+    ImGui::Text("Frame Time(seconds): %f", clock.restart().asSeconds());
+    ImGui::End();
 }
 
 Core::Engine::~Engine() {
