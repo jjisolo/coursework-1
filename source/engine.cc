@@ -5,10 +5,25 @@
 static constexpr const char* WINDOW_TITLE = "101";
 static constexpr const char* BACKGROUND_TEXTURE_PATH  = "data/background.jpg";
 
+static constexpr auto HELP_TEXT_IN_COLLAPSING_HEADER =
+R"('101' card game help text:
+
+Controls:
+    --- Toggle debug mode: press key `D` on your
+        keyboard, or find the corresponding checkbox
+        in the settings menu.
+
+Features:
+    --- Debug mode: When the debug mode is enabled,
+        the debug window with all debug-necessary
+        information pops up.
+    --- Open Cards mode: You can see the cards faces
+        even if theirs holder is your enemy >.<
+)";
+
 static std::unordered_map<Game::State, std::string> StateToString = {
     { Game::STATE_UNASSIGNED, "Unassigned"},
     { Game::STATE_MAIN_MENU,  "Main menu" },
-    { Game::STATE_OPTIONS,    "Options"   },
 };
 
 void Core::Engine::initializeGraphics() {
@@ -75,10 +90,6 @@ void Core::Engine::processEvents(void) {
   }
 }
 
-void Core::Engine::update(float elapsedTime, sf::Time deltaTime) {
-    ImGui::SFML::Update(m_RenderWindow, deltaTime);
-}
-
 void Core::Engine::render(sf::Clock& clock) {
   m_RenderWindow.clear(sf::Color(38, 80, 14, 255));
 
@@ -87,17 +98,36 @@ void Core::Engine::render(sf::Clock& clock) {
 
   if(m_GameState == Game::STATE_MAIN_MENU) guiRenderMenu();
 
-  if(((m_ApplicationAttributes >> 0) & 1u)) guiRenderDebug(clock);
   if(((m_ApplicationAttributes >> 2) & 1u)) guiRenderOptions();
+  if(((m_ApplicationAttributes >> 0) & 1u)) guiRenderDebug(clock);
 
   ImGui::SFML::Render(m_RenderWindow);
   m_RenderWindow.display();
 }
 
+static bool DebugModeOptionsCheckBox = false;
+static bool OpenCardsOptionsCheckBox = false;
 void Core::Engine::guiRenderOptions(void) {
     ImGui::Begin("Options", nullptr, ImGuiWindowFlags_NoCollapse);
 
+    if(ImGui::CollapsingHeader("Help")) {
+        ImGui::Text(HELP_TEXT_IN_COLLAPSING_HEADER);
+    }
+
+    if(ImGui::CollapsingHeader("Settings")) {
+        ImGui::Checkbox("Debug Mode", &DebugModeOptionsCheckBox);
+        ImGui::Checkbox("Open Cards Mode", &OpenCardsOptionsCheckBox);
+    }
+
     ImGui::End();
+
+}
+
+void Core::Engine::update(float elapsedTime, sf::Time deltaTime) {
+    if(DebugModeOptionsCheckBox) m_ApplicationAttributes = 1ul << 0; // Set the debug mode
+    if(OpenCardsOptionsCheckBox) m_ApplicationAttributes = 1ul << 1; // Set the open cards mode
+
+    ImGui::SFML::Update(m_RenderWindow, deltaTime);
 }
 
 void Core::Engine::guiRenderMenu(void) {
