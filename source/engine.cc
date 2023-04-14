@@ -18,10 +18,12 @@ Core::Engine::Engine() {
 
 void Core::Engine::run(void) {
   sf::Clock clock;
+  sf::Time  deltaTime;
   float     elapsedTime;
 
+
   while(m_RenderWindow.isOpen()) {
-    sf::Time deltaTime = clock.restart();
+    deltaTime = clock.restart();
     elapsedTime = deltaTime.asSeconds();
 
     processInput();
@@ -58,12 +60,13 @@ void Core::Engine::render(void) {
 
   ImGui::Begin("Hello, world!");
   ImGui::Button("Look at this pretty button");
-  ImGui::End();
-  ImGui::ShowDemoWindow();
 
+  ImGui::End();
   ImGui::SFML::Render(m_RenderWindow);
   m_RenderWindow.display();
 }
 
-//ImGui::SFML::Shutdown();
+Core::Engine::~Engine() {
+    ImGui::SFML::Shutdown();
+}
 

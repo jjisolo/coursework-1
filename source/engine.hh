@@ -17,6 +17,7 @@ class Engine
     Engine(Engine&)  = delete;
     Engine(Engine&&) = delete;
     Engine();
+    ~Engine();
 
     void run(void);
 
