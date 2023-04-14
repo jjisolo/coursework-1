@@ -11,8 +11,9 @@ Core::Engine::Engine() {
 
   m_RenderWindow.create(sf::VideoMode(screenResolution.x, screenResolution.y),
                         WINDOW_TITLE, sf::Style::Fullscreen);
+  ImGui::SFML::Init(m_RenderWindow);
 
-  spdlog::info("Render window is initialized!");
+  spdlog::info("SFML window+ImGui has been initialized!");
 }
 
 void Core::Engine::run(void) {
@@ -22,17 +23,21 @@ void Core::Engine::run(void) {
   while(m_RenderWindow.isOpen()) {
     sf::Time deltaTime = clock.restart();
     elapsedTime = deltaTime.asSeconds();
-    
+
     processInput();
     processEvents();
-    update(elapsedTime);
+    update(elapsedTime, deltaTime);
     render();
   }
 }
 
 void Core::Engine::processEvents(void) {
   for(sf::Event event; m_RenderWindow.pollEvent(event);) {
+      ImGui::SFML::ProcessEvent(event);
 
+      if(event.type == sf::Event::Closed) {
+          m_RenderWindow.close();
+      }
   }
 }
 
@@ -41,8 +46,8 @@ void Core::Engine::processInput(void) {
     m_RenderWindow.close();
 }
 
-void Core::Engine::update(float elapsedTime) {
-
+void Core::Engine::update(float elapsedTime, sf::Time deltaTime) {
+    ImGui::SFML::Update(m_RenderWindow, deltaTime);
 }
 
 void Core::Engine::render(void) {
@@ -51,8 +56,14 @@ void Core::Engine::render(void) {
   for(int cardIndex = 0; cardIndex < 36; ++cardIndex)
     m_RenderWindow.draw(m_GameBoard.getCard(cardIndex).getSpriteRef());
 
+  ImGui::Begin("Hello, world!");
+  ImGui::Button("Look at this pretty button");
+  ImGui::End();
+  ImGui::ShowDemoWindow();
+
+  ImGui::SFML::Render(m_RenderWindow);
   m_RenderWindow.display();
 }
 
-
+//ImGui::SFML::Shutdown();
 
