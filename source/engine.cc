@@ -69,6 +69,6 @@ void Core::Engine::render(void) {
 Core::Engine::~Engine() {
     ImGui::SFML::Shutdown();
 
-    spdlog::info("SFML engine + ImGui has been shutted down");
+    spdlog::info("SFML engine + ImGui has been shut down");
 }
 
