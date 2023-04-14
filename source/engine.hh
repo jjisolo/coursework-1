@@ -22,6 +22,9 @@ class Engine
     void run(void);
 
   private:
+    void switchGameState(Game::State newState);
+    void initializeGraphics(void);
+
     void processInput(void);
     void processEvents(void);
     void update(float elapsedTime, sf::Time deltaTime);
@@ -30,6 +33,7 @@ class Engine
   private:
     sf::RenderWindow m_RenderWindow;
     Game::Board      m_GameBoard;
+    Game::State      m_GameState;
 };
 
 }

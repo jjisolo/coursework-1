@@ -8,9 +8,12 @@
 #include <memory>
 
 namespace Game {
-  enum GameState
+
+  enum State
   {
-    GAME_STATE_MAIN_MENU,
+    STATE_UNASSIGNED,
+    STATE_MAIN_MENU,
+    STATE_OPTIONS,
   };
 
   class Board
@@ -21,12 +24,9 @@ namespace Game {
       Board();
       
       void shuffleCards();
-
       Card getCard(int unsigned cardIndex) const;
 
     private:
-      GameState m_GameState;
-      
       sf::Texture m_CardTextureAtlas;
       std::unique_ptr< Card[] > m_Cards;
       std::unique_ptr< sf::Sprite[] > m_CardSprites;
