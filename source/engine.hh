@@ -22,14 +22,13 @@ class Engine
     void run(void);
 
   private:
-    void switchGameState(Game::State newState);
     void initializeGraphics(void);
-
 
     void processEvents(void);
     void update(float elapsedTime, sf::Time deltaTime);
 
     void guiRenderDebug(sf::Clock& clock);
+    void guiRenderOptions(void);
     void guiRenderMenu(void);
 
     void render(sf::Clock& clock);
@@ -37,7 +36,7 @@ class Engine
   private:
     sf::RenderWindow m_RenderWindow;
     Game::Board      m_GameBoard;
-    Game::State      m_GameState;
+    int              m_GameState;
 
     // +-----+-----------------+
     // | BIT | VALUE           |
@@ -46,9 +45,9 @@ class Engine
     // +-----+-----------------+
     // | 1   | Open Cards Mode |
     // +-----+-----------------+
-    // | 2   | Reserved        |
+    // | 2   | Toggle Options  |
     // +-----+-----------------+
-    // | 3   | Reserved        |
+    // | 3   | Toggle Quit Menu|
     // +-----+-----------------+
     // | 4   | Reserved        |
     // +-----+-----------------+

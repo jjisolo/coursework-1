@@ -11,10 +11,9 @@ namespace Game {
 
   enum State
   {
-    STATE_UNASSIGNED,
-    STATE_MAIN_MENU,
-    STATE_OPTIONS,
-    STATE_GAME_START,
+    STATE_UNASSIGNED  = 0x0,
+    STATE_MAIN_MENU   = 0x1,
+    STATE_GAME_START  = 0x4,
   };
 
   class Board

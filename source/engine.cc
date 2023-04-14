@@ -11,14 +11,6 @@ static std::unordered_map<Game::State, std::string> StateToString = {
     { Game::STATE_OPTIONS,    "Options"   },
 };
 
-void Core::Engine::switchGameState(Game::State newState) {
-    spdlog::info("Game state change: " +
-                 StateToString[m_GameState] +
-                 " -> " +
-                 StateToString[newState]);
-    m_GameState = newState;
-}
-
 void Core::Engine::initializeGraphics() {
     sf::Vector2f screenResolution;
     screenResolution.x = sf::VideoMode::getDesktopMode().width;
@@ -38,8 +30,8 @@ void Core::Engine::initializeGraphics() {
 
 Core::Engine::Engine() {
   initializeGraphics();
-  switchGameState(Game::STATE_MAIN_MENU);
 
+  m_GameState = Game::STATE_MAIN_MENU;
   spdlog::info("SFML window+ImGui has been initialized!");
 }
 
@@ -74,7 +66,6 @@ void Core::Engine::processEvents(void) {
                       break;
                   default:
                       break;
-
               }
               break;
          case sf::Event::Closed:
@@ -94,30 +85,37 @@ void Core::Engine::render(sf::Clock& clock) {
   for(int cardIndex = 0; cardIndex < 36; ++cardIndex)
     m_RenderWindow.draw(m_GameBoard.getCard(cardIndex).getSpriteRef());
 
-  // If the current state is menu render the menu
-  if(m_GameState == Game::STATE_MAIN_MENU)  guiRenderMenu();
+  if(m_GameState == Game::STATE_MAIN_MENU) guiRenderMenu();
 
-  // If the debug mode is toggled show the debug window
   if(((m_ApplicationAttributes >> 0) & 1u)) guiRenderDebug(clock);
+  if(((m_ApplicationAttributes >> 2) & 1u)) guiRenderOptions();
 
   ImGui::SFML::Render(m_RenderWindow);
   m_RenderWindow.display();
 }
 
+void Core::Engine::guiRenderOptions(void) {
+    ImGui::Begin("Options", nullptr, ImGuiWindowFlags_NoCollapse);
+
+    ImGui::End();
+}
+
 void Core::Engine::guiRenderMenu(void) {
-  ImGui::Begin("MAIN MENU", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+  ImGui::Begin("Main Menu", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
   if(ImGui::Button("Start")) {
-    switchGameState(Game::STATE_GAME_START);
+      spdlog::debug("Game state is now STATE_GAME_START");
+      m_GameState = Game::STATE_GAME_START;
   } ImGui::SameLine();
 
   if(ImGui::Button("Options")) {
-    switchGameState(Game::STATE_OPTIONS);
-    m_RenderWindow.close();
+      spdlog::debug("Options attribute has been toggled");
+      m_ApplicationAttributes ^= 1ul << 2;
   } ImGui::SameLine();
 
   if(ImGui::Button("Exit")) {
-    switchGameState(Game::STATE_UNASSIGNED);
+    spdlog::debug("Qiut menu attribute has been toggled");
+    m_ApplicationAttributes ^= 1ul << 3;
     m_RenderWindow.close();
   } ImGui::SameLine();
 
