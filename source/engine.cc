@@ -120,12 +120,11 @@ void Core::Engine::guiRenderOptions(void) {
     }
 
     ImGui::End();
-
 }
 
 void Core::Engine::update(float elapsedTime, sf::Time deltaTime) {
-    if(DebugModeOptionsCheckBox) m_ApplicationAttributes = 1ul << 0; // Set the debug mode
-    if(OpenCardsOptionsCheckBox) m_ApplicationAttributes = 1ul << 1; // Set the open cards mode
+    DebugModeOptionsCheckBox ? m_ApplicationAttributes |= 1ul << 0 : m_ApplicationAttributes &= ~(1ul << 0);
+    OpenCardsOptionsCheckBox ? m_ApplicationAttributes |= 1ul << 1 : m_ApplicationAttributes &= ~(1ul << 1);
 
     ImGui::SFML::Update(m_RenderWindow, deltaTime);
 }
@@ -144,7 +143,7 @@ void Core::Engine::guiRenderMenu(void) {
   } ImGui::SameLine();
 
   if(ImGui::Button("Exit")) {
-    spdlog::debug("Qiut menu attribute has been toggled");
+    spdlog::debug("Quit menu attribute has been toggled");
     m_ApplicationAttributes ^= 1ul << 3;
     m_RenderWindow.close();
   } ImGui::SameLine();
