@@ -8,6 +8,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 add_subdirectory(deps)
 
+
+if (MSVC)
+    add_compile_options(/W4)
+else()
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+endif()
+
 add_executable(101 source/main.cc source/game.cc source/engine.cc)
 target_link_libraries(101 PRIVATE sfml-graphics ImGui-SFML::ImGui-SFML spdlog::spdlog)
 target_compile_features(101 PRIVATE cxx_std_20)

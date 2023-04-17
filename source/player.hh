@@ -10,8 +10,8 @@ namespace Game
 class Player 
 {
   public:
-    Player(Player&&) = delete;
-    Player(Player&)  = delete;
+    //Player(Player&&) = delete;
+    //Player(Player&)  = delete;
     Player()         = default;
 
     inline void addCard(CardSuit cardSuit, CardRank cardRank) {
@@ -32,8 +32,8 @@ class Player
     }
 
     inline void removeCard(CardSuit cardSuit, CardRank cardRank) {
-      int unsigned cardArraySize = m_Cards.size();
-      int unsigned cardIndex = 0u;
+      std::size_t cardArraySize = m_Cards.size();
+      std::size_t cardIndex = 0;
 
       // Find the requested card index
       while( cardIndex < cardArraySize ) {
@@ -42,8 +42,10 @@ class Player
       }
       
       // If we did not find one, just do nothing
-      if( cardIndex >= cardArraySize )
-        m_Cards.erase(std::vector< Card >::iterator( m_Cards.begin() + cardIndex ));
+      if( cardIndex >= cardArraySize ) {
+          auto difference = static_cast< std::__wrap_iter<Game::Card *>::difference_type >(cardIndex);
+          m_Cards.erase(std::vector<Card>::iterator(m_Cards.begin() + difference));
+      }
     }
 
   private:

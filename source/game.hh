@@ -2,6 +2,7 @@
 #define __GAME_HH__
 
 #include "card.hh"
+#include "player.hh"
 
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -24,13 +25,18 @@ namespace Game {
       Board();
       
       void shuffleCards();
-      Card getCard(int unsigned cardIndex) const;
+      void turn();
+      Card getCard(std::size_t cardIndex) const;
+
+      inline std::vector< Player > getPlayers() const { return m_Players; }
 
     private:
       sf::Texture m_CardTextureAtlas;
       std::unique_ptr< Card[] > m_Cards;
       std::unique_ptr< sf::Sprite[] > m_CardSprites;
 
+      std::vector< Player > m_Players;
+      int unsigned m_TurnNumber;
   };
 }
 

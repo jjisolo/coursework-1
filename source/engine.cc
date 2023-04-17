@@ -3,7 +3,7 @@
 #include "spdlog/spdlog.h"
 
 static constexpr const char* WINDOW_TITLE = "101";
-static constexpr const char* BACKGROUND_TEXTURE_PATH  = "data/background.jpg";
+//static constexpr const char* BACKGROUND_TEXTURE_PATH  = "data/background.jpg";
 
 static constexpr auto HELP_TEXT_IN_COLLAPSING_HEADER =
 R"('101' card game help text:
@@ -21,22 +21,26 @@ Features:
         even if theirs holder is your enemy >.<
 )";
 
+[[maybe_unused]] static constexpr auto GAME_TUTORIAL =
+R"('101' Card Game Tutorial
+
+)";
+
 static std::unordered_map<Game::State, std::string> StateToString = {
-    { Game::STATE_UNASSIGNED, "Unassigned"},
-    { Game::STATE_MAIN_MENU,  "Main menu" },
+    { Game::STATE_UNASSIGNED, "GAME_STATE_UNASSIGNED"},
+    { Game::STATE_MAIN_MENU,  "GAME_STATE_MAIN_MENU" },
 };
 
 void Core::Engine::initializeGraphics() {
-    sf::Vector2f screenResolution;
-    screenResolution.x = sf::VideoMode::getDesktopMode().width;
-    screenResolution.y = sf::VideoMode::getDesktopMode().height;
-
-    m_RenderWindow.create(sf::VideoMode(screenResolution.x, screenResolution.y),
-                          WINDOW_TITLE, sf::Style::Fullscreen);
+    sf::VideoMode targetVideoMode = sf::VideoMode::getDesktopMode();
+    m_RenderWindow.create(targetVideoMode, WINDOW_TITLE, sf::Style::Fullscreen);
     m_RenderWindow.setFramerateLimit(75);
     m_RenderWindow.setKeyRepeatEnabled(false);
 
-    ImGui::SFML::Init(m_RenderWindow);
+    if(!ImGui::SFML::Init(m_RenderWindow)) {
+        spdlog::error("Cannot initialize Dear ImGui!");
+        exit(1);
+    }
 
     constexpr auto scaleFactor = 2.0;
     ImGui::GetStyle().ScaleAllSizes(scaleFactor);
@@ -86,6 +90,8 @@ void Core::Engine::processEvents(void) {
          case sf::Event::Closed:
             m_RenderWindow.close();
             break;
+         default:
+             break;
       }
   }
 }
@@ -93,16 +99,37 @@ void Core::Engine::processEvents(void) {
 void Core::Engine::render(sf::Clock& clock) {
   m_RenderWindow.clear(sf::Color(38, 80, 14, 255));
 
-  for(int cardIndex = 0; cardIndex < 36; ++cardIndex)
-    m_RenderWindow.draw(m_GameBoard.getCard(cardIndex).getSpriteRef());
+  switch(m_GameState) {
+      case Game::STATE_MAIN_MENU: {
+          guiRenderMenu();
+      } break;
 
-  if(m_GameState == Game::STATE_MAIN_MENU) guiRenderMenu();
+      case Game::STATE_GAME_START: {
+          guiRenderTutorial();
+          renderGameBoard();
+      } break;
+
+      case Game::STATE_UNASSIGNED: {
+
+      } break;
+
+      default: {
+
+      } break;
+  }
 
   if(((m_ApplicationAttributes >> 2) & 1u)) guiRenderOptions();
   if(((m_ApplicationAttributes >> 0) & 1u)) guiRenderDebug(clock);
 
   ImGui::SFML::Render(m_RenderWindow);
   m_RenderWindow.display();
+}
+
+void Core::Engine::renderGameBoard() {
+    auto players = m_GameBoard.getPlayers();
+
+    for(std::size_t cardIndex = 0; cardIndex < 36; ++cardIndex)
+        m_RenderWindow.draw(m_GameBoard.getCard(cardIndex).getSpriteRef());
 }
 
 static bool DebugModeOptionsCheckBox = false;
@@ -122,7 +149,13 @@ void Core::Engine::guiRenderOptions(void) {
     ImGui::End();
 }
 
-void Core::Engine::update(float elapsedTime, sf::Time deltaTime) {
+void Core::Engine::guiRenderTutorial(void) {
+    ImGui::Begin("101 Tutorial");
+    ImGui::Text(HELP_TEXT_IN_COLLAPSING_HEADER);
+    ImGui::End();
+}
+
+void Core::Engine::update([[maybe_unused]] float elapsedTime, sf::Time deltaTime) {
     DebugModeOptionsCheckBox ? m_ApplicationAttributes |= 1ul << 0 : m_ApplicationAttributes &= ~(1ul << 0);
     OpenCardsOptionsCheckBox ? m_ApplicationAttributes |= 1ul << 1 : m_ApplicationAttributes &= ~(1ul << 1);
 
@@ -153,7 +186,8 @@ void Core::Engine::guiRenderMenu(void) {
 
 void Core::Engine::guiRenderDebug(sf::Clock& clock) {
     ImGui::Begin("Debug window");
-    ImGui::Text("Frame Time(seconds): %f", clock.restart().asSeconds());
+    ImGui::Text("Frame Time(seconds): %f\n", clock.restart().asSeconds());
+    ImGui::Text("Game State: %s", StateToString[m_GameState].c_str());
     ImGui::End();
 }
 

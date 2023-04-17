@@ -25,12 +25,27 @@ namespace Game {
       void setSuit(CardSuit newSuit) { m_Suit = newSuit; }
       void setRank(CardRank newRank) { m_Rank = newRank; }
 
+      void inline setInPlayerPocket(const bool& value) { m_InPlayerPocket = value; }
+      void inline setInCardHeap    (const bool& value) { m_InCardHeap     = value; }
+
+      void inline setOwner(const std::size_t& playerIndex) { m_Owner = playerIndex; }
+
+      std::size_t inline getOwner() const { return m_Owner; }
+
+      bool inline isInPlayerPocket() const { return m_InPlayerPocket; }
+      bool inline isInCardHeap() const     { return m_InCardHeap; }
+
       sf::Sprite& getSpriteRef() { return m_Sprite; }
 
     private:
-      sf::Sprite m_Sprite;
-      CardSuit   m_Suit;
-      CardRank   m_Rank;
+      sf::Sprite  m_Sprite;
+
+      CardSuit    m_Suit;
+      CardRank    m_Rank;
+
+      std::size_t m_Owner;
+      bool        m_InPlayerPocket;
+      bool        m_InCardHeap;
   };
 }
 

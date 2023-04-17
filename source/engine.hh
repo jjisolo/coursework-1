@@ -28,15 +28,17 @@ class Engine
     void update(float elapsedTime, sf::Time deltaTime);
 
     void guiRenderDebug(sf::Clock& clock);
+    void guiRenderTutorial(void);
     void guiRenderOptions(void);
     void guiRenderMenu(void);
 
     void render(sf::Clock& clock);
 
+    void renderGameBoard();
   private:
     sf::RenderWindow m_RenderWindow;
     Game::Board      m_GameBoard;
-    int              m_GameState;
+    Game::State      m_GameState;
 
     // +-----+-----------------+
     // | BIT | VALUE           |
