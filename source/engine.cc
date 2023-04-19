@@ -47,9 +47,6 @@ void Core::Engine::initializeGraphics() {
     constexpr auto scaleFactor = 2.0;
     ImGui::GetStyle().ScaleAllSizes(scaleFactor);
     ImGui::GetIO().FontGlobalScale = scaleFactor;
-
-    const auto& players = m_GameBoard.getPlayersRef();
-    players[0].addCard(Game::Diamonds, Game::Ace);
 }
 
 Core::Engine::Engine() {
@@ -138,8 +135,9 @@ void Core::Engine::renderGameBoard() {
     auto windowSize = m_RenderWindow.getSize();
     
     // Render player cards
-    for(auto& card: players[0].getCardsRef())
-        m_RenderWindow.draw(card.getSpriteRef());
+    for(auto& player: players)
+      for(auto& card: player.getCardsRef())
+          m_RenderWindow.draw(card.getSpriteRef());
 
     for(std::size_t cardIndex = 0; cardIndex < 36; ++cardIndex)
         m_RenderWindow.draw(m_GameBoard.getCard(cardIndex).getSpriteRef());
@@ -202,7 +200,7 @@ void Core::Engine::calculateSpriteAnchors() {
         };
 
         const auto& players = m_GameBoard.getPlayersRef();
-        adjustPlayerSpritePosition(m_MainPlayerCardRenderArea, players[0].getCardsRef());
+        adjustPlayerSpritePosition(m_MainPlayerCardRenderArea, players.at(0).getCardsRef());
     }
 }
 
