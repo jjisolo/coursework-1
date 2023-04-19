@@ -7,7 +7,7 @@
 
 #include <spdlog/spdlog.h>
 
-static const constexpr int PLAYERS_NUM = 5;
+static const constexpr int PLAYERS_NUM = 4;
 static const constexpr int CARDS_NUM = 36;
 static const constexpr int CARDS_ON_START = 5;
 static const constexpr int CARDS_PLAYERS_ON_START = PLAYERS_NUM*CARDS_ON_START;
@@ -74,7 +74,7 @@ void Game::Board::turn() {
             if((cardIndex+1 % 5 == 0) == 0) ++playerIndex;
 
             auto cardRank = m_Cards[cardIndex].getRank();
-            auto cardSuit  = m_Cards[cardIndex].getSuit();
+            auto cardSuit = m_Cards[cardIndex].getSuit();
             m_Players.at(playerIndex).addCard(cardSuit, cardRank);
 
             m_Cards[cardIndex].setInPlayerPocket(true);

@@ -7,6 +7,8 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 
+#include "SFML/Graphics/Rect.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "game.hh"
 
 namespace Core {
@@ -26,6 +28,8 @@ class Engine
 
     void processEvents(void);
     void update(float elapsedTime, sf::Time deltaTime);
+
+    void calculateSpriteAnchors();
 
     void guiRenderDebug(sf::Clock& clock);
     void guiRenderTutorial(void);
@@ -60,6 +64,8 @@ class Engine
     // | 7   | Reserved        |
     // +-----+-----------------+
     std::uint16_t  m_ApplicationAttributes = 0x0;
+    
+    sf::FloatRect m_MainPlayerCardRenderArea = {0.0f, 0.0f, 0.0f, 0.0f};
 };
 
 }

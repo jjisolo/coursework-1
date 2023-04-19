@@ -19,8 +19,8 @@ namespace Game {
   class Card
   {
     public:
-      inline CardSuit getSuit() { return m_Suit; }
-      inline CardRank getRank() { return m_Rank; }
+      inline CardSuit getSuit() const { return m_Suit; }
+      inline CardRank getRank() const { return m_Rank; }
       
       void setSuit(CardSuit newSuit) { m_Suit = newSuit; }
       void setRank(CardRank newRank) { m_Rank = newRank; }
@@ -35,10 +35,10 @@ namespace Game {
       bool inline isInPlayerPocket() const { return m_InPlayerPocket; }
       bool inline isInCardHeap() const     { return m_InCardHeap; }
 
-      sf::Sprite& getSpriteRef() { return m_Sprite; }
+      sf::Sprite& getSpriteRef() const { return static_cast<sf::Sprite&>(m_Sprite); }
 
     private:
-      sf::Sprite  m_Sprite;
+      mutable sf::Sprite  m_Sprite;
 
       CardSuit    m_Suit;
       CardRank    m_Rank;

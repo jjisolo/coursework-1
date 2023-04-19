@@ -1,3 +1,5 @@
+#include "SFML/Graphics/Rect.hpp"
+#include "card.hh"
 #include "unordered_map"
 #include "engine.hh"
 #include "spdlog/spdlog.h"
@@ -45,6 +47,9 @@ void Core::Engine::initializeGraphics() {
     constexpr auto scaleFactor = 2.0;
     ImGui::GetStyle().ScaleAllSizes(scaleFactor);
     ImGui::GetIO().FontGlobalScale = scaleFactor;
+
+    const auto& players = m_GameBoard.getPlayersRef();
+    players[0].addCard(Game::Diamonds, Game::Ace);
 }
 
 Core::Engine::Engine() {
@@ -87,11 +92,14 @@ void Core::Engine::processEvents(void) {
                       break;
               }
               break;
-         case sf::Event::Closed:
-            m_RenderWindow.close();
-            break;
-         default:
+          case sf::Event::Resized:
+             calculateSpriteAnchors();
              break;
+          case sf::Event::Closed:
+             m_RenderWindow.close();
+             break;
+          default:
+              break;
       }
   }
 }
@@ -126,7 +134,12 @@ void Core::Engine::render(sf::Clock& clock) {
 }
 
 void Core::Engine::renderGameBoard() {
-    auto players = m_GameBoard.getPlayers();
+    auto players    = m_GameBoard.getPlayersRef();
+    auto windowSize = m_RenderWindow.getSize();
+    
+    // Render player cards
+    for(auto& card: players[0].getCardsRef())
+        m_RenderWindow.draw(card.getSpriteRef());
 
     for(std::size_t cardIndex = 0; cardIndex < 36; ++cardIndex)
         m_RenderWindow.draw(m_GameBoard.getCard(cardIndex).getSpriteRef());
@@ -161,6 +174,38 @@ void Core::Engine::update([[maybe_unused]] float elapsedTime, sf::Time deltaTime
 
     ImGui::SFML::Update(m_RenderWindow, deltaTime);
 }
+
+void Core::Engine::calculateSpriteAnchors() {
+    const auto windowSize = m_RenderWindow.getSize();
+
+    if(m_GameState == Game::STATE_GAME_START) {
+        m_MainPlayerCardRenderArea.left   = windowSize.x*0.35f;
+        m_MainPlayerCardRenderArea.top    = windowSize.y*0.75f;
+        m_MainPlayerCardRenderArea.width  = windowSize.x*0.70f - m_MainPlayerCardRenderArea.left;
+        m_MainPlayerCardRenderArea.height = windowSize.y*0.80f - m_MainPlayerCardRenderArea.top;
+        
+        // ...
+        auto adjustPlayerSpritePosition = [&](const sf::FloatRect& renderArea, const std::vector< Game::Card >& cards) -> void {
+            if(cards.empty()) return;
+
+            const auto cardAngle  = 90 / cards.size();
+            const auto cardOffsetX = renderArea.width  / cards.size();
+            const auto cardOffsetY = renderArea.height / cards.size();
+
+            for(std::size_t cardIndex{0}; cardIndex < cards.size(); cardIndex++) {
+                auto cardPositionX = renderArea.left + cardOffsetX*cardIndex;
+                auto cardPositionY = renderArea.top + cardOffsetY*cardIndex;
+                
+                cards[cardIndex].getSpriteRef().setPosition(cardPositionX, cardPositionY);
+                cards[cardIndex].getSpriteRef().setRotation(cardAngle*cardIndex);
+            }
+        };
+
+        const auto& players = m_GameBoard.getPlayersRef();
+        adjustPlayerSpritePosition(m_MainPlayerCardRenderArea, players[0].getCardsRef());
+    }
+}
+
 
 void Core::Engine::guiRenderMenu(void) {
   ImGui::Begin("Main Menu", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);

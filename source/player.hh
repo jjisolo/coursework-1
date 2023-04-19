@@ -14,17 +14,19 @@ class Player
     //Player(Player&)  = delete;
     Player()         = default;
 
-    inline void addCard(CardSuit cardSuit, CardRank cardRank) {
+    inline const std::vector< Game::Card >& getCardsRef() const { return m_Cards; }
+
+    inline void addCard(CardSuit cardSuit, CardRank cardRank) const {
       if(findCard( cardSuit, cardRank ))
         return;
 
       Card dummyCard;
       dummyCard.setSuit(cardSuit);
       dummyCard.setRank(cardRank);
-      m_Cards.push_back(dummyCard);
+      m_Cards.push_back(std::move(dummyCard));
     }
   
-    inline bool findCard(CardSuit cardSuit, CardRank cardRank) {
+    inline bool findCard(CardSuit cardSuit, CardRank cardRank) const {
       for(auto& card: m_Cards)
         if(card.getSuit() == cardSuit && card.getRank() == cardRank)
           return true;
@@ -49,7 +51,7 @@ class Player
     }
 
   private:
-      std::vector< Card > m_Cards;
+      mutable std::vector< Card > m_Cards;
 };
 
 }

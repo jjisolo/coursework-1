@@ -28,7 +28,7 @@ namespace Game {
       void turn();
       Card getCard(std::size_t cardIndex) const;
 
-      inline std::vector< Player > getPlayers() const { return m_Players; }
+      inline std::vector< Player >& getPlayersRef() { return m_Players; }
 
     private:
       sf::Texture m_CardTextureAtlas;
