@@ -5,55 +5,74 @@
 #include <SFML/Graphics.hpp>
 
 namespace Game {
-  
-  enum CardSuit
+
+enum CardSuit {
+  Diamonds,
+  Hearts,
+  Clubs,
+  Spades,
+};
+
+enum CardRank {
+  Ace,
+  Jack,
+  Queen,
+  King,
+  Tens,
+  Ninth,
+  Eights,
+  Seventh,
+  Six
+};
+
+class Card
+{
+public:
+  explicit Card(CardSuit cardSuit, CardRank cardRank) : m_Suit(cardSuit), m_Rank(cardRank)
   {
-    Diamonds, Hearts, Clubs, Spades,
-  };
-  
-  enum CardRank
+  }
+
+  Card() = default;
+
+  inline CardSuit getSuit() const { return m_Suit; }
+  inline CardRank getRank() const { return m_Rank; }
+
+  void setSuit(CardSuit newSuit) { m_Suit = newSuit; }
+  void setRank(CardRank newRank) { m_Rank = newRank; }
+
+  void inline setInPlayerPocket(const bool &value) { m_InPlayerPocket = value; }
+  void inline setInCardHeap(const bool &value) { m_InCardHeap = value; }
+
+  void inline setOwner(const std::size_t &playerIndex) { m_Owner = playerIndex; }
+
+  std::size_t inline getOwner() const { return m_Owner; }
+
+  bool inline isInPlayerPocket() const { return m_InPlayerPocket; }
+  bool inline isInCardHeap() const { return m_InCardHeap; }
+
+  // SFML sprite interfaces
+  void setSpritePosition(const float &positionX, const float &positionY) const
   {
-    Ace, Jack, Queen, King, Tens, Ninth, Eights, Seventh, Six
-  };
+    m_Sprite.setPosition(positionX, positionY);
+  }
 
-  class Card
+  void setSpriteRotation(const float &rotationAngle) const
   {
-    public:
-	  explicit Card(CardSuit cardSuit, CardRank cardRank):
-		m_Suit(cardSuit), m_Rank(cardRank)
-	  {
-	  }
+    m_Sprite.setRotation(rotationAngle);
+  }
 
-	  Card()            = default;
-	
-      inline CardSuit getSuit() const { return m_Suit; }
-      inline CardRank getRank() const { return m_Rank; }
-      
-      void setSuit(CardSuit newSuit) { m_Suit = newSuit; }
-      void setRank(CardRank newRank) { m_Rank = newRank; }
+  sf::Sprite &getSpriteRef() const { return static_cast<sf::Sprite &>(m_Sprite); }
 
-      void inline setInPlayerPocket(const bool& value) { m_InPlayerPocket = value; }
-      void inline setInCardHeap    (const bool& value) { m_InCardHeap     = value; }
+private:
+  mutable sf::Sprite m_Sprite;
 
-      void inline setOwner(const std::size_t& playerIndex) { m_Owner = playerIndex; }
+  CardSuit m_Suit;
+  CardRank m_Rank;
 
-      std::size_t inline getOwner() const { return m_Owner; }
+  std::size_t m_Owner;
+  bool m_InPlayerPocket;
+  bool m_InCardHeap;
+};
+}// namespace Game
 
-      bool inline isInPlayerPocket() const { return m_InPlayerPocket; }
-      bool inline isInCardHeap() const     { return m_InCardHeap; }
-
-      sf::Sprite& getSpriteRef() const { return static_cast<sf::Sprite&>(m_Sprite); }
-
-    private:
-      mutable sf::Sprite  m_Sprite;
-
-      CardSuit    m_Suit;
-      CardRank    m_Rank;
-
-      std::size_t m_Owner;
-      bool        m_InPlayerPocket;
-      bool        m_InCardHeap;
-  };
-}
-
-#endif // __CARD_HH__
+#endif// __CARD_HH__

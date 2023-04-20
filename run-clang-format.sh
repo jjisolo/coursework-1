@@ -1,1 +1,1 @@
-find source/ -iname *.hxx -o -iname *.cxx | xargs clang-format -i
+find source -iname *.hh -o -iname *.cc | xargs clang-format -i

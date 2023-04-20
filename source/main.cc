@@ -6,8 +6,11 @@
 #include "imgui-SFML.h"
 #include "imgui.h"
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
+{
+  // Set up logging
   spdlog::info("Welcome to spdlog!");
+  spdlog::set_level(spdlog::level::debug);
 
   Core::Engine applicationEngine;
 

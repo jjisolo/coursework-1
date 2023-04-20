@@ -15,59 +15,62 @@ namespace Core {
 
 class Engine
 {
-  public:
-    Engine(Engine&)  = delete;
-    Engine(Engine&&) = delete;
-    Engine();
-    ~Engine();
+public:
+  Engine(Engine &) = delete;
+  Engine(Engine &&) = delete;
+  Engine();
+  ~Engine();
 
-    void run(void);
+  void run(void);
 
-  private:
-    void initializeGraphics(void);
+private:
+  void initializeGraphics(void);
 
-    void processEvents(void);
-    void update(float elapsedTime, sf::Time deltaTime);
+  void processEvents(void);
+  void update(float elapsedTime, sf::Time deltaTime);
 
-    void calculateSpriteAnchors();
+  void calculatePlayerCardsPositions();
 
-    void guiRenderDebug(sf::Clock& clock);
-    void guiRenderTutorial(void);
-    void guiRenderOptions(void);
-    void guiRenderMenu(void);
+  void guiRenderDebug(sf::Clock &clock);
+  void guiRenderTutorial(void);
+  void guiRenderOptions(void);
+  void guiRenderMenu(void);
 
-    void render(sf::Clock& clock);
+  void render(sf::Clock &clock);
 
-    void renderGameBoard();
-  private:
-    sf::RenderWindow m_RenderWindow;
-    Game::Board      m_GameBoard;
-    Game::State      m_GameState;
+  void renderGameBoard();
 
-    // +-----+-----------------+
-    // | BIT | VALUE           |
-    // +-----+-----------------+
-    // | 0   | Debug Mode      |
-    // +-----+-----------------+
-    // | 1   | Open Cards Mode |
-    // +-----+-----------------+
-    // | 2   | Toggle Options  |
-    // +-----+-----------------+
-    // | 3   | Toggle Quit Menu|
-    // +-----+-----------------+
-    // | 4   | Reserved        |
-    // +-----+-----------------+
-    // |  5  | Reserved        |
-    // +-----+-----------------+
-    // |  6  | Reserved        |
-    // +-----+-----------------+
-    // | 7   | Reserved        |
-    // +-----+-----------------+
-    std::uint16_t  m_ApplicationAttributes = 0x0;
-    
-    sf::FloatRect m_MainPlayerCardRenderArea = {0.0f, 0.0f, 0.0f, 0.0f};
+private:
+  sf::RenderWindow m_RenderWindow;
+  Game::Board m_GameBoard;
+
+  Game::State m_GameState;
+  Game::State m_GameStatePrev;
+
+  // +-----+-----------------+
+  // | BIT | VALUE           |
+  // +-----+-----------------+
+  // | 0   | Debug Mode      |
+  // +-----+-----------------+
+  // | 1   | Open Cards Mode |
+  // +-----+-----------------+
+  // | 2   | Toggle Options  |
+  // +-----+-----------------+
+  // | 3   | Toggle Quit Menu|
+  // +-----+-----------------+
+  // | 4   | Reserved        |
+  // +-----+-----------------+
+  // |  5  | Reserved        |
+  // +-----+-----------------+
+  // |  6  | Reserved        |
+  // +-----+-----------------+
+  // | 7   | Reserved        |
+  // +-----+-----------------+
+  std::uint16_t m_ApplicationAttributes = 0x0;
+
+  sf::FloatRect m_MainPlayerCardRenderArea = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
 
-}
+}// namespace Core
 
-#endif //__ENGINE_HH
+#endif//__ENGINE_HH
