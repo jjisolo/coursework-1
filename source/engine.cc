@@ -1,6 +1,6 @@
 #include "SFML/Graphics/Rect.hpp"
 #include "card.hh"
-#include "unordered_map"
+#include "map"
 #include "engine.hh"
 #include "spdlog/spdlog.h"
 
@@ -28,9 +28,10 @@ Features:
 
 )";
 
-static std::unordered_map<Game::State, std::string> StateToString = {
-  { Game::STATE_UNASSIGNED, "GAME_STATE_UNASSIGNED" },
-  { Game::STATE_MAIN_MENU, "GAME_STATE_MAIN_MENU" },
+// Convert the Game::State enumaration to the string
+static std::map<Game::State, std::string> state2String = {
+  { Game::STATE_UNASSIGNED, "Game::STATE_UNASSIGNED" },
+  { Game::STATE_MAIN_MENU,  "Game::STATE_MAIN_MENU"  },
 };
 
 void Core::Engine::initializeGraphics()
@@ -59,7 +60,7 @@ Core::Engine::Engine()
   calculatePlayerCardsPositions();
 
   // The game starts in the menu
-  m_GameState = Game::STATE_MAIN_MENU;
+  changeGameState(Game::STATE_MAIN_MENU);
 
   spdlog::info("SFML window+ImGui has been initialized!");
 }
@@ -225,14 +226,34 @@ void Core::Engine::calculatePlayerCardsPositions()
   spdlog::debug("Sprite positions for the player cards has been calculated");
 }
 
+void Core::Engine::changeGameState(Game::State newState) {
+  spdlog::debug("Game state change from" + state2String[m_GameState] + " to " + state2String[newState]);
+
+  // Wee need to track the prev game state in order to toggle
+  // some animations etc.
+  m_GameStatePrev = m_GameState;
+  m_GameState     = newState;
+
+  // Perform the routine that is only executed whenever the game
+  // state changes.
+  gameStateChangedCallback();
+}
+
+void Core::Engine::gameStateChangedCallback() {
+  // If we went form the menu to the game
+  if(m_GameStatePrev == Game::STATE_MAIN_MENU && m_GameState == Game::STATE_GAME_START) {
+	// This function is only called on window resize, so we need to call it here
+	// explicitly.
+	calculatePlayerCardsPositions();
+  }
+}
 
 void Core::Engine::guiRenderMenu(void)
 {
   ImGui::Begin("Main Menu", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
   if (ImGui::Button("Start")) {
-    spdlog::debug("Game state is now STATE_GAME_START");
-    m_GameState = Game::STATE_GAME_START;
+	changeGameState(Game::STATE_GAME_START);
   }
   ImGui::SameLine();
 
@@ -256,7 +277,7 @@ void Core::Engine::guiRenderDebug(sf::Clock &clock)
 {
   ImGui::Begin("Debug window");
   ImGui::Text("Frame Time(seconds): %f\n", clock.restart().asSeconds());
-  ImGui::Text("Game State: %s", StateToString[m_GameState].c_str());
+  ImGui::Text("Game State: %s", state2String[m_GameState].c_str());
   ImGui::End();
 }
 

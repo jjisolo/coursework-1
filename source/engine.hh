@@ -31,19 +31,23 @@ private:
 
   void calculatePlayerCardsPositions();
 
+  void changeGameState(Game::State newState);
+  void gameStateChangedCallback();
+  
   void guiRenderDebug(sf::Clock &clock);
   void guiRenderTutorial(void);
   void guiRenderOptions(void);
   void guiRenderMenu(void);
 
   void render(sf::Clock &clock);
-
   void renderGameBoard();
 
 private:
   sf::RenderWindow m_RenderWindow;
   Game::Board m_GameBoard;
 
+  // Wee need to track the prev game state in order to toggle
+  // some animations etc.
   Game::State m_GameState;
   Game::State m_GameStatePrev;
 
