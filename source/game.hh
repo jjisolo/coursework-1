@@ -24,7 +24,10 @@ public:
   Board();
 
   void shuffleCards();
+
+  void prepare();
   void turn();
+  
   Card getCard(std::size_t cardIndex) const;
 
   inline std::vector<Player> &getPlayersRef() { return m_Players; }

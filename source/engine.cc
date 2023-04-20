@@ -32,6 +32,7 @@ Features:
 static std::map<Game::State, std::string> state2String = {
   { Game::STATE_UNASSIGNED, "Game::STATE_UNASSIGNED" },
   { Game::STATE_MAIN_MENU,  "Game::STATE_MAIN_MENU"  },
+  { Game::STATE_GAME_START, "Game::STATE_GAME_START" },
 };
 
 void Core::Engine::initializeGraphics()
@@ -49,6 +50,8 @@ void Core::Engine::initializeGraphics()
   constexpr auto scaleFactor = 2.0;
   ImGui::GetStyle().ScaleAllSizes(scaleFactor);
   ImGui::GetIO().FontGlobalScale = scaleFactor;
+
+  spdlog::info("SFML window+ImGui has been initialized!");
 }
 
 Core::Engine::Engine()
@@ -56,13 +59,8 @@ Core::Engine::Engine()
   // Initialize core graphics and GUI library
   initializeGraphics();
 
-  // Calculate the positions of the cards for the each player
-  calculatePlayerCardsPositions();
-
   // The game starts in the menu
   changeGameState(Game::STATE_MAIN_MENU);
-
-  spdlog::info("SFML window+ImGui has been initialized!");
 }
 
 void Core::Engine::run(void)
@@ -203,23 +201,22 @@ void Core::Engine::calculatePlayerCardsPositions()
     auto adjustPlayerSpritePosition = [&](const sf::FloatRect &renderArea, const std::vector<Game::Card> &cards) -> void {
       if (cards.empty()) return;
 
-      const auto cardAngle = 90 / cards.size();// Angle per card in the deck
-      const auto cardOffsetX = renderArea.width / cards.size();// Move offset per card o(x)
-      const auto cardOffsetY = renderArea.height / cards.size();// Move offset per card o(y)
-
       // For each card calculate its angle and offset, set it via the SFML sprite
       // interface.
+	  //
+	  // The X move offset for individual card
+      const auto cardOffsetX  = renderArea.width / cards.size();
+
       for (std::size_t cardIndex{ 0 }; cardIndex < cards.size(); cardIndex++) {
         auto cardPositionX = renderArea.left + cardOffsetX * cardIndex;
-        auto cardPositionY = renderArea.top + cardOffsetY * cardIndex;
+        auto cardPositionY = renderArea.top;
 
-        cards[cardIndex].setSpritePosition(cardPositionX, cardPositionY);
-        cards[cardIndex].setSpriteRotation(cardAngle * cardIndex);
+        cards[cardIndex].getSpriteRef().setPosition(cardPositionX, cardPositionY);
+		cards[cardIndex].getSpriteRef().setScale(1.5f, 1.5f);
       }
     };
 
     const auto &players = m_GameBoard.getPlayersRef();
-    spdlog::debug(std::to_string(players.at(0).getCardsRef()[0].getSpriteRef().getPosition().x));
     adjustPlayerSpritePosition(m_MainPlayerCardRenderArea, players.at(0).getCardsRef());
   }
 
@@ -227,7 +224,7 @@ void Core::Engine::calculatePlayerCardsPositions()
 }
 
 void Core::Engine::changeGameState(Game::State newState) {
-  spdlog::debug("Game state change from" + state2String[m_GameState] + " to " + state2String[newState]);
+  spdlog::debug("Game state change from " + state2String[m_GameState] + " to " + state2String[newState]);
 
   // Wee need to track the prev game state in order to toggle
   // some animations etc.
@@ -242,9 +239,13 @@ void Core::Engine::changeGameState(Game::State newState) {
 void Core::Engine::gameStateChangedCallback() {
   // If we went form the menu to the game
   if(m_GameStatePrev == Game::STATE_MAIN_MENU && m_GameState == Game::STATE_GAME_START) {
-	// This function is only called on window resize, so we need to call it here
-	// explicitly.
-	calculatePlayerCardsPositions();
+	// Prepare the game board for the game in either sense of memory allocations, 
+	// datastrutures setup and rendering(sprite positions, angles adjusting)
+	//
+	// The calculatePlayerCardsPositions is binded as a window resize callback,
+	// so it is must be explicitly called here.
+	m_GameBoard.prepare(); calculatePlayerCardsPositions();
+	spdlog::info("Game board has veen successfully prepared for the game");
   }
 }
 

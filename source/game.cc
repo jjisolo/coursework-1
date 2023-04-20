@@ -12,8 +12,8 @@ static const constexpr int PLAYERS_NUM = 4;
 static const constexpr int CARDS_NUM = 36;
 static const constexpr int CARDS_ON_START = 5;
 static const constexpr int CARDS_PLAYERS_ON_START = PLAYERS_NUM * CARDS_ON_START;
-static const constexpr int CARD_ATLAS_CARD_WIDTH = 120;
-static const constexpr int CARD_ATLAS_CARD_HEIGHT = 80;
+static const constexpr int CARD_ATLAS_CARD_WIDTH = 80;
+static const constexpr int CARD_ATLAS_CARD_HEIGHT = 123;
 static constexpr const char *CARDS_ATLAS_FILENAME = "data/cards.png";
 
 // Getting some safety just in case starting number of cards is going
@@ -66,6 +66,12 @@ Game::Board::Board()
   // to all the players.
   shuffleCards();
 
+  // And finally log the changes
+  spdlog::info("Game board has been created!");
+}
+
+void Game::Board::prepare() {
+
   // Assign the cards from the card deck to the each player, actually,
   // we're bringing the last card from the deck, but as soon as the deck
   // shuffled no one cares.
@@ -80,8 +86,6 @@ Game::Board::Board()
     for (std::size_t cardIndex{ 0 }; cardIndex < CARDS_ON_START; cardIndex++)
       giveCardFromDeck(playerIndex);
   }
-
-  spdlog::info("Game board has been created!");
 }
 
 void Game::Board::giveCardFromDeck(std::size_t playerIndex)

@@ -48,8 +48,8 @@ private:
 
   // Wee need to track the prev game state in order to toggle
   // some animations etc.
-  Game::State m_GameState;
-  Game::State m_GameStatePrev;
+  Game::State m_GameState     = Game::STATE_UNASSIGNED;
+  Game::State m_GameStatePrev = Game::STATE_UNASSIGNED;
 
   // +-----+-----------------+
   // | BIT | VALUE           |

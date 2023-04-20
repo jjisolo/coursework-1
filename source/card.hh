@@ -50,18 +50,9 @@ public:
   bool inline isInPlayerPocket() const { return m_InPlayerPocket; }
   bool inline isInCardHeap() const { return m_InCardHeap; }
 
-  // SFML sprite interfaces
-  void setSpritePosition(const float &positionX, const float &positionY) const
-  {
-    m_Sprite.setPosition(positionX, positionY);
+  sf::Sprite &getSpriteRef() const {
+	return static_cast<sf::Sprite &>(m_Sprite);
   }
-
-  void setSpriteRotation(const float &rotationAngle) const
-  {
-    m_Sprite.setRotation(rotationAngle);
-  }
-
-  sf::Sprite &getSpriteRef() const { return static_cast<sf::Sprite &>(m_Sprite); }
 
 private:
   mutable sf::Sprite m_Sprite;
