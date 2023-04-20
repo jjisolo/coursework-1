@@ -20,10 +20,7 @@ class Player
       if(findCard( cardSuit, cardRank ))
         return;
 
-      Card dummyCard;
-      dummyCard.setSuit(cardSuit);
-      dummyCard.setRank(cardRank);
-      m_Cards.push_back(std::move(dummyCard));
+      m_Cards.push_back(Card(cardSuit, cardRank));
     }
   
     inline bool findCard(CardSuit cardSuit, CardRank cardRank) const {

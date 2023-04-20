@@ -31,12 +31,12 @@ namespace Game {
       inline std::vector< Player >& getPlayersRef() { return m_Players; }
 
     private:
-      sf::Texture m_CardTextureAtlas;
-      std::unique_ptr< Card[] > m_Cards;
-      std::unique_ptr< sf::Sprite[] > m_CardSprites;
+      sf::Texture             m_CardTextureAtlas;
+      std::vector<Card>       m_Cards;
+      std::vector<sf::Sprite> m_CardSprites;
 
       std::vector< Player > m_Players;
-      int unsigned m_TurnNumber;
+      int unsigned          m_TurnNumber;
   };
 }
 

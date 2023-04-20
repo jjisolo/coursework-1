@@ -19,6 +19,13 @@ namespace Game {
   class Card
   {
     public:
+	  explicit Card(CardSuit cardSuit, CardRank cardRank):
+		m_Suit(cardSuit), m_Rank(cardRank)
+	  {
+	  }
+
+	  Card()            = default;
+	
       inline CardSuit getSuit() const { return m_Suit; }
       inline CardRank getRank() const { return m_Rank; }
       

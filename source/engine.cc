@@ -138,9 +138,6 @@ void Core::Engine::renderGameBoard() {
     for(auto& player: players)
       for(auto& card: player.getCardsRef())
           m_RenderWindow.draw(card.getSpriteRef());
-
-    for(std::size_t cardIndex = 0; cardIndex < 36; ++cardIndex)
-        m_RenderWindow.draw(m_GameBoard.getCard(cardIndex).getSpriteRef());
 }
 
 static bool DebugModeOptionsCheckBox = false;
@@ -186,7 +183,7 @@ void Core::Engine::calculateSpriteAnchors() {
         auto adjustPlayerSpritePosition = [&](const sf::FloatRect& renderArea, const std::vector< Game::Card >& cards) -> void {
             if(cards.empty()) return;
 
-            const auto cardAngle  = 90 / cards.size();
+            const auto cardAngle   = 90 / cards.size();
             const auto cardOffsetX = renderArea.width  / cards.size();
             const auto cardOffsetY = renderArea.height / cards.size();
 

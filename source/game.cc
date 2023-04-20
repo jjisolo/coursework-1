@@ -1,5 +1,6 @@
 #include "game.hh"
 
+#include <map>
 #include <cstdio>
 #include <memory>
 #include <random>
@@ -17,31 +18,72 @@ static constexpr const char* CARDS_ATLAS_FILENAME = "data/cards.png";
 
 static_assert(PLAYERS_NUM*CARDS_ON_START <= CARDS_NUM);
 
+static std::map<Game::CardSuit, std::string> cardSuit2String = {
+  { Game::Diamonds, "CardSuit::Diamonds"},
+  { Game::Hearts,   "CardSuit::Hearts"  },
+  { Game::Clubs,    "CardSuit::Clubs"   },
+  { Game::Spades,   "CardSuit::Spades"  },
+};
+
+static std::map<Game::CardRank, std::string> cardRank2String = {
+  { Game::Ace,     "CardRank::Ace"     },
+  { Game::Jack,    "CardRank::Jack"    },
+  { Game::Queen,   "CardRank::Queen"   },
+  { Game::King,    "CardRank::King"    },
+  { Game::Tens,    "CardRank::Tenth"   },
+  { Game::Ninth,   "CardRank::Ninth"   },
+  { Game::Eights,  "CardRank::Eights"  },
+  { Game::Seventh, "CardRank::Seventh" },
+  { Game::Six,     "CardRank::Six"     },
+};
+
 Game::Board::Board()
 {
-  // Allocate the memory for the card array and corresponding cards sprites
-  m_Cards = std::unique_ptr< Game::Card[] >(new Game::Card[CARDS_NUM]);
-
-  // Initialize the cards texture array
+  // Initialize card texture and its corresponding spirte
   if(!m_CardTextureAtlas.loadFromFile(CARDS_ATLAS_FILENAME)) {
     spdlog::error("Unable to load cards texture atlas");
     exit(-1);
   }
 
-  for(int cardCounter= 0, cardSuit = Diamonds; cardSuit != Spades; ++cardSuit) {
+  // For each card Suit and each Rank generate a card class and then push
+  // it to the global cards array.
+  for(int cardSuit = Diamonds; cardSuit != Spades; ++cardSuit) {
     for(int cardRank = Ace; cardRank != Six; ++cardRank) {
-      std::size_t cardIndex = static_cast< std::size_t >(cardCounter);
-
-      m_Cards[cardIndex].setSuit(static_cast< Game::CardSuit >(cardSuit));
-      m_Cards[cardIndex].setRank(static_cast< Game::CardRank >(cardRank));
-
-      m_Cards[cardIndex].getSpriteRef().setTexture(m_CardTextureAtlas);
-      m_Cards[cardIndex].getSpriteRef().setTextureRect(
-        sf::IntRect(0, 0, CARD_ATLAS_CARD_WIDTH, CARD_ATLAS_CARD_HEIGHT)
-      );
-
-      cardCounter++;
+	  Game::Card dummyCard(static_cast<Game::CardSuit>(cardSuit), static_cast<Game::CardRank>(cardRank));
+      dummyCard.getSpriteRef().setTextureRect({0, 0, CARD_ATLAS_CARD_WIDTH, CARD_ATLAS_CARD_HEIGHT});
+	  dummyCard.getSpriteRef().setTexture(m_CardTextureAtlas);
+	  m_Cards.push_back(dummyCard);
     }
+  }
+
+  // The all initialization is done, and its time to assign the 5 cards
+  // to all the players.
+  shuffleCards();
+
+  // Getting some safety just in case starting number of cards is going
+  // to change somehow.
+  static_assert(PLAYERS_NUM*CARDS_ON_START < CARDS_NUM);
+
+  // Assign the cards from the card deck to the each player, actually,
+  // we're bringing the last card from the deck, but as soon as the deck
+  // shuffled no one cares.
+  //
+  // And by the way create the players
+  m_Players.reserve(PLAYERS_NUM);
+
+  for(std::size_t playerIndex{0}; playerIndex<PLAYERS_NUM; playerIndex++) {
+	m_Players.emplace_back(Game::Player());
+	
+	for(std::size_t cardIndex{0}; cardIndex < CARDS_ON_START; cardIndex++) {
+	  const auto cardSuit = m_Cards.back().getSuit();
+	  const auto cardRank = m_Cards.back().getRank();
+
+	  m_Players.at(playerIndex).addCard(cardSuit, cardRank);
+	  m_Cards.pop_back();
+
+	  spdlog::debug("Player #" + std::to_string(playerIndex) + " recieved card w/ props: { " +
+				   cardSuit2String[cardSuit] + ", " + cardRank2String[cardRank] + "} ");
+	}
   }
 
   spdlog::info("Game board has been created!");
@@ -52,13 +94,12 @@ Game::Card Game::Board::getCard(std::size_t cardIndex) const {
     spdlog::error("Requested inappropriate card index array(out of bounds): " + std::to_string(cardIndex));
   }
 
-  return m_Cards[cardIndex];
+  return m_Cards.at(cardIndex);
 }
 
 void Game::Board::shuffleCards() {
   std::random_device randomDevice;
   std::mt19937 randomGenerator(randomDevice());
-  std::shuffle(m_Cards.get(), m_Cards.get() + CARDS_NUM, randomGenerator);
 
   spdlog::info("board is shuffled");
 }
