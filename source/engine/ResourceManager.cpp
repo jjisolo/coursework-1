@@ -26,13 +26,14 @@ namespace Engine::Core
 			glDeleteProgram(m_Shaders[name].getShaderID());
 		}
 
+		m_ResourceLogger->info("Loading shader %s", name);
 		auto shaderLoadingResultOrError = loadShaderFromFile(vertShaderFilename, fragShaderFilename, geomShaderFilename);
 		if (shaderLoadingResultOrError.has_value()) {
-			m_ResourceLogger->info("Loaded shader %s", name);
 			m_Shaders[name] = *shaderLoadingResultOrError;
 		}
 		else {
 			m_ResourceLogger->warn("Shader %s is not assigned due to an error", name);
+			return std::unexpected(Engine::Error::InitializationError);
 		}
 
 		return(m_Shaders[name]);
@@ -55,9 +56,9 @@ namespace Engine::Core
 			glDeleteProgram(m_Textures[name].getTextureID());
 		}
 
+		m_ResourceLogger->info("Loading texture %s", name);
 		auto textureLoadingResultOrError = loadTextureFromFile(textureFileName, alphaChannel);
 		if (textureLoadingResultOrError.has_value()) {
-			m_ResourceLogger->info("Loaded texture %s", name);
 			m_Textures[name] = *textureLoadingResultOrError;
 		}
 		else {
@@ -80,11 +81,13 @@ namespace Engine::Core
 
 	void ResourceManager::release() noexcept
 	{
+		m_ResourceLogger->info("Releasing shaders..");
 		for (auto& shader : m_Shaders) {
 			const GLuint shaderProgramID = shader.second.getShaderID();
 			glDeleteProgram(shaderProgramID);
 		}
 
+		m_ResourceLogger->info("Releasing textures..");
 		for (auto& texture : m_Textures) {
 			const GLuint textureID = texture.second.getTextureID();
 			glDeleteTextures(1, &textureID);
@@ -133,6 +136,8 @@ namespace Engine::Core
 		const char* geometrySource = geometrySourceCode.c_str();
 
 		GFX::Core::ShaderWrapper shaderWrapper;
+
+		m_ResourceLogger->info("Compiling shader(%s, %s, %s)", vertShaderFilename, fragShaderFilename, geomShaderFilename);
 		if (shaderWrapper.compileShader(vertexSource, fragmentSource, geometrySource) != Engine::Error::Ok) {
 			m_ResourceLogger->error("Unable to compile shader(%s, %s, %s)", vertShaderFilename, fragShaderFilename, geomShaderFilename);
 			return std::unexpected(Engine::Error::InitializationError);
