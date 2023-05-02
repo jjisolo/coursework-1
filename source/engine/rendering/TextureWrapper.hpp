@@ -34,7 +34,7 @@ namespace Engine::GFX::Core
 
 		void make(GLuint imageWidth, GLuint imageHeight, GLubyte* imageData) noexcept;
 
-		makeGetterAndSetter(m_TextureID,     ID);
+		makeGetterAndSetter(m_TextureID,     TextureID);
 
 		makeGetterAndSetter(m_TextureWidth,  Width);
 		makeGetterAndSetter(m_TextureHeight, Height);
