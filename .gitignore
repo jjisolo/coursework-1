@@ -38,3 +38,8 @@ build/_deps/*
 *.exe
 *.out
 *.app
+
+out/**
+run_tree/**
+.vs/**
+source/_old
