@@ -30,6 +30,12 @@ namespace One
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _GLFW_CONTEXT_VERSION_MINOR);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, _GLFW_OPENGL_PROFILE);
 
+		#ifdef __APPLE__
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		#endif
+
+		glfwWindowHint(GLFW_RESIZABLE, false);
+
 		auto& windowInstance = Engine::Window::instance();
 		if (windowInstance.make() == Engine::Error::Ok) {
 			glfwMakeContextCurrent(Engine::Window::instance().getWindowPointerKHR());
@@ -49,6 +55,9 @@ namespace One
 
 		const auto windowDimensions = windowInstance.getWindowDimensionsKHR();
 		glViewport(0, 0, windowDimensions.x, windowDimensions.y);
+		
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		m_ApplicationLogger->debug("Application has been initialized");
 		return(Engine::Error::Ok);
