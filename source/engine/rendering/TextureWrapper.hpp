@@ -3,6 +3,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 
+#include "glm/glm.hpp"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 

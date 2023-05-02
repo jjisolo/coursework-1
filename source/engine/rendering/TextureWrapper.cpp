@@ -2,7 +2,7 @@
 
 namespace Engine::GFX::Core
 {
-	void TextureWrapper::make(GLuint imageWidth, GLuint imageHeight, GLubyte* imageData)
+	void TextureWrapper::make(GLuint imageWidth, GLuint imageHeight, GLubyte* imageData) noexcept
 	{
 		glGenTextures(1, &m_TextureID);
 		m_TextureWidth  = imageWidth;
