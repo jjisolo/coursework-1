@@ -19,25 +19,25 @@ namespace Engine::Core
 		m_ResourceLogger->debug("Logging subsystem engaged");
 	}
 
-	GFX::Core::ShaderWrapper ResourceManager::loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename,
+	ResourceManager::ShaderOrError ResourceManager::loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename,
 		const std::string& name) noexcept
 	{
 		m_Shaders[name] = loadShaderFromFile(vertShaderFilename, fragShaderFilename, geomShaderFilename);
 		return(m_Shaders[name]);
 	}
 
-	GFX::Core::ShaderWrapper ResourceManager::getShader(const std::string& name) noexcept
+	ResourceManager::ShaderOrError ResourceManager::getShader(const std::string& name) noexcept
 	{
 		return(m_Shaders[name]);
 	}
 
-	GFX::Core::TextureWrapper ResourceManager::loadTexture(const char* textureFileName, GLboolean alphaChannel, const std::string& name) noexcept
+	ResourceManager::TextureOrError ResourceManager::loadTexture(const char* textureFileName, GLboolean alphaChannel, const std::string& name) noexcept
 	{
 		m_Textures[name] = loadTextureFromFile(textureFileName, alphaChannel);
 		return(m_Textures[name]);
 	}
 	
-	GFX::Core::TextureWrapper ResourceManager::getTexture(const std::string& name) noexcept
+	ResourceManager::TextureOrError ResourceManager::getTexture(const std::string& name) noexcept
 	{
 		return(m_Textures[name]);
 	}
@@ -55,7 +55,7 @@ namespace Engine::Core
 		}
 	}
 
-	GFX::Core::ShaderWrapper ResourceManager::loadShaderFromFile(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename) noexcept
+	ResourceManager::ShaderOrError ResourceManager::loadShaderFromFile(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename) noexcept
 	{
 		std::string vertexSourceCode;
 		std::string fragmentSourceCode;
@@ -104,7 +104,7 @@ namespace Engine::Core
 		return(shaderWrapper);
 	}
 
-	GFX::Core::TextureWrapper ResourceManager::loadTextureFromFile(const char* textureFilename, bool alpaChannel) noexcept
+	ResourceManager::TextureOrError ResourceManager::loadTextureFromFile(const char* textureFilename, bool alpaChannel) noexcept
 	{
 		// TODO: std::expected<TextureWrapper, Engine::error>
 		GFX::Core::TextureWrapper textureWrapper;

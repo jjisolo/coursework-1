@@ -24,21 +24,24 @@ namespace Engine::Core
 {
 	class ResourceManager
 	{
+		using ShaderOrError  = std::expected< GFX::Core::ShaderWrapper,  Engine::Error>;
+		using TextureOrError = std::expected< GFX::Core::TextureWrapper, Engine::Error>;
+
 	public:
-		static GFX::Core::ShaderWrapper loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename, const std::string& name) noexcept;
+		static ShaderOrError loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename, const std::string& name) noexcept;
 
-		static GFX::Core::ShaderWrapper getShader(const std::string& shaderName) noexcept;
+		static ShaderOrError getShader(const std::string& shaderName) noexcept;
 
-		static GFX::Core::TextureWrapper loadTexture(const char* textureFileName, GLboolean alphaChannel, const std::string& name) noexcept;
+		static TextureOrError loadTexture(const char* textureFileName, GLboolean alphaChannel, const std::string& name) noexcept;
 
-		static GFX::Core::TextureWrapper getTexture(const std::string& name) noexcept;
+		static TextureOrError getTexture(const std::string& name) noexcept;
 
 		static void release() noexcept;
 
 	private:
-		static GFX::Core::ShaderWrapper  loadShaderFromFile(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename = nullptr) noexcept;
+		static ShaderOrError  loadShaderFromFile(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename = nullptr) noexcept;
 
-		static GFX::Core::TextureWrapper loadTextureFromFile(const char* textureFilename, bool alpaChannel) noexcept;
+		static TextureOrError loadTextureFromFile(const char* textureFilename, bool alpaChannel) noexcept;
 
 		static void setupLogging(void) noexcept;
 		
