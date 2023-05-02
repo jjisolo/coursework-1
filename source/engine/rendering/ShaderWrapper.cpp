@@ -11,12 +11,6 @@ namespace Engine::GFX::Core
 		m_ShaderLogger->set_level(spdlog::level::err);
 	}
 
-	ShaderWrapper& ShaderWrapper::useShader()
-	{
-		glUseProgram(m_ShaderID);
-		return(*this);
-	}
-
 	Error ShaderWrapper::compileShader(const char* vertexSource, const char* fragmentSource, const char* geometrySource)
 	{
 		GLuint geomertyShader;

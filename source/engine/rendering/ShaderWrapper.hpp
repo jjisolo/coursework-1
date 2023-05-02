@@ -22,7 +22,14 @@ namespace Engine::GFX::Core
 		ShaderWrapper() = default;
 		~ShaderWrapper() = default;
 
-		ShaderWrapper& useShader();
+		inline ShaderWrapper& useShader() {
+			glUseProgram(m_ShaderID);
+			return(*this);
+		}
+
+		inline GLuint getShaderID() {
+			return(m_ShaderID);
+		}
 
 		Error compileShader(const char* vertexSource, const char* fragmentSource, const char* geometrySource = nullptr);
 
@@ -35,7 +42,7 @@ namespace Engine::GFX::Core
 		void    setVector4f(const char* name, GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLboolean useShader = false);
 		void    setVector4f(const char* name, const glm::vec4& value, GLboolean useShader = false);
 		void    setMatrix4 (const char* name, const glm::mat4& matrix, GLboolean useShader = false);
-
+		 
 	private:
 		Error checkCompilationErrors(GLuint object, GLboolean isProgram);
 
