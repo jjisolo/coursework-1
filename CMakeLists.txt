@@ -24,7 +24,7 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-add_executable(101 "source/Main.cpp" "source/engine/Window.cpp" "source/engine/Application.cpp")
+add_executable(101 "source/Main.cpp" "source/engine/Window.cpp" "source/engine/Application.cpp" "source/engine/rendering/Renderer.cpp" "source/engine/ResourceManager.cpp")
 target_link_libraries(101 PRIVATE glfw glad glm::glm spdlog::spdlog)
 target_compile_features(101 PRIVATE cxx_std_20)
 
