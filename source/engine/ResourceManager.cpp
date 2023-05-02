@@ -19,26 +19,62 @@ namespace Engine::Core
 		m_ResourceLogger->debug("Logging subsystem engaged");
 	}
 
-	ResourceManager::ShaderOrError ResourceManager::loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename,
-		const std::string& name) noexcept
+	ResourceManager::ShaderOrError ResourceManager::loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename, const std::string& name) noexcept
 	{
-		m_Shaders[name] = loadShaderFromFile(vertShaderFilename, fragShaderFilename, geomShaderFilename);
+		if (m_Shaders.contains(name)) {
+			m_ResourceLogger->warn("Reassigning shader %s", name);
+			glDeleteProgram(m_Shaders[name].getShaderID());
+		}
+
+		auto shaderLoadingResultOrError = loadShaderFromFile(vertShaderFilename, fragShaderFilename, geomShaderFilename);
+		if (shaderLoadingResultOrError.has_value()) {
+			m_ResourceLogger->info("Loaded shader %s", name);
+			m_Shaders[name] = *shaderLoadingResultOrError;
+		}
+		else {
+			m_ResourceLogger->warn("Shader %s is not assigned due to an error", name);
+		}
+
 		return(m_Shaders[name]);
 	}
 
 	ResourceManager::ShaderOrError ResourceManager::getShader(const std::string& name) noexcept
 	{
+		if (!m_Shaders.contains(name)) {
+			m_ResourceLogger->warn("Attempted to get the shader that does not exists in the map(%s)", name);
+			return(std::unexpected(Engine::Error::InitializationError));
+		}
+
 		return(m_Shaders[name]);
 	}
 
 	ResourceManager::TextureOrError ResourceManager::loadTexture(const char* textureFileName, GLboolean alphaChannel, const std::string& name) noexcept
 	{
-		m_Textures[name] = loadTextureFromFile(textureFileName, alphaChannel);
+		if (m_Textures.contains(name)) {
+			m_ResourceLogger->warn("Reassigning texture %s", name);
+			glDeleteProgram(m_Textures[name].getTextureID());
+		}
+
+		auto textureLoadingResultOrError = loadTextureFromFile(textureFileName, alphaChannel);
+		if (textureLoadingResultOrError.has_value()) {
+			m_ResourceLogger->info("Loaded texture %s", name);
+			m_Textures[name] = *textureLoadingResultOrError;
+		}
+		else {
+			m_ResourceLogger->warn("Texture %s is not loaded due to an error", name);
+			return(std::unexpected(Engine::Error::InitializationError));
+		}
+
 		return(m_Textures[name]);
 	}
 	
 	ResourceManager::TextureOrError ResourceManager::getTexture(const std::string& name) noexcept
 	{
+		if (!m_Textures.contains(name)) {
+			m_ResourceLogger->warn("Attempted to get the texture that does not exists in the map(%s)", name);
+			return(std::unexpected(Engine::Error::InitializationError));
+		}
+
 		return(m_Textures[name]);
 	}
 
@@ -89,16 +125,17 @@ namespace Engine::Core
 		}
 		catch (std::exception& exp) {
 			m_ResourceLogger->error("Unable to read shader files");
+			return std::unexpected(Engine::Error::InitializationError);
 		}
 
 		const char* vertexSource   = vertexSourceCode.c_str();
 		const char* fragmentSource = fragmentSourceCode.c_str();
 		const char* geometrySource = geometrySourceCode.c_str();
 
-		// TODO: std::expected<ShaderWrapper, Engine::error>
 		GFX::Core::ShaderWrapper shaderWrapper;
 		if (shaderWrapper.compileShader(vertexSource, fragmentSource, geometrySource) != Engine::Error::Ok) {
 			m_ResourceLogger->error("Unable to compile shader(%s, %s, %s)", vertShaderFilename, fragShaderFilename, geomShaderFilename);
+			return std::unexpected(Engine::Error::InitializationError);
 		}
 		
 		return(shaderWrapper);
@@ -106,23 +143,21 @@ namespace Engine::Core
 
 	ResourceManager::TextureOrError ResourceManager::loadTextureFromFile(const char* textureFilename, bool alpaChannel) noexcept
 	{
-		// TODO: std::expected<TextureWrapper, Engine::error>
 		GFX::Core::TextureWrapper textureWrapper;
 		if (alpaChannel) {
 			textureWrapper.setTexFormat(GL_RGBA);
 			textureWrapper.setImgFormat(GL_RGBA);
 		}
 
-		GLint imageWidth, imageHeight, imageChannels;
+		GLint    imageWidth, imageHeight, imageChannels;
 		GLubyte* imageData = stbi_load(textureFilename, &imageWidth, &imageHeight, &imageChannels, 0);
 		if (imageData == nullptr) {
 			m_ResourceLogger->error("Unable to load texture %s", textureFilename);
-			// return
+			return std::unexpected(Engine::Error::InitializationError);
 		}
-
 		textureWrapper.make(imageWidth, imageHeight, imageData);
-		stbi_image_free(imageData);
 
+		stbi_image_free(imageData);
 		return(textureWrapper);
 	}
 }
