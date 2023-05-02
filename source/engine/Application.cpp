@@ -56,7 +56,7 @@ namespace One
 		const auto windowDimensions = windowInstance.getWindowDimensionsKHR();
 		glViewport(0, 0, windowDimensions.x, windowDimensions.y);
 		
-		glEnable(GL_BLEND);
+		glEnable   (GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		m_ApplicationLogger->debug("Application has been initialized");
