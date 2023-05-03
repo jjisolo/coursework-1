@@ -1,0 +1,25 @@
+[2023-05-03 16:41:41.043] [Graphics General] [info] Graphics logger started
+[2023-05-03 16:41:41.319] [Resource Manager] [info] Loading shader spriteShader
+[2023-05-03 16:41:41.321] [Graphics General] [info] Compiling vertex shader...
+[2023-05-03 16:41:41.321] [Graphics General] [info] Compiling fragment shader
+[2023-05-03 16:41:41.321] [Graphics General] [info] Linking shaders
+[2023-05-03 16:41:41.322] [Resource Manager] [warning] Attempted to get the texture that does not exists in the map(cardSprite)
+[2023-05-03 16:41:41.322] [Resource Manager] [info] Loading texture cardSprite
+[2023-05-03 16:44:59.384] [Graphics General] [info] Graphics logger started
+[2023-05-03 16:44:59.686] [Resource Manager] [info] Loading shader spriteShader
+[2023-05-03 16:44:59.687] [Graphics General] [info] Compiling vertex shader...
+[2023-05-03 16:44:59.687] [Graphics General] [info] Compiling fragment shader
+[2023-05-03 16:44:59.687] [Graphics General] [info] Linking shaders
+[2023-05-03 16:44:59.689] [Resource Manager] [warning] Attempted to get the texture that does not exists in the map(cardSprite)
+[2023-05-03 16:44:59.689] [Resource Manager] [info] Loading texture cardSprite
+[2023-05-03 16:45:00.896] [Resource Manager] [info] Releasing shaders..
+[2023-05-03 16:45:00.896] [Resource Manager] [info] Releasing textures..
+[2023-05-03 16:47:55.322] [Graphics General] [info] Graphics logger started
+[2023-05-03 16:47:55.656] [Resource Manager] [info] Loading shader spriteShader
+[2023-05-03 16:47:55.657] [Graphics General] [info] Compiling vertex shader...
+[2023-05-03 16:47:55.658] [Graphics General] [info] Compiling fragment shader
+[2023-05-03 16:47:55.658] [Graphics General] [info] Linking shaders
+[2023-05-03 16:47:55.659] [Resource Manager] [warning] Attempted to get the texture that does not exists in the map(cardSprite)
+[2023-05-03 16:47:55.659] [Resource Manager] [info] Loading texture cardSprite
+[2023-05-03 16:47:56.442] [Resource Manager] [info] Releasing shaders..
+[2023-05-03 16:47:56.442] [Resource Manager] [info] Releasing textures..

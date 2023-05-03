@@ -30,6 +30,6 @@ target_compile_features(101 PRIVATE cxx_std_20)
 
 add_custom_command(TARGET 101 
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:101> "../../../run_tree/")
+                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:101> "../../../bin/")
 
 install(TARGETS 101)
