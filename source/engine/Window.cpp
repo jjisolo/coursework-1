@@ -39,4 +39,9 @@ namespace Engine
 			newWidth, newHeight);
 		glViewport(0, 0, newWidth, newHeight);
 	}
+
+	Window::~Window()
+	{
+		glfwDestroyWindow(m_ApplicationWindow);
+	}
 }

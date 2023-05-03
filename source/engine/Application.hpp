@@ -1,22 +1,32 @@
+// This file declares the `Application` class.
+// 
+// The `Application` class is the core class of the engine API, and the only
+// data structure that can be seen and used by the endpoint graphics API user.
 #pragma once 
 
 #include "expected"
 #include "memory"
 
-#include "utility/Error.hpp"
-#include "rendering/SpriteRenderer.hpp"
 #include "Window.hpp"
 #include "ResourseManager.hpp"
+
+#include "utility/Error.hpp"
+#include "rendering/SpriteRenderer.hpp"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-
-// 
+ 
+// This namespace holds the data, that should be accessed by the endpoint API user.
 namespace One
 {
+
+	// This class is the core data structure of the graphics API.
+	// 
+	// It is responsible actions like: initializing internal API's, such as GLFW, GLAD,
+	// GLM, SPDLOG; handle the user keyboard input, perform the main game endless loop.  
 	class Application
 	{
 	private:
@@ -27,6 +37,8 @@ namespace One
 		Application(Application const&)            = delete;
 		Application& operator=(Application const&) = delete;
 
+		// This function way to realize the Singleton OOP programming pattern,
+		// so that this class can only be instantiated only once.
 		static Application& instance()
 		{
 			static Application _instance;
@@ -34,13 +46,17 @@ namespace One
 		}
 
 	public:
+		// Initialize the engine and its subsystems.
 		Engine::Error make(void) noexcept;
 
+		// Safely deallocate memory that was used during the game loop, quit the subsystems.
 		Engine::Error release(void) noexcept;
 
+		// Engage the game main loop, in which happens rendering, updating, input handling.
 		Engine::Error mainLoop(void) noexcept;
 
 	private:
+		// Gather the input from the keyboard.
 		void processInput(GLFWwindow* windowPointer) noexcept;
 
 	private:
