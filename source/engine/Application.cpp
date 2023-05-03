@@ -2,8 +2,8 @@
 #include "Logger.hpp"
 #include "Sprite.hpp"
 
-static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 3;
-static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 3;
+static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 4;
+static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 6;
 static constexpr const unsigned _GLFW_OPENGL_PROFILE = GLFW_OPENGL_CORE_PROFILE;
 
 namespace One
@@ -24,7 +24,7 @@ namespace One
 		// Set the OpenGL context and profile versions.
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, _GLFW_CONTEXT_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _GLFW_CONTEXT_VERSION_MINOR);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, _GLFW_OPENGL_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE,        _GLFW_OPENGL_PROFILE);
 
 		#ifdef __APPLE__
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);

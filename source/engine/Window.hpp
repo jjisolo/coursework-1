@@ -19,7 +19,7 @@ namespace Engine
 	{
 	private:
 		 Window() = default;
-		~Window() = default;
+		~Window();
 
 	public:
 		Window(const Window&)       = delete;
