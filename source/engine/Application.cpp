@@ -1,5 +1,6 @@
 #include "Application.hpp"
 #include "Logger.hpp"
+#include "Sprite.hpp"
 
 static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 3;
 static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 3;
@@ -52,17 +53,23 @@ namespace One
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-		Engine::Core::ResourceManager::loadShader("shaders/shader0.vert", "shaders/shader0.frag", nullptr, "sprite");
+		Engine::Core::ResourceManager::loadShader("shaders/shader0.vert", "shaders/shader0.frag", nullptr, "spriteShader");
 		glm::mat4 projectionMatrix = glm::ortho(0.0f, static_cast<GLfloat>(windowDimensions.x), static_cast<GLfloat>(windowDimensions.y), 0.0f, -1.0f, 1.0f);
-		auto shaderWrapperOrError = Engine::Core::ResourceManager::getShader("sprite");
+		
+		auto shaderWrapperOrError = Engine::Core::ResourceManager::getShader("spriteShader");
 		if (shaderWrapperOrError.has_value()) {
 			(*shaderWrapperOrError).useShader();
 			(*shaderWrapperOrError).setMatrix4("projectionMatrix", projectionMatrix);
 		}
+		else {
+			Engine::Logger::m_ApplicationLogger->error("Program failed due to an shader loading error");
+			
+			// todo: EXIT AND RELEASING
+			return(Engine::Error::ValidationError);
+		}
 		
 		m_SpriteRenderer = std::shared_ptr<Engine::GFX::SpriteRenderer>(new Engine::GFX::SpriteRenderer(*shaderWrapperOrError));
 
-		Engine::Core::ResourceManager::loadTexture("data/cards.png", true, "cards");
 		Engine::Logger::m_ApplicationLogger->info("Application has been initialized");
 		return(Engine::Error::Ok);
 	}
@@ -72,15 +79,21 @@ namespace One
 		auto& windowInstance = Engine::Window::instance();
 		auto  windowPointer  = windowInstance.getWindowPointerKHR();
 
+		Engine::GFX::Sprite cardSprite;
+		cardSprite.setSpriteColor({ 0.0f, 1.0f, 0.0f });
+		cardSprite.setSpritePosition({ 200.0f, 200.0f });
+		cardSprite.setSpriteSize({ 400.0f, 300.0f });
+		cardSprite.setSpriteRotation(15.0f);
+		cardSprite.setSpriteTextureName("cardSprite");
+		cardSprite.setSpriteTexturePath("data/cards.png");
+
 		while (!glfwWindowShouldClose(windowPointer)) {
 			processInput(windowPointer);
 
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			auto textureOrError = Engine::Core::ResourceManager::getTexture("cards");
-			if (textureOrError.has_value())
-				m_SpriteRenderer->renderSprite(*textureOrError, glm::vec2(200.0f, 200.0f), glm::vec2(300.0f, 400.0f), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+			cardSprite.render(m_SpriteRenderer);
 
 			glfwSwapBuffers(windowPointer);
 			glfwPollEvents();
