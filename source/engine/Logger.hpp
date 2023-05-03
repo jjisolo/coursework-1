@@ -13,11 +13,14 @@ namespace Engine
 		static void initialize();
 
 		static std::shared_ptr<spdlog::logger> m_ApplicationLogger;
+
 		static std::shared_ptr<spdlog::logger> m_GraphicsLogger;
+		static std::shared_ptr<spdlog::logger> m_ResourceLogger;
+
 		static std::shared_ptr<spdlog::logger> m_GameLogger;
 
 	private:
-		static std::shared_ptr<spdlog::sinks::basic_file_sink_mt> m_AppllicationSink;
+		static std::shared_ptr<spdlog::sinks::basic_file_sink_mt> m_ApplicationSink;
 		static std::shared_ptr<spdlog::sinks::basic_file_sink_mt> m_GraphicsSink;
 		static std::shared_ptr<spdlog::sinks::basic_file_sink_mt> m_GeneralSink;
 		static std::shared_ptr<spdlog::sinks::basic_file_sink_mt> m_GameSink;
