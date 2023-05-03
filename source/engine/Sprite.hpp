@@ -1,9 +1,7 @@
 #pragma once
 
 #include "string"
-
 #include "utility/GetSetMacro.hpp"
-
 #include "glm/glm.hpp"
 
 namespace Engine::GFX

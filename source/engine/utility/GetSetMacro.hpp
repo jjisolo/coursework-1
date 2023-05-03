@@ -1,12 +1,12 @@
 #pragma once
 
-#define __gettertype GLuint
+#define __gettersettertype GLuint
 
 #define makeGetter(memberName, functionName) \
-		__gettertype inline get##functionName() { return(this->memberName); }
+		__gettersettertype inline get##functionName() { return(this->memberName); }
 
 #define makeSetter(memberName, functionName) \
-		void set##functionName(__gettertype newVal) { ##memberName = newVal; }
+		void set##functionName(__gettersettertype newVal) { ##memberName = newVal; }
 
 #define makeGetterAndSetter(memberName, functionName) \
 		makeGetter(memberName, functionName) \
