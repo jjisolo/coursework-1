@@ -12,7 +12,6 @@
 namespace Engine::GFX::Core
 {
 
-
 	class TextureWrapper
 	{
 	public:
@@ -28,6 +27,7 @@ namespace Engine::GFX::Core
 
 		void make(GLuint imageWidth, GLuint imageHeight, GLubyte* imageData) noexcept;
 
+		#define __gettersettertype GLuint
 		makeGetterAndSetter(m_TextureID,     TextureID);
 
 		makeGetterAndSetter(m_TextureWidth,  Width);
@@ -40,6 +40,7 @@ namespace Engine::GFX::Core
 		makeGetterAndSetter(m_WrapTMode, WrapTMode);
 		makeGetterAndSetter(m_FilterMin, FilterMin);
 		makeGetterAndSetter(m_FilterMax, FilterMax);
+		#undef __gettersettertype
 
 	private:
 		GLuint m_TextureID;
