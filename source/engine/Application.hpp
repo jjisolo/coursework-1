@@ -37,7 +37,7 @@ namespace One
 		Application(Application const&)            = delete;
 		Application& operator=(Application const&) = delete;
 
-		// This function way to realize the Singleton OOP programming pattern,
+		// This function is the way to realize the Singleton OOP programming pattern,
 		// so that this class can only be instantiated only once.
 		static Application& instance()
 		{

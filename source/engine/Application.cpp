@@ -1,3 +1,7 @@
+// This file implements the `Application` class
+//
+// The `Application` class is the core class of the engine API, and the only
+// data structure that can be seen and used by the endpoint graphics API user.
 #include "Application.hpp"
 #include "Logger.hpp"
 #include "Sprite.hpp"

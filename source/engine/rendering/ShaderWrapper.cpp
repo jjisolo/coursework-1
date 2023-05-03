@@ -1,3 +1,4 @@
+// This class implements the `ShaderWrapper` class.
 #include "ShaderWrapper.hpp"
 #include "../Logger.hpp"
 
@@ -7,60 +8,90 @@ namespace Engine::GFX::Core
 	{
 		GLuint geomertyShader;
 
-		Engine::Logger::m_GraphicsLogger->info("Compiling vertex shader...");
+		Engine::Logger::m_GraphicsLogger->info("Compiling vertex shader");
+
+		// Create the vertex shader, from vertex shader source code.
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource (vertexShader, 1, &vertexSource, nullptr);
 		glCompileShader(vertexShader);
-		if (checkCompilationErrors(vertexShader, false) != Error::Ok) {
+
+		if (checkCompilationErrors(vertexShader, false) != Error::Ok)
+		{
 			Engine::Logger::m_GraphicsLogger->error("Compilation stopped because of an error");
+		
 			return(Error::ValidationError);
 		}
 
 		Engine::Logger::m_GraphicsLogger->info("Compiling fragment shader");
+
+		// Create the fragment shader from the fragment shader source code.
 		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
 		glCompileShader(fragmentShader);
-		if (checkCompilationErrors(fragmentShader, false) != Error::Ok) {
+		
+		if (checkCompilationErrors(fragmentShader, false) != Error::Ok)
+		{
+			// Delete the created shader to avoid memory leaks.
 			glDeleteShader(vertexShader);
+			
 			Engine::Logger::m_GraphicsLogger->error("Compilation stopped because of an error");
+		
 			return(Error::ValidationError);
 		}
 
-		if (geometrySource != nullptr) {
+		if (geometrySource != nullptr)
+		{
 			Engine::Logger::m_GraphicsLogger->info("Compiling geometry shader");
+			
+			// Create the geometry shader.
 			geomertyShader = glCreateShader(GL_GEOMETRY_SHADER);
 			glShaderSource (geomertyShader, 1, &geometrySource, nullptr);
 			glCompileShader(geomertyShader);
-			if (checkCompilationErrors(geomertyShader, false) != Error::Ok) {
+			
+			if (checkCompilationErrors(geomertyShader, false) != Error::Ok)
+			{
+				Engine::Logger::m_GraphicsLogger->warn("Compilation stopped because of an error");
+
+				// Delete the created shaders to avoid memory leaks.
 				glDeleteShader(vertexShader);
 				glDeleteShader(fragmentShader);
-				Engine::Logger::m_GraphicsLogger->warn("Compilation stopped because of an error");
+			
 				return(Error::ValidationError);
 			}
 		}
 
 		Engine::Logger::m_GraphicsLogger->info("Linking shaders");
+
+		// Attach the shaders to the shader program
 		m_ShaderID = glCreateProgram();
 		glAttachShader(m_ShaderID, vertexShader);
 		glAttachShader(m_ShaderID, fragmentShader);
-		if (geometrySource != nullptr)
+
+		// Link the geometry shader also if the code for it was provided.
+		if (geometrySource != nullptr) 
+		{
 			glAttachShader(m_ShaderID, geomertyShader);
+		}	
 		
+		// Link the program.
 		glLinkProgram(m_ShaderID);
-		if (checkCompilationErrors(m_ShaderID, true) != Error::Ok) {
-			glDeleteShader(vertexShader);
-			glDeleteShader(fragmentShader);
-			if (geometrySource != nullptr) 
-				glDeleteShader(geomertyShader);
 
-			Engine::Logger::m_GraphicsLogger->warn("Compilation stopped because of an error");
-			return(Error::ValidationError);
-		}
-
+		// Delete the shaders because we don't need them more.
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
-		if(geometrySource != nullptr)
+
+		// Also delete the geometry shader if it is existing.
+		if (geometrySource != nullptr)
+		{
 			glDeleteShader(geomertyShader);
+		}
+
+		if (checkCompilationErrors(m_ShaderID, true) != Error::Ok) 
+		{
+			Engine::Logger::m_GraphicsLogger->warn("Compilation stopped because of an error");
+
+			return(Error::ValidationError);
+		}
 
 		return(Error::Ok);
 	}
@@ -122,23 +153,44 @@ namespace Engine::GFX::Core
 	Error ShaderWrapper::checkCompilationErrors(GLuint object, GLboolean isProgram)
 	{
 		GLint  success;
-		GLchar infoBuffer[1024];
 
-		if (!isProgram) {
+		// If we're checking for the errors at the shader compilation stage.
+		if (!isProgram) 
+		{
+			// Get compilation status of the program.
 			glGetShaderiv(object, GL_COMPILE_STATUS, &success);
 			
-			if (!success) {
+			if (!success) 
+			{
+				// Allocate the space for the shader error message.
+				GLchar infoBuffer[1024];
+
+				// Get the shader compilation error message.
 				glGetShaderInfoLog(object, 1024, nullptr, infoBuffer);
+				
+				// And pipe it into the graphics+global logging sink.
 				Engine::Logger::m_GraphicsLogger->error("Compile-Time error(program): {}", infoBuffer);
+			
 				return(Error::ValidationError);
 			}
 		}
-		else {
+		// Or if we're checking for the errors at the program link stage.
+		else 
+		{
+			// Get the program linking status.
 			glGetProgramiv(object, GL_LINK_STATUS, &success);
 			
-			if (!success) {
+			if (!success)
+			{
+				// Allocate the space for the program link error message.
+				GLchar infoBuffer[1024];
+
+				// Get program link error message;
 				glGetProgramInfoLog(object, 1024, NULL, infoBuffer);
+
+				// Pipe it into the graphics+global logging sink.
 				Engine::Logger::m_GraphicsLogger->error("Compile-Time error(shader): {}", infoBuffer);
+
 				return(Error::ValidationError);
 			}
 		}
