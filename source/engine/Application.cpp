@@ -1,7 +1,5 @@
 #include "Application.hpp"
-
-static constexpr const char* LOG_FILE_DEF_PATH = "logs/application_logs.txt";
-static constexpr const char* LOG_LOGGER_NAME   = "Application";
+#include "Logger.hpp"
 
 static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 3;
 static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 3;
@@ -9,22 +7,13 @@ static constexpr const unsigned _GLFW_OPENGL_PROFILE = GLFW_OPENGL_CORE_PROFILE;
 
 namespace One
 {
-	void Application::setupLoggingSubsystem(void) noexcept
-	{
-		m_ApplicationLogger = spdlog::basic_logger_mt(LOG_LOGGER_NAME, LOG_FILE_DEF_PATH, true);
-		m_ApplicationLogger->set_level(spdlog::level::err);
-		m_ApplicationLogger->debug("Logging subsystem engaged");
-	} 
-
 	Engine::Error Application::make(void) noexcept
 	{
-		setupLoggingSubsystem();
-
 		if (glfwInit() != GLFW_TRUE) {
-			m_ApplicationLogger->error("Unable to initialize GLFW(init function returned GLFW_FALSE)");
+			Engine::Logger::m_ApplicationLogger->error("Unable to initialize GLFW(init function returned GLFW_FALSE)");
 			return(Engine::Error::ValidationError);
 		}
-		m_ApplicationLogger->debug("GLFW library has been initialized");
+		Engine::Logger::m_ApplicationLogger->debug("GLFW library has been initialized");
 			
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, _GLFW_CONTEXT_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _GLFW_CONTEXT_VERSION_MINOR);
@@ -39,19 +28,19 @@ namespace One
 		auto& windowInstance = Engine::Window::instance();
 		if (windowInstance.make() == Engine::Error::Ok) {
 			glfwMakeContextCurrent(Engine::Window::instance().getWindowPointerKHR());
-			m_ApplicationLogger->debug("GLFW context has been binded");
+			Engine::Logger::m_ApplicationLogger->debug("GLFW context has been binded");
 		} else {
 			glfwTerminate();
-			m_ApplicationLogger->error("Encountered error on window creation, forwarding..");
+			Engine::Logger::m_ApplicationLogger->error("Encountered error on window creation, forwarding..");
 			return(Engine::Error::ValidationError);
 		}
 
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 			glfwTerminate();
-			m_ApplicationLogger->error("Unable to initialize GLAD(load function returned FALSE)");
+			Engine::Logger::m_ApplicationLogger->error("Unable to initialize GLAD(load function returned FALSE)");
 			return(Engine::Error::ValidationError);
 		}
-		m_ApplicationLogger->debug("GLAD has been initialized");
+		Engine::Logger::m_ApplicationLogger->debug("GLAD has been initialized");
 
 		const auto windowDimensions = windowInstance.getWindowDimensionsKHR();
 		glViewport(0, 0, windowDimensions.x, windowDimensions.y);
@@ -59,7 +48,20 @@ namespace One
 		glEnable   (GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		m_ApplicationLogger->debug("Application has been initialized");
+#if 0
+		Engine::Core::ResourceManager::loadShader("shaders/shader0.vert", "shaders/shader0.frag", nullptr, "sprite");
+		glm::mat4 projectionMatrix = glm::ortho(0.0f, static_cast<GLfloat>(windowDimensions.x), static_cast<GLfloat>(windowDimensions.y), 0.0f, -1.0f, 1.0f);
+		auto shaderWrapperOrError = Engine::Core::ResourceManager::getShader("sprite");
+		if (shaderWrapperOrError.has_value()) {
+			(*shaderWrapperOrError).useShader();
+			(*shaderWrapperOrError).setMatrix4("projectionMatrix", projectionMatrix);
+		}
+		
+		m_SpriteRenderer = std::shared_ptr<Engine::GFX::SpriteRenderer>(new Engine::GFX::SpriteRenderer(*shaderWrapperOrError));
+
+		Engine::Core::ResourceManager::loadTexture("data/cards.png", true, "cards");
+#endif
+		Engine::Logger::m_ApplicationLogger->debug("Application has been initialized");
 		return(Engine::Error::Ok);
 	}
 
@@ -73,7 +75,11 @@ namespace One
 
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
-
+#if 0
+			auto textureOrError = Engine::Core::ResourceManager::getTexture("cards");
+			if (textureOrError.has_value())
+				m_SpriteRenderer->renderSprite(*textureOrError, glm::vec2(200.0f, 200.0f), glm::vec2(300.0f, 400.0f), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+#endif
 			glfwSwapBuffers(windowPointer);
 			glfwPollEvents();
 		}

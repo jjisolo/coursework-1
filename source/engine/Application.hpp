@@ -4,7 +4,9 @@
 #include "memory"
 
 #include "utility/Error.hpp"
+#include "rendering/SpriteRenderer.hpp"
 #include "Window.hpp"
+#include "ResourseManager.hpp"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
@@ -38,11 +40,9 @@ namespace One
 		Engine::Error mainLoop(void) noexcept;
 
 	private:
-		void setupLoggingSubsystem(void) noexcept;
-
 		void processInput(GLFWwindow* windowPointer) noexcept;
 
 	private:
-		mutable std::shared_ptr<spdlog::logger> m_ApplicationLogger;
+		std::shared_ptr<Engine::GFX::SpriteRenderer> m_SpriteRenderer;
 	};
 }

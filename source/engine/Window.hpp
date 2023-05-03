@@ -44,21 +44,14 @@ namespace Engine
 			return(m_WindowDimensions);
 		}
 
-		inline std::shared_ptr<spdlog::logger> getLogger(void) noexcept {
-			return(m_WindowLogger);
-		}
-
 	public:	
 		Error make(void) noexcept;
 
 	private:
-		void setupLoggingSubsystem() noexcept;
-
 		void frameBufferResizeCallbackImplementation(int newWidth, int newHeight) noexcept;
 
 	private:
 		GLFWwindow*  m_ApplicationWindow;
 		glm::ivec2   m_WindowDimensions;
-		mutable std::shared_ptr<spdlog::logger> m_WindowLogger;
 	};
 }

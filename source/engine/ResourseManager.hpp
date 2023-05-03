@@ -11,9 +11,6 @@
 #include "rendering/TextureWrapper.hpp"
 #include "Window.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "vendor/stb_image.h"
-
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 
@@ -22,7 +19,7 @@
 
 namespace Engine::Core
 {
-	class ResourceManager
+	static class ResourceManager
 	{
 		using ShaderOrError  = std::expected< GFX::Core::ShaderWrapper,  Engine::Error>;
 		using TextureOrError = std::expected< GFX::Core::TextureWrapper, Engine::Error>;
@@ -42,13 +39,9 @@ namespace Engine::Core
 		static ShaderOrError  loadShaderFromFile(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename = nullptr) noexcept;
 
 		static TextureOrError loadTextureFromFile(const char* textureFilename, bool alpaChannel) noexcept;
-
-		static void setupLogging(void) noexcept;
 		
 	private:
 		static std::unordered_map<std::string, GFX::Core::ShaderWrapper>  m_Shaders;
 		static std::unordered_map<std::string, GFX::Core::TextureWrapper> m_Textures;
-
-		static std::shared_ptr<spdlog::logger> m_ResourceLogger;
 	};
 }

@@ -46,11 +46,7 @@ namespace Engine::GFX::Core
 	private:
 		Error checkCompilationErrors(GLuint object, GLboolean isProgram);
 
-		void setupLogging(const char* vertexShaderSource);
-
 	private:
 		GLuint m_ShaderID;
-
-		std::shared_ptr<spdlog::logger> m_ShaderLogger;
 	};
 }

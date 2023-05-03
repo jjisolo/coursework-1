@@ -1,8 +1,9 @@
 #include "engine/Application.hpp"
+#include "engine/Logger.hpp"
 
 int main(int argc, char** argv[])
 {
-	spdlog::info("Program start");
+	Engine::Logger::initialize();
 
 	auto& applicationInstance = One::Application::instance();
 	if (applicationInstance.make() == Engine::Error::Ok) {
@@ -10,6 +11,5 @@ int main(int argc, char** argv[])
 		applicationInstance.release();
 	} 
 
-	spdlog::info("Program exit");
 	return(0);
 }

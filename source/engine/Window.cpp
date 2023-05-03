@@ -1,22 +1,13 @@
 #include "Window.hpp"
+#include "Logger.hpp"
 
 static constexpr const char* DEF_WINDOW_TITLE  = "Game 101";
-static constexpr const char* LOG_FILE_DEF_PATH = "logs/window_logs.txt";
-static constexpr const char* LOG_LOGGER_NAME   = "Window";
 
 namespace Engine
 {
-	void Window::setupLoggingSubsystem() noexcept
-	{
-		m_WindowLogger = spdlog::basic_logger_mt(LOG_LOGGER_NAME, LOG_FILE_DEF_PATH, true);
-		m_WindowLogger->set_level(spdlog::level::err);
-		m_WindowLogger->debug("Logging subsystem engaged");
-	}
-
 	Error Window::make(void) noexcept
 	{
-		setupLoggingSubsystem();
-		m_WindowLogger->debug("Initializing GLFW window");
+		Logger::m_ApplicationLogger->debug("Initializing GLFW window");
 
 		auto primaryMonitor = glfwGetPrimaryMonitor();
 		auto monitorMode    = glfwGetVideoMode(primaryMonitor);
@@ -27,11 +18,11 @@ namespace Engine
 
 		m_ApplicationWindow = glfwCreateWindow(monitorMode->width, monitorMode->height, DEF_WINDOW_TITLE, glfwGetPrimaryMonitor(), nullptr);
 		if (m_ApplicationWindow == nullptr) {
-			m_WindowLogger->error("Unable to initialize GLFWwindow(create function returned NULL)");
+			Logger::m_ApplicationLogger->error("Unable to initialize GLFWwindow(create function returned NULL)");
 			return(Engine::Error::ValidationError);
 		}
 		
-		m_WindowLogger->debug("Setting up window callbacks");
+		Logger::m_ApplicationLogger->debug("Setting up window callbacks");
 		m_WindowDimensions = { monitorMode->width , monitorMode->height };
 		glfwSetFramebufferSizeCallback(m_ApplicationWindow, &Window::frameBufferResizeCallback);
 
@@ -42,7 +33,7 @@ namespace Engine
 	{
 		const auto windowDimensions = getWindowDimensionsKHR();
 
-		m_WindowLogger->debug(
+		Logger::m_ApplicationLogger->debug(
 			"Window resized from (%d; %d) -> (%d; %d)",
 			windowDimensions.x, windowDimensions.y,
 			newWidth, newHeight);
