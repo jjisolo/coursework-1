@@ -16,10 +16,10 @@ namespace Engine::GFX::Core
 	{
 	public:
 		TextureWrapper() :
-			m_TextureWidth (0),         m_TextureHeight(0),
-			m_TextureFormat(GL_RGB),    m_ImageFormat(GL_RGB),
-			m_WrapSMode    (GL_REPEAT), m_WrapTMode(GL_REPEAT),
-			m_FilterMin    (GL_LINEAR), m_FilterMax(GL_LINEAR)
+			m_TextureWidth (0),                m_TextureHeight(0),
+			m_TextureFormat(GL_RGB),           m_ImageFormat(GL_RGB),
+			m_WrapSMode    (GL_CLAMP_TO_EDGE), m_WrapTMode(GL_CLAMP_TO_EDGE),
+			m_FilterMin    (GL_LINEAR),        m_FilterMax(GL_LINEAR)
 		{
 		}
 

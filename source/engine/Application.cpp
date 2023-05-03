@@ -81,13 +81,14 @@ namespace One
 		auto& windowInstance = Engine::Window::instance();
 		auto  windowPointer  = windowInstance.getWindowPointerKHR();
 
+		Engine::Core::ResourceManager::loadTexture("data/cards.png", true, "cardSprite");
+
 		Engine::GFX::Sprite cardSprite;
 		cardSprite.setSpriteColor({ 0.0f, 1.0f, 0.0f });
 		cardSprite.setSpritePosition({ 200.0f, 200.0f });
 		cardSprite.setSpriteSize({ 400.0f, 300.0f });
 		cardSprite.setSpriteRotation(15.0f);
-		cardSprite.setSpriteTextureName("cardSprite");
-		cardSprite.setSpriteTexturePath("data/cards.png");
+		cardSprite.bindTexture("cardSprite");
 
 		while (!glfwWindowShouldClose(windowPointer)) {
 			processInput(windowPointer);
