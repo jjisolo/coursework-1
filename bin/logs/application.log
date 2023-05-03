@@ -29,3 +29,14 @@
 [2023-05-03 16:47:55.656] [Application General] [info] Loading shaders
 [2023-05-03 16:47:55.658] [Application General] [info] Creating sprite renderer
 [2023-05-03 16:47:55.659] [Application General] [info] Application has been initialized
+[2023-05-03 16:54:42.259] [Application General] [info] Engine started
+
+
+[2023-05-03 16:54:42.279] [Application General] [debug] GLFW library has been initialized
+[2023-05-03 16:54:42.279] [Application General] [debug] Initializing GLFW window
+[2023-05-03 16:54:42.517] [Application General] [debug] Setting up window callbacks
+[2023-05-03 16:54:42.521] [Application General] [debug] GLFW context has been binded
+[2023-05-03 16:54:42.525] [Application General] [debug] GLAD has been initialized
+[2023-05-03 16:54:42.525] [Application General] [info] Loading shaders
+[2023-05-03 16:54:42.529] [Application General] [info] Creating sprite renderer
+[2023-05-03 16:54:42.530] [Application General] [info] Application has been initialized

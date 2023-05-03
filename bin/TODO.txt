@@ -1,1 +1,0 @@
-projection matrix as a class member of something(bind it intp the resize callback)

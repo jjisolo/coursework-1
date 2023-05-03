@@ -40,6 +40,6 @@ build/_deps/*
 *.app
 
 out/**
-run_tree/**
+bin/**
 .vs/**
 source/_old
