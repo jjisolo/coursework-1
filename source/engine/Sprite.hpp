@@ -26,18 +26,23 @@ namespace Engine::GFX
 		makeGetterAndSetter(m_SpriteColor, SpriteColor);
 
 		#define __gettersettertype std::string
-		makeGetterAndSetter(m_SpriteTexturePath, SpriteTexture);
+		makeGetterAndSetter(m_SpriteTexturePath, SpriteTexturePath);
+		makeGetterAndSetter(m_SpriteTexturename, SpriteTextureName);
 
 		#define __gettersettertype GLfloat
 		makeGetterAndSetter(m_SpriteRotation,    SpriteRotation);
 
 		#undef __gettersettertype
+
+		void render(void) const noexcept;
+
 	private:
 		glm::vec2 m_SpritePosition;
 		glm::vec2 m_SpriteSize;
 		glm::vec3 m_SpriteColor;
 		
 		std::string m_SpriteTexturePath;
+		std::string m_SpriteTextureName;
 		GLfloat     m_SpriteRotation;
 	};
 }
