@@ -12,34 +12,34 @@ namespace Engine::GFX::Core
 		glShaderSource (vertexShader, 1, &vertexSource, nullptr);
 		glCompileShader(vertexShader);
 		if (checkCompilationErrors(vertexShader, false) != Error::Ok) {
-			Engine::Logger::m_GraphicsLogger->warn("Compile stopped because of error");
+			Engine::Logger::m_GraphicsLogger->error("Compilation stopped because of an error");
 			return(Error::ValidationError);
 		}
 
-		Engine::Logger::m_GraphicsLogger->info("Compiling fragment shader...");
+		Engine::Logger::m_GraphicsLogger->info("Compiling fragment shader");
 		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
 		glCompileShader(fragmentShader);
 		if (checkCompilationErrors(fragmentShader, false) != Error::Ok) {
 			glDeleteShader(vertexShader);
-			Engine::Logger::m_GraphicsLogger->warn("Compile stopped because of error");
+			Engine::Logger::m_GraphicsLogger->error("Compilation stopped because of an error");
 			return(Error::ValidationError);
 		}
 
 		if (geometrySource != nullptr) {
-			Engine::Logger::m_GraphicsLogger->info("Compiling geometry shader...");
+			Engine::Logger::m_GraphicsLogger->info("Compiling geometry shader");
 			geomertyShader = glCreateShader(GL_GEOMETRY_SHADER);
 			glShaderSource (geomertyShader, 1, &geometrySource, nullptr);
 			glCompileShader(geomertyShader);
 			if (checkCompilationErrors(geomertyShader, false) != Error::Ok) {
 				glDeleteShader(vertexShader);
 				glDeleteShader(fragmentShader);
-				Engine::Logger::m_GraphicsLogger->warn("Compile stopped because of error");
+				Engine::Logger::m_GraphicsLogger->warn("Compilation stopped because of an error");
 				return(Error::ValidationError);
 			}
 		}
 
-		Engine::Logger::m_GraphicsLogger->info("Linking shaders shader...");
+		Engine::Logger::m_GraphicsLogger->info("Linking shaders");
 		m_ShaderID = glCreateProgram();
 		glAttachShader(m_ShaderID, vertexShader);
 		glAttachShader(m_ShaderID, fragmentShader);
@@ -53,7 +53,7 @@ namespace Engine::GFX::Core
 			if (geometrySource != nullptr) 
 				glDeleteShader(geomertyShader);
 
-			Engine::Logger::m_GraphicsLogger->warn("Compile stopped because of error");
+			Engine::Logger::m_GraphicsLogger->warn("Compilation stopped because of an error");
 			return(Error::ValidationError);
 		}
 
@@ -129,7 +129,7 @@ namespace Engine::GFX::Core
 			
 			if (!success) {
 				glGetShaderInfoLog(object, 1024, nullptr, infoBuffer);
-				Engine::Logger::m_GraphicsLogger->error("Compile-Time error(Type -> program): %s", infoBuffer);
+				Engine::Logger::m_GraphicsLogger->error("Compile-Time error(program): {}", infoBuffer);
 				return(Error::ValidationError);
 			}
 		}
@@ -138,7 +138,7 @@ namespace Engine::GFX::Core
 			
 			if (!success) {
 				glGetProgramInfoLog(object, 1024, NULL, infoBuffer);
-				Engine::Logger::m_GraphicsLogger->error("Compile-Time error(Type -> shader): %s", infoBuffer);
+				Engine::Logger::m_GraphicsLogger->error("Compile-Time error(shader): {}", infoBuffer);
 				return(Error::ValidationError);
 			}
 		}

@@ -14,17 +14,17 @@ namespace Engine::Core
 	ResourceManager::ShaderOrError ResourceManager::loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename, const std::string& name) noexcept
 	{
 		if (m_Shaders.contains(name)) {
-			Logger::m_GraphicsLogger->warn("Reassigning shader %s", name);
+			Logger::m_ResourceLogger->warn("Reassigning shader {}", name);
 			glDeleteProgram(m_Shaders[name].getShaderID());
 		}
 
-		Logger::m_GraphicsLogger->info("Loading shader %s", name);
+		Logger::m_ResourceLogger->info("Loading shader {}", name);
 		auto shaderLoadingResultOrError = loadShaderFromFile(vertShaderFilename, fragShaderFilename, geomShaderFilename);
 		if (shaderLoadingResultOrError.has_value()) {
 			m_Shaders[name] = *shaderLoadingResultOrError;
 		}
 		else {
-			Logger::m_GraphicsLogger->warn("Shader %s is not assigned due to an error", name);
+			Logger::m_ResourceLogger->warn("Shader {} is not assigned due to an error", name);
 			return std::unexpected(Engine::Error::InitializationError);
 		}
 
@@ -34,7 +34,7 @@ namespace Engine::Core
 	ResourceManager::ShaderOrError ResourceManager::getShader(const std::string& name) noexcept
 	{
 		if (!m_Shaders.contains(name)) {
-			Logger::m_GraphicsLogger->warn("Attempted to get the shader that does not exists in the map(%s)", name);
+			Logger::m_ResourceLogger->warn("Attempted to get the shader that does not exists in the map({})", name);
 			return(std::unexpected(Engine::Error::InitializationError));
 		}
 
@@ -44,17 +44,17 @@ namespace Engine::Core
 	ResourceManager::TextureOrError ResourceManager::loadTexture(const char* textureFileName, GLboolean alphaChannel, const std::string& name) noexcept
 	{
 		if (m_Textures.contains(name)) {
-			Logger::m_GraphicsLogger->warn("Reassigning texture %s", name);
+			Logger::m_ResourceLogger->warn("Reassigning texture {}", name);
 			glDeleteProgram(m_Textures[name].getTextureID());
 		}
 
-		Logger::m_GraphicsLogger->info("Loading texture %s", name);
+		Logger::m_ResourceLogger->info("Loading texture {}", name);
 		auto textureLoadingResultOrError = loadTextureFromFile(textureFileName, alphaChannel);
 		if (textureLoadingResultOrError.has_value()) {
 			m_Textures[name] = *textureLoadingResultOrError;
 		}
 		else {
-			Logger::m_GraphicsLogger->warn("Texture %s is not loaded due to an error", name);
+			Logger::m_ResourceLogger->warn("Texture {} is not loaded due to an error", name);
 			return(std::unexpected(Engine::Error::InitializationError));
 		}
 
@@ -64,7 +64,7 @@ namespace Engine::Core
 	ResourceManager::TextureOrError ResourceManager::getTexture(const std::string& name) noexcept
 	{
 		if (!m_Textures.contains(name)) {
-			Logger::m_GraphicsLogger->warn("Attempted to get the texture that does not exists in the map(%s)", name);
+			Logger::m_ResourceLogger->warn("Attempted to get the texture that does not exists in the map({})", name);
 			return(std::unexpected(Engine::Error::InitializationError));
 		}
 
@@ -73,13 +73,13 @@ namespace Engine::Core
 
 	void ResourceManager::release() noexcept
 	{
-		Logger::m_GraphicsLogger->info("Releasing shaders..");
+		Logger::m_ResourceLogger->info("Releasing shaders..");
 		for (auto& shader : m_Shaders) {
 			const GLuint shaderProgramID = shader.second.getShaderID();
 			glDeleteProgram(shaderProgramID);
 		}
 
-		Logger::m_GraphicsLogger->info("Releasing textures..");
+		Logger::m_ResourceLogger->info("Releasing textures..");
 		for (auto& texture : m_Textures) {
 			const GLuint textureID = texture.second.getTextureID();
 			glDeleteTextures(1, &textureID);
@@ -119,7 +119,7 @@ namespace Engine::Core
 			}
 		}
 		catch (std::exception& exp) {
-			Logger::m_GraphicsLogger->error("Unable to read shader files");
+			Logger::m_ResourceLogger->error("Unable to read shader files");
 			return std::unexpected(Engine::Error::InitializationError);
 		}
 
@@ -129,9 +129,9 @@ namespace Engine::Core
 
 		GFX::Core::ShaderWrapper shaderWrapper;
 
-		Logger::m_GraphicsLogger->info("Compiling shader(%s, %s, %s)", vertShaderFilename, fragShaderFilename, geomShaderFilename);
-		if (shaderWrapper.compileShader(vertexSource, fragmentSource, geometrySource) != Engine::Error::Ok) {
-			Logger::m_GraphicsLogger->error("Unable to compile shader(%s, %s, %s)", vertShaderFilename, fragShaderFilename, geomShaderFilename);
+		Logger::m_ResourceLogger->info("Compiling shader({}, {}, {})", vertShaderFilename, fragShaderFilename, geomShaderFilename);
+		if (shaderWrapper.compileShader(vertexSource, fragmentSource, geomShaderFilename != nullptr ? geometrySource : nullptr) != Engine::Error::Ok) {
+			Logger::m_ResourceLogger->error("Unable to compile shader({}, {}, {})", vertShaderFilename, fragShaderFilename, geomShaderFilename);
 			return std::unexpected(Engine::Error::InitializationError);
 		}
 		
@@ -149,7 +149,7 @@ namespace Engine::Core
 		GLint    imageWidth, imageHeight, imageChannels;
 		GLubyte* imageData = stbi_load(textureFilename, &imageWidth, &imageHeight, &imageChannels, 0);
 		if (imageData == nullptr) {
-			Logger::m_GraphicsLogger->error("Unable to load texture %s", textureFilename);
+			Logger::m_ResourceLogger->error("Unable to load texture {}", textureFilename);
 			return std::unexpected(Engine::Error::InitializationError);
 		}
 		textureWrapper.make(imageWidth, imageHeight, imageData);
