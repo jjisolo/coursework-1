@@ -1,4 +1,6 @@
 #include "SpriteRenderer.hpp"
+#include "../ResourseManager.hpp"
+#include "../Logger.hpp"
 
 namespace Engine::GFX
 {
@@ -40,8 +42,14 @@ namespace Engine::GFX
 		glBindVertexArray        (GL_ZERO);
 	}
 
-	void SpriteRenderer::renderSprite(Core::TextureWrapper& textureWrapper, glm::vec2 spritePosition, glm::vec2 spriteSize, GLfloat spriteRotation, glm::vec3 spriteColor) noexcept
+	void SpriteRenderer::renderSprite(const std::string& textureName, glm::vec2 spritePosition, glm::vec2 spriteSize, GLfloat spriteRotation, glm::vec3 spriteColor) noexcept
 	{
+		auto textureOrError = Engine::Core::ResourceManager::getTexture(textureName);
+		if (!textureOrError.has_value()) {
+			Engine::Logger::m_ResourceLogger->error("Unable to render sprite with name {}", textureName);
+			return;
+		}
+		
 		m_ShaderWrapper.useShader();
 
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -55,7 +63,7 @@ namespace Engine::GFX
 		m_ShaderWrapper.setVector3f("spriteColor", spriteColor);
 
 		glActiveTexture(GL_TEXTURE0);
-		textureWrapper.bind();
+		textureOrError->bind();
 
 		glBindVertexArray(m_QuadVertexArray);
 		glDrawArrays     (GL_TRIANGLES, GL_ZERO, 6);

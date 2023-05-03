@@ -15,7 +15,7 @@ namespace Engine::GFX
 	class Sprite
 	{
 	public:
-		Sprite() : m_SpritePosition({ 0.0f, 0.0f }), m_SpriteSize({ 0.0f, 0.0f }), m_SpriteColor({ 0.0f, 0.0f, 0.0f }), m_SpriteRotation(0.0f)
+		Sprite() : m_SpritePosition({ 0.0f, 0.0f }), m_SpriteSize({ 0.0f, 0.0f }), m_SpriteColor({ 1.0f, 1.0f, 1.0f }), m_SpriteRotation(0.0f)
 		{
 		}
 
