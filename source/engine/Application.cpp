@@ -106,8 +106,9 @@ namespace One
 			return(Engine::Error::ValidationError);
 		}
 		
-		// Allocate and initialize the class that is used to render Sprites on the screen.
 		Engine::Logger::m_ApplicationLogger->info("Creating sprite renderer");
+
+		// Allocate and initialize the class that is used to render Sprites on the screen.
 		m_SpriteRenderer = std::shared_ptr<Engine::GFX::SpriteRenderer>(new Engine::GFX::SpriteRenderer(*shaderWrapperOrError));
  
 		return(Engine::Error::Ok);
