@@ -53,7 +53,6 @@ namespace One
 
 
 		Engine::Core::ResourceManager::loadShader("shaders/shader0.vert", "shaders/shader0.frag", nullptr, "sprite");
-#if 0
 		glm::mat4 projectionMatrix = glm::ortho(0.0f, static_cast<GLfloat>(windowDimensions.x), static_cast<GLfloat>(windowDimensions.y), 0.0f, -1.0f, 1.0f);
 		auto shaderWrapperOrError = Engine::Core::ResourceManager::getShader("sprite");
 		if (shaderWrapperOrError.has_value()) {
@@ -64,7 +63,6 @@ namespace One
 		m_SpriteRenderer = std::shared_ptr<Engine::GFX::SpriteRenderer>(new Engine::GFX::SpriteRenderer(*shaderWrapperOrError));
 
 		Engine::Core::ResourceManager::loadTexture("data/cards.png", true, "cards");
-#endif
 		Engine::Logger::m_ApplicationLogger->info("Application has been initialized");
 		return(Engine::Error::Ok);
 	}
@@ -79,11 +77,11 @@ namespace One
 
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
-#if 0
+
 			auto textureOrError = Engine::Core::ResourceManager::getTexture("cards");
 			if (textureOrError.has_value())
 				m_SpriteRenderer->renderSprite(*textureOrError, glm::vec2(200.0f, 200.0f), glm::vec2(300.0f, 400.0f), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-#endif
+
 			glfwSwapBuffers(windowPointer);
 			glfwPollEvents();
 		}
