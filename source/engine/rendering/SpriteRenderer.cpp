@@ -47,11 +47,11 @@ namespace Engine::GFX
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		modelMatrix = glm::translate(modelMatrix, glm::vec3(spritePosition, 1.0f));
 		modelMatrix = glm::translate(modelMatrix, glm::vec3(0.5f * spriteSize.x, 0.5f * spriteSize.y, 0.0f));
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(spriteRotation), glm::vec3(0.0f, 0.0f, 1.0f));
+		modelMatrix = glm::rotate   (modelMatrix, glm::radians(spriteRotation), glm::vec3(0.0f, 0.0f, 1.0f));
 		modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.5f * spriteSize.x, -0.5f * spriteSize.y, 0.0f));
-		modelMatrix = glm::scale(modelMatrix, glm::vec3(spriteSize, 1.0f));
+		modelMatrix = glm::scale    (modelMatrix, glm::vec3(spriteSize, 1.0f));
 
-		m_ShaderWrapper.setMatrix4("modelMatrix", modelMatrix);
+		m_ShaderWrapper.setMatrix4 ("modelMatrix", modelMatrix);
 		m_ShaderWrapper.setVector3f("spriteColor", spriteColor);
 
 		glActiveTexture(GL_TEXTURE0);
