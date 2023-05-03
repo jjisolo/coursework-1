@@ -21,7 +21,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-namespace Engine::Core
+namespace Engine
 {
 	static class ResourceManager
 	{

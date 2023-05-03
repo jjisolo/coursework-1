@@ -44,7 +44,7 @@ namespace Engine::GFX
 
 	void SpriteRenderer::renderSprite(const std::string& textureName, glm::vec2 spritePosition, glm::vec2 spriteSize, GLfloat spriteRotation, glm::vec3 spriteColor) noexcept
 	{
-		auto textureOrError = Engine::Core::ResourceManager::getTexture(textureName);
+		auto textureOrError = Engine::ResourceManager::getTexture(textureName);
 		if (!textureOrError.has_value()) {
 			Engine::Logger::m_ResourceLogger->error("Unable to render sprite with name {}", textureName);
 			return;

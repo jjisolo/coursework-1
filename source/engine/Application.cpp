@@ -54,8 +54,8 @@ namespace One
 
 
 		Engine::Logger::m_ApplicationLogger->info("Loading shaders");
-		Engine::Core::ResourceManager::loadShader("shaders/shader0.vert", "shaders/shader0.frag", nullptr, "spriteShader");
-		auto shaderWrapperOrError = Engine::Core::ResourceManager::getShader("spriteShader");
+		Engine::ResourceManager::loadShader("shaders/shader0.vert", "shaders/shader0.frag", nullptr, "spriteShader");
+		auto shaderWrapperOrError = Engine::ResourceManager::getShader("spriteShader");
 		if (shaderWrapperOrError.has_value()) {
 			(*shaderWrapperOrError).useShader();
 
@@ -81,7 +81,7 @@ namespace One
 		auto& windowInstance = Engine::Window::instance();
 		auto  windowPointer  = windowInstance.getWindowPointerKHR();
 
-		Engine::Core::ResourceManager::loadTexture("data/cards.png", true, "cardSprite");
+		Engine::ResourceManager::loadTexture("data/cards.png", true, "cardSprite");
 
 		Engine::GFX::Sprite cardSprite;
 		cardSprite.setSpriteColor({ 1.0f, 1.0f, 1.0f });
@@ -90,13 +90,21 @@ namespace One
 		cardSprite.setSpriteRotation(15.0f);
 		cardSprite.bindTexture("cardSprite");
 
+		Engine::GFX::Sprite cardSprite2;
+		cardSprite2.setSpriteColor({ 1.0f, 1.0f, 1.0f });
+		cardSprite2.setSpritePosition({ 500.0f, 500.0f });
+		cardSprite2.setSpriteSize({ 1000.0f, 900.0f });
+		cardSprite2.setSpriteRotation(25.0f);
+		cardSprite2.bindTexture("cardSprite");
+
 		while (!glfwWindowShouldClose(windowPointer)) {
 			processInput(windowPointer);
 
-			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			cardSprite.render(m_SpriteRenderer);
+			cardSprite2.render(m_SpriteRenderer);
 
 			glfwSwapBuffers(windowPointer);
 			glfwPollEvents();
@@ -113,7 +121,7 @@ namespace One
 
 	Engine::Error One::Application::release(void) noexcept
 	{
-		Engine::Core::ResourceManager::release();
+		Engine::ResourceManager::release();
 		
 		glfwTerminate();
 		glfwDestroyWindow(Engine::Window::instance().getWindowPointerKHR());

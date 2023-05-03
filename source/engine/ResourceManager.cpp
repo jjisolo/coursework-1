@@ -6,10 +6,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "vendor/stb_image.h"
 
-std::unordered_map<std::string, Engine::GFX::Core::ShaderWrapper>  Engine::Core::ResourceManager::m_Shaders;
-std::unordered_map<std::string, Engine::GFX::Core::TextureWrapper> Engine::Core::ResourceManager::m_Textures;
+std::unordered_map<std::string, Engine::GFX::Core::ShaderWrapper>  Engine::ResourceManager::m_Shaders;
+std::unordered_map<std::string, Engine::GFX::Core::TextureWrapper> Engine::ResourceManager::m_Textures;
 
-namespace Engine::Core
+namespace Engine
 {
 	ResourceManager::ShaderOrError ResourceManager::loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename, const std::string& name) noexcept
 	{
