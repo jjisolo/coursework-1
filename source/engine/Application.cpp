@@ -53,21 +53,23 @@ namespace One
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
+		Engine::Logger::m_ApplicationLogger->info("Loading shaders");
 		Engine::Core::ResourceManager::loadShader("shaders/shader0.vert", "shaders/shader0.frag", nullptr, "spriteShader");
-		glm::mat4 projectionMatrix = glm::ortho(0.0f, static_cast<GLfloat>(windowDimensions.x), static_cast<GLfloat>(windowDimensions.y), 0.0f, -1.0f, 1.0f);
-		
 		auto shaderWrapperOrError = Engine::Core::ResourceManager::getShader("spriteShader");
 		if (shaderWrapperOrError.has_value()) {
 			(*shaderWrapperOrError).useShader();
+
+			auto projectionMatrix = glm::ortho(0.0f, static_cast<GLfloat>(windowDimensions.x), static_cast<GLfloat>(windowDimensions.y), 0.0f, -1.0f, 1.0f);
 			(*shaderWrapperOrError).setMatrix4("projectionMatrix", projectionMatrix);
 		}
 		else {
+			glfwTerminate();
+			glfwDestroyWindow(Engine::Window::instance().getWindowPointerKHR());
 			Engine::Logger::m_ApplicationLogger->error("Program failed due to an shader loading error");
-			
-			// todo: EXIT AND RELEASING
 			return(Engine::Error::ValidationError);
 		}
 		
+		Engine::Logger::m_ApplicationLogger->info("Creating sprite renderer");
 		m_SpriteRenderer = std::shared_ptr<Engine::GFX::SpriteRenderer>(new Engine::GFX::SpriteRenderer(*shaderWrapperOrError));
 
 		Engine::Logger::m_ApplicationLogger->info("Application has been initialized");
@@ -110,9 +112,11 @@ namespace One
 
 	Engine::Error One::Application::release(void) noexcept
 	{
+		Engine::Core::ResourceManager::release();
+		
 		glfwTerminate();
 		glfwDestroyWindow(Engine::Window::instance().getWindowPointerKHR());
-
+		
 		return(Engine::Error::Ok);
 	}
 }

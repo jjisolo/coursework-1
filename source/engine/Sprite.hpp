@@ -1,7 +1,12 @@
 #pragma once
 
 #include "string"
+
 #include "utility/GetSetMacro.hpp"
+#include "rendering/SpriteRenderer.hpp"
+
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 
 namespace Engine::GFX
@@ -25,14 +30,14 @@ namespace Engine::GFX
 
 		#define __gettersettertype std::string
 		makeGetterAndSetter(m_SpriteTexturePath, SpriteTexturePath);
-		makeGetterAndSetter(m_SpriteTexturename, SpriteTextureName);
+		makeGetterAndSetter(m_SpriteTextureName, SpriteTextureName);
 
 		#define __gettersettertype GLfloat
 		makeGetterAndSetter(m_SpriteRotation,    SpriteRotation);
 
 		#undef __gettersettertype
 
-		void render(void) const noexcept;
+		void render(std::shared_ptr<Engine::GFX::SpriteRenderer>& spriteRenderer) const noexcept;
 
 	private:
 		glm::vec2 m_SpritePosition;
