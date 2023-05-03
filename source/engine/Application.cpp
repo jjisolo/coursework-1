@@ -9,6 +9,9 @@ namespace One
 {
 	Engine::Error Application::make(void) noexcept
 	{
+		Engine::Logger::m_ApplicationLogger -> info("Engine started\n\n");
+		Engine::Logger::m_GraphicsLogger    -> info("Graphics logger started");
+
 		if (glfwInit() != GLFW_TRUE) {
 			Engine::Logger::m_ApplicationLogger->error("Unable to initialize GLFW(init function returned GLFW_FALSE)");
 			return(Engine::Error::ValidationError);
@@ -48,8 +51,9 @@ namespace One
 		glEnable   (GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-#if 0
+
 		Engine::Core::ResourceManager::loadShader("shaders/shader0.vert", "shaders/shader0.frag", nullptr, "sprite");
+#if 0
 		glm::mat4 projectionMatrix = glm::ortho(0.0f, static_cast<GLfloat>(windowDimensions.x), static_cast<GLfloat>(windowDimensions.y), 0.0f, -1.0f, 1.0f);
 		auto shaderWrapperOrError = Engine::Core::ResourceManager::getShader("sprite");
 		if (shaderWrapperOrError.has_value()) {
@@ -61,7 +65,7 @@ namespace One
 
 		Engine::Core::ResourceManager::loadTexture("data/cards.png", true, "cards");
 #endif
-		Engine::Logger::m_ApplicationLogger->debug("Application has been initialized");
+		Engine::Logger::m_ApplicationLogger->info("Application has been initialized");
 		return(Engine::Error::Ok);
 	}
 
