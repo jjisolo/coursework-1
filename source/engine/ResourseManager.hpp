@@ -15,8 +15,7 @@ namespace Engine
 {
 	// The resource manager is responsible for managing resources that are used in the game(shaders and
 	// textures in that case). Basically this class is the safe wrapper around to unordered_maps that are
-	// containing either shader or texture and its descriptor(that is implemented not as Integer, but as
-	// std::string for better readability).
+	// containing either shader or texture and its descriptor.
 	static class ResourceManager
 	{
 		// Typedef the std::expected containers for better readability.
