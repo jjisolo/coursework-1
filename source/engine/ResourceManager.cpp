@@ -27,8 +27,7 @@ namespace Engine
 
 		Logger::m_ResourceLogger->info("Loading shader {}", name);
 
-		// Try to load the shader from the file, retrieve std::expected container that contains either the ::ShaderWrapper or
-		// the ::Error.
+		// Try to load the shader from the file, retrieve std::expected container that contains either the ::ShaderWrapper or the ::Error.
 		auto shaderLoadingResultOrError = loadShaderFromFile(vertShaderFilename, fragShaderFilename, geomShaderFilename);
 		
 		// If we succesfully loaded the shader assign it to the map, if not raise an ::InitializationError.
