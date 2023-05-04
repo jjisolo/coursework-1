@@ -11,19 +11,20 @@
 
 #include "rendering/SpriteRenderer.hpp"
  
+#include "concepts"
+
 // This namespace holds the data, that should be accessed by the endpoint API user.
 namespace One
 {
-
 	// This class is the core data structure of the graphics API.
 	// 
 	// It is responsible actions like: initializing internal API's, such as GLFW, GLAD,
 	// GLM, SPDLOG; handle the user keyboard input, perform the main game endless loop.  
 	class Application
 	{
-	private:
+	protected:
 		Application()  {};
-		~Application() {};
+		virtual ~Application() {};
 
 	public:
 		Application(Application const&)            = delete;
@@ -38,20 +39,40 @@ namespace One
 		}
 
 	public:
+		inline int shouldClose() noexcept
+		{
+			auto windowPointer = Engine::Window::instance().getWindowPointerKHR();
+
+			return(glfwWindowShouldClose(windowPointer));
+		}
+
+		inline GLFWwindow* getWindowPointerKHR()
+		{
+			return(Engine::Window::instance().getWindowPointerKHR());
+		}
+
+		virtual Engine::Error onUserInitialize();
+
+		virtual Engine::Error onUserRelease();
+
+		virtual Engine::Error onUserUpdate(GLfloat elapsedTime);
+
+		Engine::Error execute();
+
 		// Initialize the engine and its subsystems.
-		Engine::Error make(void) noexcept;
+		Engine::Error initializeGameEngine(void) noexcept;
 
 		// Safely deallocate memory that was used during the game loop, quit the subsystems.
-		Engine::Error release(void) noexcept;
+		Engine::Error destroyGameEngine(void) noexcept;
 
 		// Engage the game main loop, in which happens rendering, updating, input handling.
-		Engine::Error mainLoop(void) noexcept;
+		Engine::Error updateGameEngine(void) noexcept;
 
 	private:
 		// Gather the input from the keyboard.
 		void processInput(GLFWwindow* windowPointer) noexcept;
 
-	private:
+	protected:
 		std::shared_ptr<Engine::GFX::SpriteRenderer> m_SpriteRenderer;
 	};
 }

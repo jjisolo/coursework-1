@@ -17,8 +17,10 @@
 
 namespace One
 {
-	Engine::Error Application::make(void) noexcept
+	Engine::Error Application::initializeGameEngine(void) noexcept
 	{
+		Engine::Logger::initialize();
+
 		Engine::Logger::m_ApplicationLogger -> info("Engine started\n\n");
 		Engine::Logger::m_GraphicsLogger    -> info("Graphics logger started");
 
@@ -118,52 +120,26 @@ namespace One
 		// Allocate and initialize the class that is used to render Sprites on the screen.
 		m_SpriteRenderer = std::shared_ptr<Engine::GFX::SpriteRenderer>(new Engine::GFX::SpriteRenderer(*shaderWrapperOrError));
  
+		Engine::Logger::m_ApplicationLogger->info("Application is initialized");
+
 		return(Engine::Error::Ok);
 	}
 
-	Engine::Error One::Application::mainLoop(void) noexcept
+	Engine::Error One::Application::updateGameEngine(void) noexcept
 	{
 		// Get the reference to the window instance, and GLFW window instance pointer, so
 		// not to call the singleton ::instance() function every loop iteration.
 		auto& windowInstance = Engine::Window::instance();
 		auto  windowPointer  = windowInstance.getWindowPointerKHR();
 
-		Engine::ResourceManager::loadTexture("data/cards.png", true, "cardSprite");
+		// Catch and process keyboard input from the user.
+		processInput(windowPointer);
 
-		Engine::GFX::Sprite cardSprite;
-		cardSprite.setSpriteColor({ 1.0f, 1.0f, 1.0f });
-		cardSprite.setSpritePosition({ 200.0f, 200.0f });
-		cardSprite.setSpriteSize({ 400.0f, 300.0f });
-		cardSprite.setSpriteRotation(15.0f);
-		cardSprite.bindTexture("cardSprite");
+		// Swap the front and back buffers of the current window.
+		glfwSwapBuffers(windowPointer);
 
-		Engine::GFX::Sprite cardSprite2;
-		cardSprite2.setSpriteColor({ 1.0f, 1.0f, 1.0f });
-		cardSprite2.setSpritePosition({ 500.0f, 500.0f });
-		cardSprite2.setSpriteSize({ 1000.0f, 900.0f });
-		cardSprite2.setSpriteRotation(25.0f);
-		cardSprite2.bindTexture("cardSprite");
-
-		// Continue iterations until user either pressed the exit button, or 
-		// pressed the close button on the window in his window manager.
-		while (!glfwWindowShouldClose(windowPointer))
-		{
-			// Catch and process keyboard input from the user.
-			processInput(windowPointer);
-
-			// Clear the screen with the normalized color.
-			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-			glClear     (GL_COLOR_BUFFER_BIT);
-
-			cardSprite.render(m_SpriteRenderer);
-			cardSprite2.render(m_SpriteRenderer);
-
-			// Swap the front and back buffers of the current window.
-			glfwSwapBuffers(windowPointer);
-
-			// Process events and trigger theirs binded callbacks
-			glfwPollEvents();
-		}
+		// Process events and trigger theirs binded callbacks
+		glfwPollEvents();
 
 		return(Engine::Error::Ok);
 	}
@@ -175,7 +151,7 @@ namespace One
 			glfwSetWindowShouldClose(windowPointer, true);
 	}
 
-	Engine::Error One::Application::release(void) noexcept
+	Engine::Error One::Application::destroyGameEngine(void) noexcept
 	{
 		// Free all the resources that was allocated during the program execution
 		Engine::ResourceManager::release();
@@ -184,5 +160,76 @@ namespace One
 		glfwTerminate();
 
 		return(Engine::Error::Ok);
+	}
+
+	Engine::Error Application::onUserInitialize()
+	{
+		return(Engine::Error::InitializationError);
+	}
+
+	Engine::Error Application::onUserRelease()
+	{
+		return(Engine::Error::InitializationError);
+	}
+
+	Engine::Error Application::execute()
+	{
+		if (FunctionSuccess(initializeGameEngine))
+		{
+			Engine::Logger::m_GameLogger->info("Executing onUserInitialize()");
+
+			const Engine::Error userInitializationResult = onUserInitialize();
+
+			if (ValidationError(userInitializationResult) || InitializationError(userInitializationResult))
+			{
+				Engine::Logger::m_GameLogger->error("Execution failed");
+
+				destroyGameEngine();
+
+				return(Engine::Error::ValidationError);
+			}
+		}
+
+
+		// Get the reference to the window instance, and GLFW window instance pointer, so
+		// not to call the singleton ::instance() function every loop iteration.
+		auto& windowInstance = Engine::Window::instance();
+		auto  windowPointer  = windowInstance.getWindowPointerKHR();
+
+		Engine::Logger::m_GameLogger->error("Starting game loop");
+
+		while (!glfwWindowShouldClose(windowPointer))
+		{
+			const Engine::Error userUpdateResult = onUserUpdate(1.0f);
+
+			if(ValidationError(userUpdateResult) || InitializationError(userUpdateResult))
+			{
+				Engine::Logger::m_GameLogger->info("onUserUpdate returned error code");
+
+				break;
+			}
+
+			updateGameEngine();
+		}
+
+		Engine::Logger::m_GameLogger->info("Executing onUserDestroy()");
+
+		const Engine::Error userReleaseResult = onUserRelease();
+
+		if (ValidationError(userReleaseResult) || InitializationError(userReleaseResult))
+		{
+			Engine::Logger::m_GameLogger->info("Execution failed");
+
+			return(Engine::Error::ValidationError);
+		}
+
+		destroyGameEngine();
+
+		return(Engine::Error::Ok);
+	}
+
+	Engine::Error Application::onUserUpdate(GLfloat elapsedTime)
+	{
+		return(Engine::Error::InitializationError);
 	}
 }
