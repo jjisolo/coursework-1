@@ -20,13 +20,17 @@ namespace One
 	// 
 	// It is responsible actions like: initializing internal API's, such as GLFW, GLAD,
 	// GLM, SPDLOG; handle the user keyboard input, perform the main game endless loop.  
+	//
+	// This is the main base class for the application.
 	class Application
 	{
 	protected:
+		// Lifetime object cycle management.
 		Application()  {};
 		virtual ~Application() {};
 
 	public:
+		// As a part of the singleton pattern.
 		Application(Application const&)            = delete;
 		Application& operator=(Application const&) = delete;
 
@@ -39,24 +43,21 @@ namespace One
 		}
 
 	public:
-		inline int shouldClose() noexcept
-		{
-			auto windowPointer = Engine::Window::instance().getWindowPointerKHR();
-
-			return(glfwWindowShouldClose(windowPointer));
-		}
-
-		inline GLFWwindow* getWindowPointerKHR()
-		{
-			return(Engine::Window::instance().getWindowPointerKHR());
-		}
-
+		// Here starts the interfaces, that endpoint user must override.
+		// It is the bridge between the engine itself and the user.
+		//
+		// Called once upon application startup. Used to load resources etc.
 		virtual Engine::Error onUserInitialize();
 
+		// Called once upon application termination. Used to unload recourses.
 		virtual Engine::Error onUserRelease();
 
+		// Called upon every frame, and provides the a time per frame
+		// value(typically used for the animations physics etc.).
 		virtual Engine::Error onUserUpdate(GLfloat elapsedTime);
 
+		// Execute the engine main loop, in which the user code combined with
+		// code executing the actual game. 
 		Engine::Error execute();
 
 		// Initialize the engine and its subsystems.

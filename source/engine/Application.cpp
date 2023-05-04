@@ -15,6 +15,9 @@
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 6;
 #endif
 
+static constexpr _SPRITESHADER_VERT_RELPATH = "shaders/engine_sprite_shader.vert";
+static constexpr _SPRITESHADER_FRAG_RELPATH = "shaders/engine_sprite_shader.frag";
+
 namespace One
 {
 	Engine::Error Application::initializeGameEngine(void) noexcept
@@ -85,15 +88,18 @@ namespace One
 
 		// Load the shaders, that are used for rendering Sprites on the screen.
 		Engine::Logger::m_ApplicationLogger->info("Loading shaders");
-		Engine::ResourceManager::loadShader("shaders/shader0.vert", "shaders/shader0.frag", nullptr, "spriteShader");
+		Engine::ResourceManager::loadShader(_SPRITESHADER_VERT_RELPATH, _SPRITESHADER_FRAG_RELPATH, nullptr, "spriteShader");
 
 		// Try to get the shaders from the global shader/texture storage, if the get request fails
 		// exit the program.
 		auto shaderWrapperOrError = Engine::ResourceManager::getShader("spriteShader");
+		
+		// Check the return value of the function.
 		if (shaderWrapperOrError.has_value())
 		{
 			(*shaderWrapperOrError).useShader();
 
+			// Setup the projection matrix for the current shader.
 			auto projectionMatrix = glm::ortho(
 				0.0f, 
 				static_cast<GLfloat>(windowDimensions.x),
@@ -103,12 +109,14 @@ namespace One
 				1.0f
 			);
 			
+			// Set this matrix as a uniform value for the shader.
 			(*shaderWrapperOrError).setMatrix4("projectionMatrix", projectionMatrix);
 		}
 		else 
 		{
 			Engine::Logger::m_ApplicationLogger->error("Program failed due to an shader loading error");
 
+			// Or safely quit the program.
 			glfwDestroyWindow(Engine::Window::instance().getWindowPointerKHR());
 			glfwTerminate();
 		
@@ -162,24 +170,29 @@ namespace One
 		return(Engine::Error::Ok);
 	}
 
+	// Default initialization function.
 	Engine::Error Application::onUserInitialize()
 	{
-		return(Engine::Error::InitializationError);
+		return(Engine::Error::Ok);
 	}
 
+	// Default destroy function.
 	Engine::Error Application::onUserRelease()
 	{
-		return(Engine::Error::InitializationError);
+		return(Engine::Error::Ok);
 	}
 
 	Engine::Error Application::execute()
 	{
+		// Try initialize the game engine.
 		if (FunctionSuccess(initializeGameEngine))
 		{
 			Engine::Logger::m_GameLogger->info("Executing onUserInitialize()");
 
+			// Get the user code completion status.
 			const Engine::Error userInitializationResult = onUserInitialize();
-
+			
+			// If it returned the error, just quit the program and report an error.
 			if (ValidationError(userInitializationResult) || InitializationError(userInitializationResult))
 			{
 				Engine::Logger::m_GameLogger->error("Execution failed");
@@ -198,10 +211,14 @@ namespace One
 
 		Engine::Logger::m_GameLogger->error("Starting game loop");
 
+		// Continue the program execution until the user presses the quit button on the window
+		// (in his window manager), or press the quit hotkey.
 		while (!glfwWindowShouldClose(windowPointer))
 		{
+			// Try initialize update.
 			const Engine::Error userUpdateResult = onUserUpdate(1.0f);
 
+			// If the functions encountered an error break the program and report an error.
 			if(ValidationError(userUpdateResult) || InitializationError(userUpdateResult))
 			{
 				Engine::Logger::m_GameLogger->info("onUserUpdate returned error code");
@@ -209,25 +226,33 @@ namespace One
 				break;
 			}
 
+			// Update the actual engine.
 			updateGameEngine();
 		}
 
 		Engine::Logger::m_GameLogger->info("Executing onUserDestroy()");
 
+		// Try do userRelease code.
 		const Engine::Error userReleaseResult = onUserRelease();
 
+		// If the functions encountered an error.. report it and quit.
 		if (ValidationError(userReleaseResult) || InitializationError(userReleaseResult))
 		{
 			Engine::Logger::m_GameLogger->info("Execution failed");
+		
+			// Destroy the actual engine.
+			destroyGameEngine();
 
 			return(Engine::Error::ValidationError);
 		}
 
+		// Destroy the actual engine.
 		destroyGameEngine();
 
 		return(Engine::Error::Ok);
 	}
 
+	// Default release function.
 	Engine::Error Application::onUserUpdate(GLfloat elapsedTime)
 	{
 		return(Engine::Error::InitializationError);
