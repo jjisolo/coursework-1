@@ -12,6 +12,8 @@ namespace Engine::GFX::Core
 
 		// Create the vertex shader, from vertex shader source code.
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		
+		// Bind the shader source code to this shader descriptior, and the compile it.
 		glShaderSource (vertexShader, 1, &vertexSource, nullptr);
 		glCompileShader(vertexShader);
 
@@ -26,6 +28,8 @@ namespace Engine::GFX::Core
 
 		// Create the fragment shader from the fragment shader source code.
 		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		
+		// Bind the shader source code to this shader descriptior, and the compile it.
 		glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
 		glCompileShader(fragmentShader);
 		
@@ -45,6 +49,8 @@ namespace Engine::GFX::Core
 			
 			// Create the geometry shader.
 			geomertyShader = glCreateShader(GL_GEOMETRY_SHADER);
+			
+			// Bind the shader source code to this shader descriptior, and the compile it.
 			glShaderSource (geomertyShader, 1, &geometrySource, nullptr);
 			glCompileShader(geomertyShader);
 			
