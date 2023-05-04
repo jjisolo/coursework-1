@@ -8,7 +8,7 @@
 
 static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 4;
 static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 6;
-static constexpr const unsigned _GLFW_OPENGL_PROFILE = GLFW_OPENGL_CORE_PROFILE;
+static constexpr const unsigned _GLFW_OPENGL_PROFILE        = GLFW_OPENGL_CORE_PROFILE;
 
 namespace One
 {
@@ -43,7 +43,8 @@ namespace One
 		if (windowInstance.make() == Engine::Error::Ok)
 		{
 			Engine::Logger::m_ApplicationLogger->debug("Binding GLFW context");
-
+			
+			// Bind the context of the window, so all OpenGL functions are gonna affect this window instance
 			glfwMakeContextCurrent(Engine::Window::instance().getWindowPointerKHR());
 		} else
 		{
@@ -65,8 +66,9 @@ namespace One
 		}
 		Engine::Logger::m_ApplicationLogger->debug("GLAD has been initialized");
 
-		// Set the render area(viewport) where we want to render the object.
 		const auto windowDimensions = windowInstance.getWindowDimensionsKHR();
+
+		// Set the render area(viewport) where we want to render the object.
 		glViewport(0, 0, windowDimensions.x, windowDimensions.y);
 		
 		// Enable the blending stage in the OpenGL rendering pipeline, to make objects appear
