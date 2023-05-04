@@ -1,22 +1,14 @@
 // This file declares the `ResourceManager` class
 #pragma once
 
-#include "unordered_map"
-#include "expected"
-#include "sstream"
-#include "fstream"
-#include "memory"
+#include "_EngineIncludes.hpp"
 
-#include "utility/Error.hpp"
-#include "rendering/ShaderWrapper.hpp"
-#include "rendering/TextureWrapper.hpp"
 #include "Window.hpp"
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include "rendering/ShaderWrapper.hpp"
+#include "rendering/TextureWrapper.hpp"
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+
 
 // This namespace is polluted with code for the game engine
 namespace Engine

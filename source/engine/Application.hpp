@@ -4,20 +4,12 @@
 // data structure that can be seen and used by the endpoint graphics API user.
 #pragma once 
 
-#include "expected"
-#include "memory"
+#include "_EngineIncludes.hpp"
 
 #include "Window.hpp"
 #include "ResourseManager.hpp"
 
-#include "utility/Error.hpp"
 #include "rendering/SpriteRenderer.hpp"
-
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
-
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
  
 // This namespace holds the data, that should be accessed by the endpoint API user.
 namespace One

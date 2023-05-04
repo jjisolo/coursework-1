@@ -1,15 +1,10 @@
 // This file decalres the `Sprite` class.
 #pragma once
 
-#include "string"
+#include "_EngineIncludes.hpp"
 
-#include "utility/GetSetMacro.hpp"
 #include "rendering/SpriteRenderer.hpp"
 #include "rendering/TextureWrapper.hpp"
-
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "glm/glm.hpp"
 
 // This namespace is populated with all graphics-related stuff.
 namespace Engine::GFX

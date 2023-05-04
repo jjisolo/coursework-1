@@ -1,14 +1,7 @@
 // This file defines the `TextureWrapper` class.
 #pragma once
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
-
-#include "glm/glm.hpp"
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-
-#include "../utility/GetSetMacro.hpp"
+#include "../_EngineIncludes.hpp"
 
 // This namespace is polluted with the Internals components of the graphics API.
 namespace Engine::GFX::Core

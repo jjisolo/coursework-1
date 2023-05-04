@@ -1,19 +1,7 @@
 // This file declares the `ShaderWrapper` class.
 #pragma once
 
-#include "string"
-#include "memory"
-
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
-
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
-
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-
-#include "../utility/Error.hpp"
+#include "../_EngineIncludes.hpp"
 
 // This namespace is polluted with the Internals components of the graphics API.
 namespace Engine::GFX::Core

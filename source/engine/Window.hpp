@@ -3,23 +3,11 @@
 // The `Window` class is the core class of the engine API.
 #pragma once
 
-#include "expected"
-#include "memory"
-
-#include "utility/Error.hpp"
-
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
-
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-
-#include "glm/glm.hpp"
+#include "_EngineIncludes.hpp"
 
 // This namespace is polluted with code for the game engine
 namespace Engine
 {
-	
 	// The window class is an abstraction under the GLFW's window routine.
 	// the purpose of this class is to provide the engine with the window
 	// callbacks, window creation and destroy. 
@@ -46,6 +34,8 @@ namespace Engine
 		// This function(static formal function, that is calling an internal function) is kinda
 		// workaround about the C background of the GLFW library.
 		static void frameBufferResizeCallback(GLFWwindow* window, int newWidth, int newHeight) {
+			UnreferencedParameter(window);
+
 			instance().frameBufferResizeCallbackImplementation(newWidth, newHeight);
 		}
 
