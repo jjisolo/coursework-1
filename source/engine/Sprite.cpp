@@ -8,7 +8,17 @@ namespace Engine::GFX
 	void Sprite::render(std::shared_ptr<Engine::GFX::SpriteRenderer>& spriteRenderer) const noexcept
 	{
 		// Use the sprite shader that is compiled only for rendering sprites.
-		(*Engine::ResourceManager::getShader("spriteShader")).useShader();
+		auto shaderOrError = Engine::ResourceManager::getShader("spriteShader");
+
+		if (shaderOrError.has_value())
+		{
+			shaderOrError.value().useShader();
+		}
+		else
+		{
+
+			return;
+		}
 
 		// And finally, render the sprite!
 		spriteRenderer->renderSprite(m_BindedTextureName, m_SpritePosition, m_SpriteSize, m_SpriteRotation, m_SpriteColor);
