@@ -10,7 +10,7 @@ namespace Engine::GFX
 		// Use the sprite shader that is compiled only for rendering sprites.
 		(*Engine::ResourceManager::getShader("spriteShader")).useShader();
 
-		// Render!
+		// And finally, render the sprite!
 		spriteRenderer->renderSprite(m_BindedTextureName, m_SpritePosition, m_SpriteSize, m_SpriteRotation, m_SpriteColor);
 	}
 }
