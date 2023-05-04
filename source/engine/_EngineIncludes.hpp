@@ -32,3 +32,9 @@
 
 // Defines
 #define UnreferencedParameter(expr) do { (void)(expr); } while (0)
+
+#define FunctionSuccessA(x) ((x) == Engine::Error::Ok)
+#define FunctionSuccess(x) ((x()) == Engine::Error::Ok)
+
+#define ValidationError(x) x == Engine::Error::ValidationError
+#define InitializationError(x) x == Engine::Error::InitializationError
