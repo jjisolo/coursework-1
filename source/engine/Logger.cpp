@@ -16,6 +16,8 @@ std::shared_ptr<spdlog::logger> Engine::Logger::m_GameLogger;
 static constexpr const char* LOGGER_APP_LOGFILE = "logs/application.log";
 static constexpr const char* LOGGER_GFX_LOGFILE = "logs/graphics.log";
 static constexpr const char* LOGGER_GEN_LOGFILE = "logs/general.log";
+static constexpr const char* LOGGER_GAM_LOGFILE = "logs/game.log";
+
 
 namespace Engine
 {
@@ -25,7 +27,8 @@ namespace Engine
 		m_ApplicationSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(LOGGER_APP_LOGFILE);
 		m_GraphicsSink    = std::make_shared<spdlog::sinks::basic_file_sink_mt>(LOGGER_GFX_LOGFILE);
 		m_GeneralSink     = std::make_shared<spdlog::sinks::basic_file_sink_mt>(LOGGER_GEN_LOGFILE);
-	
+		m_GameSink        = std::make_shared<spdlog::sinks::basic_file_sink_mt>(LOGGER_GAM_LOGFILE);
+
 		// Groups the sinks, so that each logger writes into the logger-specific and
 		// the `general` sinks.
 		std::vector<spdlog::sink_ptr> applicationSinks;
