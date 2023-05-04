@@ -33,19 +33,23 @@ namespace Engine
 		// The formal(by the parameters) callback that is used for the GLFW window callbacks.
 		// This function(static formal function, that is calling an internal function) is kinda
 		// workaround about the C background of the GLFW library.
-		static void frameBufferResizeCallback(GLFWwindow* window, int newWidth, int newHeight) {
+		static void frameBufferResizeCallback(GLFWwindow* window, int newWidth, int newHeight)
+		{
 			UnreferencedParameter(window);
-
+				
+			// Call the internal calllback function(that has access to the class members).
 			instance().frameBufferResizeCallbackImplementation(newWidth, newHeight);
 		}
 
 		// Get the pointer to the GLFW's GLFWwindow structure.
-		inline GLFWwindow* getWindowPointerKHR(void) noexcept {
+		inline GLFWwindow* getWindowPointerKHR(void) noexcept
+		{
 			return(m_ApplicationWindow);
 		}
 
 		// Get the current initialized window dimensions.
-		inline glm::ivec2 getWindowDimensionsKHR(void) {
+		inline glm::ivec2 getWindowDimensionsKHR(void)
+		{
 			return(m_WindowDimensions);
 		}
 
