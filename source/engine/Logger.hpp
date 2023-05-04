@@ -11,7 +11,7 @@ namespace Engine
 	// messages to the files(every logger logs into the specific file,
 	// for instance `application_logs.log` and the global `general.log`
 	// file).
-	class Logger
+	static class Logger
 	{
 	public:
 		// Initialize the memory that is used by the logger sinks and loggers itself
