@@ -44,3 +44,4 @@ bin/**
 .vs/**
 source/_old
 imgui/**
+logs/*
