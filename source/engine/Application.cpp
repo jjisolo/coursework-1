@@ -10,13 +10,17 @@
 #ifdef __APPLE__
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 3;
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 3;
-#else
+#elif __linux__
+	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 4;
+	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 3;
+#elif _WIN32
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 4;
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 6;
 #endif
 
-static constexpr _SPRITESHADER_VERT_RELPATH = "shaders/engine_sprite_shader.vert";
-static constexpr _SPRITESHADER_FRAG_RELPATH = "shaders/engine_sprite_shader.frag";
+// The default path to the sprites shaders
+static constexpr const char* _SPRITESHADER_VERT_RELPATH = "shaders/engine_sprite_shader.vert";
+static constexpr const char* _SPRITESHADER_FRAG_RELPATH = "shaders/engine_sprite_shader.frag";
 
 namespace One
 {
@@ -39,10 +43,11 @@ namespace One
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, _GLFW_CONTEXT_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _GLFW_CONTEXT_VERSION_MINOR);
 		glfwWindowHint(GLFW_OPENGL_PROFILE,        GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-		#ifdef __APPLE__
-			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-		#endif
+		glfwWindowHint(GLFW_DOUBLEBUFFER, 1);
+		glfwWindowHint(GLFW_DEPTH_BITS,   24);
+		glfwWindowHint(GLFW_STENCIL_BITS, 8);
 
 		// Set the window non-resizable
 		glfwWindowHint(GLFW_RESIZABLE, false);
@@ -76,8 +81,38 @@ namespace One
 		}
 		Engine::Logger::m_ApplicationLogger->debug("GLAD has been initialized");
 
-		const auto windowDimensions = windowInstance.getWindowDimensionsKHR();
+		// Setup Dear ImGui
+		Engine::Logger::m_ApplicationLogger->info("Initializing Dear ImGui");
 
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+
+		// Initialize ImGui OpenGL bindings.
+		Engine::Logger::m_ApplicationLogger->info("Initializing Dear ImGui OpenGL bindings");
+
+		if (!ImGui_ImplGlfw_InitForOpenGL(Engine::Window::instance().getWindowPointerKHR(), true))
+		{
+			Engine::Logger::m_ApplicationLogger->error("Initialization failed");
+
+			return(Engine::Error::InitializationError);
+		}
+
+		// Initialize ImGui OpenGL 3 bindings.
+		if (!ImGui_ImplOpenGL3_Init("#version 330"))
+		{
+			Engine::Logger::m_ApplicationLogger->error("Initialization failed");
+
+			return(Engine::Error::InitializationError);
+		}
+
+		// Initialize the ImGui IO.
+		ImGuiIO& imguiIO = ImGui::GetIO();
+		UnreferencedParameter(imguiIO);
+
+		// Setup ImGui Style
+		ImGui::StyleColorsDark();
+
+		const auto windowDimensions = windowInstance.getWindowDimensionsKHR();
 		// Set the render area(viewport) where we want to render the object.
 		glViewport(0, 0, windowDimensions.x, windowDimensions.y);
 		
@@ -140,6 +175,8 @@ namespace One
 		auto& windowInstance = Engine::Window::instance();
 		auto  windowPointer  = windowInstance.getWindowPointerKHR();
 
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		// Catch and process keyboard input from the user.
 		processInput(windowPointer);
 
@@ -163,6 +200,11 @@ namespace One
 	{
 		// Free all the resources that was allocated during the program execution
 		Engine::ResourceManager::release();
+
+		// Exit ImGui Library.
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 
 		// Exit GLFW library
 		glfwTerminate();

@@ -17,7 +17,7 @@ namespace Engine::GFX
 		else
 		{
 			// Well, actually the shader cannot be destroyed, but defensive coding thing, whatever
-			Engine::Logger.m_GraphicsLogger("Attempted to render the srpite without its shader");
+			Engine::Logger::m_GraphicsLogger->error("Attempted to render the sprite without its shader");
 
 			return;
 		}

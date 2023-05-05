@@ -11,8 +11,6 @@
 
 #include "rendering/SpriteRenderer.hpp"
  
-#include "concepts"
-
 // This namespace holds the data, that should be accessed by the endpoint API user.
 namespace One
 {

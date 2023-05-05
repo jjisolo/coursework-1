@@ -29,6 +29,17 @@ namespace Game
 
 		cardSprite.render(m_SpriteRenderer);
 
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::Begin("A custom window");
+		ImGui::Text("Test");
+		ImGui::End();
+
+		ImGui::EndFrame();
+		ImGui::Render();
+
 		return(Engine::Error::Ok);
 	}
 }

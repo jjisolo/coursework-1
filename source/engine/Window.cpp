@@ -9,10 +9,26 @@ namespace Engine
 	{
 		Logger::m_ApplicationLogger->debug("Initializing GLFW window");
 
-		// Get the primary monitor(if the user uses multi-monitor setup), retrieve its mode
+		// Get the primary monitor(if the user uses multi-monitor setup), retrieve its mode.
 		auto primaryMonitor = glfwGetPrimaryMonitor();
 		auto monitorMode    = glfwGetVideoMode(primaryMonitor);
-		
+
+		#ifdef _WIN32
+			// Get the scaling factor of the windows UI.
+			GLfloat monitorScaleX, monitorScaleY;
+			glfwGetMonitorContentScale(primaryMonitor, &monitorScaleX, &monitorScaleY);
+
+			// And store it(used for ImGUI);
+			m_highDPIScaleFactor = monitorScaleX;
+			
+			// If there's some scaling factor is set, store it and hint the GLFW window.
+			if (monitorScaleX > 1 || monitorScaleY > 1)
+				glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+			
+		#elif __APPLE__
+			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+		#endif
+
 		// Adjust the window options relating on this information.
 		glfwWindowHint(GLFW_RED_BITS,     monitorMode->redBits);
 		glfwWindowHint(GLFW_GREEN_BITS,   monitorMode->greenBits);
@@ -29,7 +45,10 @@ namespace Engine
 			
 			return(Engine::Error::ValidationError);
 		}
-		
+
+		// Set the Vertical synchronization ON.
+		glfwSwapInterval(1);
+
 		Logger::m_ApplicationLogger->debug("Setting up window callbacks");
 		
 		// Track the window dimensions internally

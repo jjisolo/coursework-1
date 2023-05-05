@@ -63,6 +63,7 @@ namespace Engine
 
 	private:
 		GLFWwindow*  m_ApplicationWindow;
+		GLfloat      m_highDPIScaleFactor;
 		glm::ivec2   m_WindowDimensions;
 	};
 }
