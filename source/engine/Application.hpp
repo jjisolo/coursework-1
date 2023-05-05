@@ -41,6 +41,13 @@ namespace One
 		}
 
 	public:
+		// Clear the screen with solid color.
+		inline void ClearScreen(GLfloat r, GLfloat g, GLfloat b)
+		{
+			glClearColor(r, g, b, 1.0f);
+			glClear     (GL_COLOR_BUFFER_BIT);
+		}
+
 		// Create new frame in the ImGUI library, with the OpenGL and GLFW bindings.
 		inline void ImguiCreateNewFrameKHR()
 		{
@@ -75,6 +82,9 @@ namespace One
 		Engine::Error updateGameEngine(void) noexcept;
 
 	private:
+		// Stylish the Dear ImGUI
+		void applyImGuiStyles();
+
 		// Gather the input from the keyboard.
 		void processInput(GLFWwindow* windowPointer) noexcept;
 
