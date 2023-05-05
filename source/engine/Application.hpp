@@ -79,6 +79,8 @@ namespace One
 		void processInput(GLFWwindow* windowPointer) noexcept;
 
 	protected:
+		GLfloat m_monitorHighDPIScaleFactor;
+
 		std::shared_ptr<Engine::GFX::SpriteRenderer> m_SpriteRenderer;
 	};
 }

@@ -13,22 +13,6 @@ namespace Engine
 		auto primaryMonitor = glfwGetPrimaryMonitor();
 		auto monitorMode    = glfwGetVideoMode(primaryMonitor);
 
-		#ifdef _WIN32
-			// Get the scaling factor of the windows UI.
-			GLfloat monitorScaleX, monitorScaleY;
-			glfwGetMonitorContentScale(primaryMonitor, &monitorScaleX, &monitorScaleY);
-
-			// And store it(used for ImGUI);
-			m_highDPIScaleFactor = monitorScaleX;
-			
-			// If there's some scaling factor is set, store it and hint the GLFW window.
-			if (monitorScaleX > 1 || monitorScaleY > 1)
-				glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
-			
-		#elif __APPLE__
-			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
-		#endif
-
 		// Adjust the window options relating on this information.
 		glfwWindowHint(GLFW_RED_BITS,     monitorMode->redBits);
 		glfwWindowHint(GLFW_GREEN_BITS,   monitorMode->greenBits);
