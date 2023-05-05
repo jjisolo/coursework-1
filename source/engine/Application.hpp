@@ -41,6 +41,13 @@ namespace One
 		}
 
 	public:
+		// Create new frame in the ImGUI library, with the OpenGL and GLFW bindings.
+		inline void ImguiCreateNewFrameKHR()
+		{
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+		}
+
 		// Here starts the interfaces, that endpoint user must override.
 		// It is the bridge between the engine itself and the user.
 		//

@@ -10,12 +10,15 @@
 #ifdef __APPLE__
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 3;
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 3;
+	static constexpr const char*    _GLSL_VERSION               = "3.3";
 #elif __linux__
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 4;
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 3;
+	static constexpr const char*    _GLSL_VERSION               = "4.3";
 #elif _WIN32
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 4;
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 6;
+	static constexpr const char*    _GLSL_VERSION               = "4.6";
 #endif
 
 // The default path to the sprites shaders
@@ -98,7 +101,7 @@ namespace One
 		}
 
 		// Initialize ImGui OpenGL 3 bindings.
-		if (!ImGui_ImplOpenGL3_Init("#version 330"))
+		if (!ImGui_ImplOpenGL3_Init(_GLSL_VERSION))
 		{
 			Engine::Logger::m_ApplicationLogger->error("Initialization failed");
 
