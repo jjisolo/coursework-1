@@ -69,7 +69,8 @@ namespace Engine
 		{
 			Logger::m_ResourceLogger->warn("Reassigning texture {}", name);
 
-			glDeleteProgram(m_Textures[name].getTextureID());
+			const auto textureID = m_Textures[name].getTextureID();
+			glDeleteTextures(1, &textureID);
 		}
 
 		Logger::m_ResourceLogger->info("Loading texture {}", name);

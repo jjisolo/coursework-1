@@ -4,8 +4,16 @@
 
 namespace Game
 {
+	Engine::GFX::Sprite cardSprite;
 	Engine::Error GameProgram::onUserInitialize()
 	{
+		Engine::ResourceManager::loadTexture("data/cards.png", true, "cardSprite");
+
+		cardSprite.setSpriteColor({ 1.0f, 1.0f, 1.0f });
+		cardSprite.setSpritePosition({ 200.0f, 200.0f });
+		cardSprite.setSpriteSize({ 600.0f, 400.0f });
+		cardSprite.setSpriteRotation(15.0f);
+		cardSprite.bindTexture("cardSprite");
 
 		return(Engine::Error::Ok);
 	}
@@ -18,14 +26,7 @@ namespace Game
 
 	Engine::Error GameProgram::onUserUpdate(GLfloat elapsedTime)
 	{
-		Engine::ResourceManager::loadTexture("data/cards.png", true, "cardSprite");
-
-		Engine::GFX::Sprite cardSprite;
-		cardSprite.setSpriteColor({ 1.0f, 1.0f, 1.0f });
-		cardSprite.setSpritePosition({ 200.0f, 200.0f });
-		cardSprite.setSpriteSize({ 400.0f, 300.0f });
-		cardSprite.setSpriteRotation(15.0f);
-		cardSprite.bindTexture("cardSprite");
+		ClearScreen(0.1f, 0.1f, 0.1f);
 
 		cardSprite.render(m_SpriteRenderer);
 
