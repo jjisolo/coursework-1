@@ -217,7 +217,7 @@ namespace Engine
 		{
 			Logger::m_ResourceLogger->error("Unable to load texture {}", textureFilename);
 		
-			return std::unexpected(Engine::Error::InitializationError);
+			return(std::unexpected(Engine::Error::InitializationError));
 		}
 
 		// Create the texture wrapper from the data retrieved from the image.
