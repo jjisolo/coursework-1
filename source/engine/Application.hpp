@@ -55,6 +55,12 @@ namespace One
 			ImGui_ImplGlfw_NewFrame();
 		}
 
+		// Get the logic window size.
+		inline glm::ivec2 getWindowDimensions()
+		{
+			return(Engine::Window::instance().getWindowDimensionsKHR());
+		}
+
 		// Here starts the interfaces, that endpoint user must override.
 		// It is the bridge between the engine itself and the user.
 		//
