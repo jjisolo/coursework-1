@@ -4,16 +4,19 @@
 
 namespace Game
 {
-	Engine::GFX::Sprite cardSprite;
 	Engine::Error GameProgram::onUserInitialize()
 	{
-		Engine::ResourceManager::loadTexture("data/cards.png", true, "cardSprite");
+		m_GameState = GameState::Main_Menu;
+	
+		auto windowDimensions  = getWindowDimensions();
+		
+		Engine::ResourceManager::loadTexture("data/assets/background.jpg", false, "background");
 
-		cardSprite.setSpriteColor({ 1.0f, 1.0f, 1.0f });
-		cardSprite.setSpritePosition({ 200.0f, 200.0f });
-		cardSprite.setSpriteSize({ 600.0f, 400.0f });
-		cardSprite.setSpriteRotation(15.0f);
-		cardSprite.bindTexture("cardSprite");
+		Engine::GFX::Sprite backgroundSprite;
+		backgroundSprite.setSpriteSize    ({ windowDimensions.x, windowDimensions.y });
+		backgroundSprite.bindTexture      ("background");
+
+		m_mainMenuSprites.push_back(backgroundSprite);
 
 		return(Engine::Error::Ok);
 	}
@@ -28,16 +31,20 @@ namespace Game
 	{
 		ClearScreen(0.1f, 0.1f, 0.1f);
 
-		cardSprite.render(m_SpriteRenderer);
+		if (m_GameState == GameState::Main_Menu)
+		{
+			for (auto& sprite : m_mainMenuSprites)
+				sprite.render(m_SpriteRenderer);
 
-		ImguiCreateNewFrameKHR();
-		ImGui::NewFrame();
-		ImGui::Begin("A custom window");
-		ImGui::Text("Test");
-		ImGui::End();
-		ImGui::EndFrame();
-		ImGui::Render();
-
+			ImguiCreateNewFrameKHR();
+			ImGui::NewFrame();
+			ImGui::Begin("A custom window");
+			ImGui::Text("Test");
+			ImGui::End();
+			ImGui::EndFrame();
+			ImGui::Render();
+		}
+		
 		return(Engine::Error::Ok);
 	}
 }
