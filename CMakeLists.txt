@@ -22,6 +22,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_executable(101 
     "source/Main.cpp" 
+    "source/engine/utility/CheckError.cpp"
     "source/engine/Window.cpp"
     "source/engine/rendering/SpriteRenderer.cpp"
     "source/engine/rendering/TextureWrapper.cpp"
