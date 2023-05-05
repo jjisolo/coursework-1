@@ -3,7 +3,7 @@
 #define __gettersettertype GLuint
 
 #define makeGetter(memberName, functionName) \
-		__gettersettertype inline get##functionName() { return(this->memberName); }
+		__gettersettertype inline const get##functionName() const { return(this->memberName); }
 
 #define makeSetter(memberName, functionName) \
 		void set##functionName(__gettersettertype newVal) { ##memberName = newVal; }
