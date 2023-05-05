@@ -135,7 +135,7 @@ namespace One
 
 		// Initialize the ImGui IO and load the fancy Google font.
 		ImGuiIO& imguiIO = ImGui::GetIO();
-		imguiIO.Fonts->AddFontFromFileTTF(_IMGUI_DEFAULT_FONT_RELPATH, 18.0f * m_monitorHighDPIScaleFactor, NULL, NULL);
+		imguiIO.Fonts->AddFontFromFileTTF(_IMGUI_DEFAULT_FONT_RELPATH, 23.0f * m_monitorHighDPIScaleFactor, NULL, NULL);
 
 		// pass the DPI scaling to the ImGUI renderer.
 		applyImGuiStyles();
