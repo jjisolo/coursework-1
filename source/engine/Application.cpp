@@ -10,20 +10,22 @@
 #ifdef __APPLE__
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 3;
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 3;
-	static constexpr const char*    _GLSL_VERSION               = "3.3";
+	static constexpr const char*    _GLSL_VERSION               = "#version 150";
 #elif __linux__
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 4;
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 3;
-	static constexpr const char*    _GLSL_VERSION               = "4.3";
+	static constexpr const char*    _GLSL_VERSION               = "#version 150";
 #elif _WIN32
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MAJOR = 4;
 	static constexpr const unsigned _GLFW_CONTEXT_VERSION_MINOR = 6;
-	static constexpr const char*    _GLSL_VERSION               = "4.6";
+	static constexpr const char*    _GLSL_VERSION               = "#version 130";
 #endif
 
 // The default path to the sprites shaders
 static constexpr const char* _SPRITESHADER_VERT_RELPATH = "shaders/engine_sprite_shader.vert";
 static constexpr const char* _SPRITESHADER_FRAG_RELPATH = "shaders/engine_sprite_shader.frag";
+
+static constexpr const char* _IMGUI_DEFAULT_FONT_RELPATH = "data/fonts/roboto_regular.ttf";
 
 namespace One
 {
@@ -38,6 +40,7 @@ namespace One
 		if (glfwInit() != GLFW_TRUE)
 		{
 			Engine::Logger::m_ApplicationLogger->error("Unable to initialize GLFW(init function returned GLFW_FALSE)");
+
 			return(Engine::Error::ValidationError);
 		}
 		Engine::Logger::m_ApplicationLogger->debug("GLFW library has been initialized");
@@ -54,6 +57,10 @@ namespace One
 
 		// Set the window non-resizable
 		glfwWindowHint(GLFW_RESIZABLE, false);
+
+#ifdef __APPLE__
+		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+#endif
 
 		// Try to initialize the window abstraction.
 		auto& windowInstance = Engine::Window::instance();
@@ -84,6 +91,24 @@ namespace One
 		}
 		Engine::Logger::m_ApplicationLogger->debug("GLAD has been initialized");
 
+		// Workaround with HighDPI scaling. 
+		m_monitorHighDPIScaleFactor = 1.0f;
+
+#ifdef _WIN32
+		// Get the scaling factor of the windows UI.
+		GLfloat monitorScaleX, monitorScaleY;
+
+		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+		glfwGetMonitorContentScale(primaryMonitor, &monitorScaleX, &monitorScaleY);
+
+		// And store it(used for ImGUI);
+		m_monitorHighDPIScaleFactor = monitorScaleX;
+
+		// If there's some scaling factor is set, store it and hint the GLFW window.
+		if (monitorScaleX > 1 || monitorScaleY > 1)
+			glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+#endif
+
 		// Setup Dear ImGui
 		Engine::Logger::m_ApplicationLogger->info("Initializing Dear ImGui");
 
@@ -108,9 +133,13 @@ namespace One
 			return(Engine::Error::InitializationError);
 		}
 
-		// Initialize the ImGui IO.
+		// Initialize the ImGui IO and load the fancy Google font.
 		ImGuiIO& imguiIO = ImGui::GetIO();
-		UnreferencedParameter(imguiIO);
+		imguiIO.Fonts->AddFontFromFileTTF(_IMGUI_DEFAULT_FONT_RELPATH, 18.0f * m_monitorHighDPIScaleFactor, NULL, NULL);
+
+		// pass the DPI scaling to the ImGUI renderer.
+		ImGuiStyle imguiStyle = ImGui::GetStyle();
+		imguiStyle.ScaleAllSizes(m_monitorHighDPIScaleFactor);
 
 		// Setup ImGui Style
 		ImGui::StyleColorsDark();
@@ -155,7 +184,11 @@ namespace One
 			Engine::Logger::m_ApplicationLogger->error("Program failed due to an shader loading error");
 
 			// Or safely quit the program.
-			glfwDestroyWindow(Engine::Window::instance().getWindowPointerKHR());
+			auto windowPointerKHR = Engine::Window::instance().getWindowPointerKHR();
+
+			if(windowPointerKHR) 
+				glfwDestroyWindow(windowPointerKHR);
+
 			glfwTerminate();
 		
 			return(Engine::Error::ValidationError);
@@ -173,15 +206,18 @@ namespace One
 
 	Engine::Error One::Application::updateGameEngine(void) noexcept
 	{
+		//glfwMakeContextCurrent(Engine::Window::instance().getWindowPointerKHR());
+
 		// Get the reference to the window instance, and GLFW window instance pointer, so
 		// not to call the singleton ::instance() function every loop iteration.
 		auto& windowInstance = Engine::Window::instance();
 		auto  windowPointer  = windowInstance.getWindowPointerKHR();
 
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 		// Catch and process keyboard input from the user.
 		processInput(windowPointer);
+
+		// Render ImGui elements.
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// Swap the front and back buffers of the current window.
 		glfwSwapBuffers(windowPointer);
