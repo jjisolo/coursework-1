@@ -27,6 +27,12 @@ namespace Game
 	private:
 		GameState m_GameState;
 
+		bool m_showSettingsWindow    = false;
+		bool m_showQuitApproveWindow = false;
+		bool m_showDebugWindow       = false;
+
+		bool m_openCardsMode = false;
+
 		std::vector<Engine::GFX::Sprite> m_mainMenuSprites;
 	};
 }

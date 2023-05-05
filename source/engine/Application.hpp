@@ -55,6 +55,12 @@ namespace One
 			ImGui_ImplGlfw_NewFrame();
 		}
 
+		// Get the GLFW's window pointer
+		inline GLFWwindow* getWindowPointer()
+		{
+			return(Engine::Window::instance().getWindowPointerKHR());
+		}
+
 		// Get the logic window size.
 		inline glm::ivec2 getWindowDimensions()
 		{
