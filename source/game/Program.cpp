@@ -2,6 +2,11 @@
 
 #include "../engine/Sprite.hpp"
 
+static constexpr const glm::vec2  CARD_ASSET_RATIO                = {1.f,    1.5f};
+static constexpr const glm::vec2  CARD_ASSET_SIZE_NON_NORMALIZED  = {150.0f, 150.0f};
+static constexpr const glm::ivec2 CARD_ASSET_SIZE_NORMALIZED      = CARD_ASSET_SIZE_NON_NORMALIZED*CARD_ASSET_RATIO;
+static constexpr const float      CARDS_ROW_OTHER_PLAYERS_Y_COORD = 0.02f;
+
 static constexpr auto GAME_DESCRIPTION =
 R"(The goal of the game is to score the least number of points. In order to play, you need a 
 deck of 36 cards and from 2 to 4 players.The first card dealer in the game is determined by
@@ -38,7 +43,7 @@ namespace Game
         auto windowDimensions  = getWindowDimensions();
 		
 		// Load game background texture
-		Engine::ResourceManager::loadTexture("data/assets/background.jpg", false, "background");
+  		Engine::ResourceManager::loadTexture("data/assets/background.jpg", false, "background");
 		
         // Load the card reverse side textures.
 	    Engine::ResourceManager::loadTexture("data/assets/card-back1.png", true, "card-back-blue");
@@ -54,7 +59,8 @@ namespace Game
 		// Set up game board
 		m_gameBoard.generateDeck();
 		m_gameBoard.shuffleDeck();
-	    
+	    m_gameBoard.assignCardsToThePlayers();
+
 		// Set background for all the groups
 		m_mainMenuSprites .push_back(backgroundSprite);		
 		m_gameBoardSprites.push_back(backgroundSprite);
@@ -115,62 +121,112 @@ namespace Game
 		return(std::move(ownerGroup));
 	  };
 	  
+
+	  // Clear the previous vector no to redraw sprites.
+	  m_gameBoardSprites.clear();
+
 	  // Create owner groups for each CardOwner
-	  std::vector<Card> ownerPlayer1 = search(cards, CARD_OWNER_PLAYER1);
-	  std::vector<Card> ownerPlayer2 = search(cards, CARD_OWNER_PLAYER2);
-	  std::vector<Card> ownerPlayer3 = search(cards, CARD_OWNER_PLAYER3);
-	  std::vector<Card> ownerPlayer4 = search(cards, CARD_OWNER_PLAYER4);
 	  std::vector<Card> ownerHeap    = search(cards, CARD_OWNER_DECK);
 	  std::vector<Card> ownerBoard   = search(cards, CARD_OWNER_BOARD);
 	  
-	  // Render the cards that are in the player1 hand.
+	  auto renderPlayerCards = [&](glm::vec2 renderAreaStart, glm::vec2 renderAreaEnd, CardOwner cardOwner)
+	  {
+		auto ownerGroup     = search(cards, cardOwner);
+	    auto ownerGroupSize = ownerGroup.size();
+		
+		// The offset between the cards so they can fit in the render area
+		const float cardOffset = (renderAreaEnd.x - renderAreaStart.x) / ownerGroupSize;
 
-	  // Render the cards that are in the player2, player3,
-	  // player4 hands.
+		// Generate the sprite for each card in the card group.
+	    for(size_t cardIndex=0; cardIndex < ownerGroupSize; ++cardIndex)
+		{
+		  Engine::GFX::Sprite playerCard;
+	      playerCard.setSpritePosition({renderAreaStart.x + cardOffset*cardIndex, renderAreaStart.y});
+	      playerCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
+	      playerCard.bindTexture      (ownerGroup[cardIndex].textureHandleMain);
+	 
+		  m_gameBoardSprites.push_back(playerCard);		  
+		}
+	  };
+	
+	  glm::vec2 renderAreaStart, renderAreaEnd;
+
+	  // Player 1
+	  renderAreaStart.x = windowDimensions.x * 0.30f;
+	  renderAreaStart.y = windowDimensions.y * 0.76sf;
+	  renderAreaEnd.x   = windowDimensions.x * 0.70f;
+	  renderAreaEnd.y   = renderAreaStart.y;
+	  renderPlayerCards(renderAreaStart, renderAreaEnd, CARD_OWNER_PLAYER1);
+	  
+	  // Player 2
+	  renderAreaStart.x = windowDimensions.x * 0.05f;
+	  renderAreaStart.y = windowDimensions.y * CARDS_ROW_OTHER_PLAYERS_Y_COORD;
+	  renderAreaEnd.x   = windowDimensions.x * 0.25f;
+	  renderAreaEnd.y   = renderAreaStart.y;
+	  renderPlayerCards(renderAreaStart, renderAreaEnd, CARD_OWNER_PLAYER2);
+
+	  // Player 3
+	  renderAreaStart.x = windowDimensions.x * 0.38f;
+	  renderAreaStart.y = windowDimensions.y * CARDS_ROW_OTHER_PLAYERS_Y_COORD;
+	  renderAreaEnd.x   = windowDimensions.x * 0.60f;
+	  renderAreaEnd.y   = renderAreaStart.y;
+	  renderPlayerCards(renderAreaStart, renderAreaEnd, CARD_OWNER_PLAYER3);
+
+	  // Player 4
+	  renderAreaStart.x = windowDimensions.x * 0.75f;
+	  renderAreaStart.y = windowDimensions.y * CARDS_ROW_OTHER_PLAYERS_Y_COORD;
+	  renderAreaEnd.x   = windowDimensions.x * 0.95f;
+	  renderAreaEnd.y   = renderAreaStart.y;
+	  renderPlayerCards(renderAreaStart, renderAreaEnd, CARD_OWNER_PLAYER4);
 
 	  // Render the cards that are in the deck.
-	  auto ownerDeck     = search(cards, CARD_OWNER_DECK);
-	  auto ownerDeckSize = ownerDeck.size();
-	  
-	  // The position of the deck is in middle right corner of
-	  // the screen.
-	  glm::vec2 deckPosition;
-	  deckPosition.x = windowDimensions.x * 0.70f;
-	  deckPosition.y = windowDimensions.y * 0.50f;
-	  
-	  // The idea is to render the deck like it is not aligned
-	  // perfectly(not each card stacked on each other). Like	  
-	  // there are some cards went out of the deck.
-	  if(ownerDeckSize >= 3) {
-	      Engine::GFX::Sprite veryTintedCard;
-	      veryTintedCard.setSpritePosition(deckPosition);
-	      veryTintedCard.setSpriteSize    ({100, 100});
-	      veryTintedCard.setSpriteRotation(25.0f);		
-	      veryTintedCard.bindTexture      (ownerDeck[2].textureHandleBack);
-	 
-		  m_gameBoardSprites.push_back(veryTintedCard);		  
-	  }
-	 
-	  if(ownerDeckSize >= 2) {
-	      Engine::GFX::Sprite slightlyTintedCard;
-	      slightlyTintedCard.setSpritePosition(deckPosition);
-	      slightlyTintedCard.setSpriteSize    ({100, 100});
-	      slightlyTintedCard.setSpriteRotation(15.0f);		
-	      slightlyTintedCard.bindTexture      (ownerDeck[1].textureHandleBack);		
-	  
-		  m_gameBoardSprites.push_back(slightlyTintedCard);	  
-	  }
+	  {
+		auto ownerGroup     = search(cards, CARD_OWNER_DECK);\
+		auto ownerGroupSize = ownerGroup.size();
 
-	  if(ownerDeckSize >= 1) {
-	      Engine::GFX::Sprite regularCard;
-	      regularCard.setSpritePosition(deckPosition);
-	      regularCard.setSpriteSize    ({100, 100});
-	      regularCard.setSpriteRotation(3.0f);		
-	      regularCard.bindTexture      (ownerDeck[0].textureHandleBack);
-	  
-	      m_gameBoardSprites.push_back(regularCard);
-	  } 
-	  
+		// The position of the deck is in middle right corner of
+		// the screen.
+		glm::vec2 deckPosition;
+		deckPosition.x = windowDimensions.x * 0.85f;
+		deckPosition.y = windowDimensions.y * 0.40f;
+		
+		// The idea is to render the deck like it is not aligned
+		// perfectly(not each card stacked on each other). Like	  
+		// there are some cards went out of the deck.
+		if(ownerGroupSize >= 3)
+		{
+			Engine::GFX::Sprite veryTintedCard;
+			veryTintedCard.setSpritePosition(deckPosition);
+			veryTintedCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
+			veryTintedCard.setSpriteRotation(25.0f);		
+			veryTintedCard.bindTexture      (ownerGroup[2].textureHandleBack);
+			
+			m_gameBoardSprites.push_back(veryTintedCard);		  
+		}
+		
+		if(ownerGroupSize >= 2)
+		{
+			Engine::GFX::Sprite slightlyTintedCard;
+			slightlyTintedCard.setSpritePosition(deckPosition);
+			slightlyTintedCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
+			slightlyTintedCard.setSpriteRotation(15.0f);		
+			slightlyTintedCard.bindTexture      (ownerGroup[1].textureHandleBack);		
+			
+			m_gameBoardSprites.push_back(slightlyTintedCard);	  
+		}
+		
+		if(ownerGroupSize >= 1)
+		{
+			Engine::GFX::Sprite regularCard;
+			regularCard.setSpritePosition(deckPosition);
+			regularCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
+			regularCard.setSpriteRotation(3.0f);		
+			regularCard.bindTexture      (ownerGroup[0].textureHandleBack);
+			
+			m_gameBoardSprites.push_back(regularCard);
+		}
+	  }
+	  	  
 	  // Render the cards that are in the heap.
 
 	  // Render the cards that are on the board.
