@@ -15,7 +15,6 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -32,6 +31,7 @@ add_executable(101
     "source/engine/Logger.cpp"
     "source/engine/Sprite.cpp"
     "source/game/Program.cpp"
+	"source/game/GameBoard.cpp"
 )
 
 target_link_libraries(101 PRIVATE glfw imgui_glfw glad glm::glm spdlog::spdlog)
