@@ -14,23 +14,25 @@ namespace Game
 {
   enum CardRank
   {
-	  Diamonds,
-	  Hearts,
-	  Spades,
-	  Clubs,
+	  Diamonds     = 1,
+	  Hearts       = 2,
+	  Spades       = 3,
+	  Clubs        = 4,
+	  CardRankLast = 5,
   };
 
   enum CardSuit
   {
-	Ace    = 1,
-	Six    = 6,
-	Seven  = 7,
-	Eight  = 8,
-	Nine   = 9,
-	Ten    = 10,
-	Jack   = 11,
-	Queen  = 12,
-	King   = 13,
+  	  Ace          = 1,
+	  Six          = 2,
+	  Seven        = 3,
+	  Eight        = 4,
+	  Nine         = 5,
+	  Ten          = 6,
+	  Jack         = 7,
+	  Queen        = 8,
+	  King         = 9,
+	  CardSuitLast = 10,
   };
 
   enum CardOwner
@@ -66,7 +68,7 @@ namespace Game
 	  return(m_Cards);
 	}
 
-	void transferCard(Card& card, CardOwner newOwner);
+	void assignCardsToThePlayers(void);
 
 	void shuffleDeck(void);
 

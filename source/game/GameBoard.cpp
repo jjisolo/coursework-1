@@ -1,7 +1,6 @@
 #include "GameBoard.hpp"
 
 using namespace Engine;
-#define loadTexture ResourceManager::loadTexture;
 
 namespace Game
 {
@@ -21,7 +20,7 @@ namespace Game
 	  std::string result = "data/assets/";
 	  result += sCardRank + "/";
 	  result += "card-" + sCardRank + "-";
-	  result += std::to_string(cardSuit);
+	  result += std::to_string((int)cardSuit);
 	  result += ".png";
 	  return(result);
 	};
@@ -29,7 +28,7 @@ namespace Game
 	auto loadTextureA = [&](const std::string& cardRank) -> std::string
 	{
 	  std::string texturePath = createTexturePath(cardRank);
-	  loadTexture(texturePath.c_str(), true, texturePath);
+	  Engine::ResourceManager::loadTexture(texturePath.c_str(), true, texturePath);
 
 	  return(texturePath);
 	}; 
@@ -47,13 +46,32 @@ namespace Game
 	  return(loadTextureA("diamonds"));
   }
 
+  void Board::assignCardsToThePlayers(void)
+  {
+	// Player 1
+	for(size_t i=0; i < 4; ++i)
+	  m_Cards[i].cardOwner = CARD_OWNER_PLAYER1;
+
+	// Player 2
+	for(size_t i=4; i < 8; ++i)
+	  m_Cards[i].cardOwner = CARD_OWNER_PLAYER2;
+
+	// Player 3
+	for(size_t i=8; i < 12; ++i)
+	  m_Cards[i].cardOwner = CARD_OWNER_PLAYER3;
+
+	// Player 4
+	for(size_t i=12; i < 16; ++i)
+	  m_Cards[i].cardOwner = CARD_OWNER_PLAYER4;
+  }
+
   void Board::generateDeck(void)
   {
 	Engine::Logger::m_GameLogger->info("Generating card deck");
 	
 	// Assign proper texture to each card in the deck.
-	for(int cardRank = Diamonds; cardRank != Hearts; ++cardRank) {
-	  for(int cardSuit = Ace; cardSuit != Six; ++cardSuit) {
+	for(int cardRank = Diamonds; cardRank != CardRankLast; ++cardRank) {
+	  for(int cardSuit = Ace; cardSuit != CardSuitLast; ++cardSuit) {
 		Card dummyCard;
 		dummyCard.cardRank          = static_cast<CardRank>(cardRank);
 		dummyCard.cardSuit          = static_cast<CardSuit>(cardSuit);
