@@ -46,7 +46,7 @@ namespace Engine
 		// Create the loggers and assign theirs names.
 		m_ApplicationLogger = std::make_unique<spdlog::logger>("Application General",  applicationSinks.begin(), applicationSinks.end());
 		m_GraphicsLogger    = std::make_unique<spdlog::logger>("Graphics General",     graphicsSink.begin(),     graphicsSink.end());
-		m_ResourceLogger    = std::make_unique<spdlog::logger>("Resource Manager",     graphicsSink.begin(), graphicsSink.end());
+		m_ResourceLogger    = std::make_unique<spdlog::logger>("Resource Manager",     graphicsSink.begin(),     graphicsSink.end());
 		m_GameLogger        = std::make_unique<spdlog::logger>("Game General",         gameSink.begin(),         gameSink.end());
 
 		// Set the logging level for each logger(the trace level means that
