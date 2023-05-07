@@ -23,14 +23,14 @@ namespace Game
   enum CardSuit
   {
 	Ace    = 1,
-    Six    = 6,
+	Six    = 6,
 	Seven  = 7,
 	Eight  = 8,
-    Nine   = 9,
-    Ten    = 10,
+	Nine   = 9,
+	Ten    = 10,
 	Jack   = 11,
-    Queen  = 12,
-    King   = 13,
+	Queen  = 12,
+	King   = 13,
   };
 
   struct Card
