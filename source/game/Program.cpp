@@ -35,25 +35,33 @@ namespace Game
 {
 	Engine::Error GameProgram::onUserInitialize()
 	{
-	    m_gameBoard.generateDeck();
-		m_gameBoard.shuffleDeck();
-
-	    m_gameInfo.gameState = GameState::Main_Menu;
-		
-		auto windowDimensions  = getWindowDimensions();
+        auto windowDimensions  = getWindowDimensions();
 		
 		// Load game background texture
 		Engine::ResourceManager::loadTexture("data/assets/background.jpg", false, "background");
+		
+        // Load the card reverse side textures.
+	    Engine::ResourceManager::loadTexture("data/assets/card-back1.png", true, "card-back-blue");
+        Engine::ResourceManager::loadTexture("data/assets/card-back2.png", true, "card-back-red");
+        Engine::ResourceManager::loadTexture("data/assets/card-back3.png", true, "card-back-green");
+	    Engine::ResourceManager::loadTexture("data/assets/card-back4.png", true, "card-back-yellow");	
 		
 		// Create sprite for the background.
 		Engine::GFX::Sprite backgroundSprite;
 		backgroundSprite .setSpriteSize    ({ windowDimensions.x, windowDimensions.y });
 		backgroundSprite .bindTexture      ("background");
-
-		m_mainMenuSprites.push_back(backgroundSprite);
 		
+		// Set up game board
+		m_gameBoard.generateDeck();
+		m_gameBoard.shuffleDeck();
+	    
+		// Set background for all the groups
+		m_mainMenuSprites .push_back(backgroundSprite);		
+		m_gameBoardSprites.push_back(backgroundSprite);
 		
-
+		// The entry point of the game is main menu.
+		m_gameInfo.gameState = GameState::Main_Menu;
+		
 		return(Engine::Error::Ok);
 	}
 
@@ -65,13 +73,120 @@ namespace Game
 
 	Engine::Error GameProgram::onUserUpdate(GLfloat elapsedTime)
 	{
-		auto windowDimensions = getWindowDimensions();
+	    auto windowDimensions = getWindowDimensions();
+		
+		if(m_gameInfo.gameState == GameState::Game_Board)
+		{
+		  updateGameBoardSprites(windowDimensions);
+
+		  for (auto& sprite : m_gameBoardSprites)
+			  sprite.render(m_SpriteRenderer);
+
+          renderGameBoardUI(windowDimensions);
+		}
+
 
 		if (m_gameInfo.gameState == GameState::Main_Menu)
 		{
-			for (auto& sprite : m_mainMenuSprites)
-				sprite.render(m_SpriteRenderer);
+		    for (auto& sprite : m_mainMenuSprites)
+			    sprite.render(m_SpriteRenderer);
+			
+			renderMainMenuUI(windowDimensions);
+		}
+		
+		return(Engine::Error::Ok);
+	}
 
+    void GameProgram::updateGameBoardSprites(glm::ivec2& windowDimensions)
+    { 
+	  std::vector<Card>& cards = m_gameBoard.getCards();
+	  
+	  // Create a card group based on the card owner.
+	  auto search = [](std::vector<Card>& cards, CardOwner owner) -> std::vector<Card> {
+		std::vector<Card> ownerGroup;
+		
+		// Iterate through each card and if the card owner mathces with the
+		// requested owner add it to the result group(that contains only
+		// owners that user specified).
+		for(auto& card: cards)
+		  if(card.cardOwner == owner)
+			ownerGroup.push_back(card);
+	    
+		return(std::move(ownerGroup));
+	  };
+	  
+	  // Create owner groups for each CardOwner
+	  std::vector<Card> ownerPlayer1 = search(cards, CARD_OWNER_PLAYER1);
+	  std::vector<Card> ownerPlayer2 = search(cards, CARD_OWNER_PLAYER2);
+	  std::vector<Card> ownerPlayer3 = search(cards, CARD_OWNER_PLAYER3);
+	  std::vector<Card> ownerPlayer4 = search(cards, CARD_OWNER_PLAYER4);
+	  std::vector<Card> ownerHeap    = search(cards, CARD_OWNER_DECK);
+	  std::vector<Card> ownerBoard   = search(cards, CARD_OWNER_BOARD);
+	  
+	  // Render the cards that are in the player1 hand.
+
+	  // Render the cards that are in the player2, player3,
+	  // player4 hands.
+
+	  // Render the cards that are in the deck.
+	  auto ownerDeck     = search(cards, CARD_OWNER_DECK);
+	  auto ownerDeckSize = ownerDeck.size();
+	  
+	  // The position of the deck is in middle right corner of
+	  // the screen.
+	  glm::vec2 deckPosition;
+	  deckPosition.x = windowDimensions.x * 0.70f;
+	  deckPosition.y = windowDimensions.y * 0.50f;
+	  
+	  // The idea is to render the deck like it is not aligned
+	  // perfectly(not each card stacked on each other). Like	  
+	  // there are some cards went out of the deck.
+	  if(ownerDeckSize >= 3) {
+	      Engine::GFX::Sprite veryTintedCard;
+	      veryTintedCard.setSpritePosition(deckPosition);
+	      veryTintedCard.setSpriteSize    ({100, 100});
+	      veryTintedCard.setSpriteRotation(25.0f);		
+	      veryTintedCard.bindTexture      (ownerDeck[2].textureHandleBack);
+	 
+		  m_gameBoardSprites.push_back(veryTintedCard);		  
+	  }
+	 
+	  if(ownerDeckSize >= 2) {
+	      Engine::GFX::Sprite slightlyTintedCard;
+	      slightlyTintedCard.setSpritePosition(deckPosition);
+	      slightlyTintedCard.setSpriteSize    ({100, 100});
+	      slightlyTintedCard.setSpriteRotation(15.0f);		
+	      slightlyTintedCard.bindTexture      (ownerDeck[1].textureHandleBack);		
+	  
+		  m_gameBoardSprites.push_back(slightlyTintedCard);	  
+	  }
+
+	  if(ownerDeckSize >= 1) {
+	      Engine::GFX::Sprite regularCard;
+	      regularCard.setSpritePosition(deckPosition);
+	      regularCard.setSpriteSize    ({100, 100});
+	      regularCard.setSpriteRotation(3.0f);		
+	      regularCard.bindTexture      (ownerDeck[0].textureHandleBack);
+	  
+	      m_gameBoardSprites.push_back(regularCard);
+	  } 
+	  
+	  // Render the cards that are in the heap.
+
+	  // Render the cards that are on the board.
+    }
+
+    void GameProgram::renderGameBoardUI(glm::ivec2& windowDimensions)
+    {
+	  ImguiCreateNewFrameKHR();
+	  ImGui::NewFrame(); 
+	  
+	  ImGui::EndFrame();
+	  ImGui::Render();
+    }
+
+    void GameProgram::renderMainMenuUI(glm::ivec2& windowDimensions)
+    {
 			ImguiCreateNewFrameKHR();
 			ImGui::NewFrame(); 
 
@@ -86,7 +201,7 @@ namespace Game
 			ImGui::Begin("Main Menu", NULL, window_flags);
 			
 			if (ImGui::Button("\t\t\tNew Game\t\t\t"))
-				(void)0;
+			  m_gameInfo.gameState = GameState::Game_Board; 
 			
 			ImGui::SameLine();
 
@@ -186,8 +301,6 @@ namespace Game
 
 			ImGui::EndFrame();
 			ImGui::Render();
-		}
-		
-		return(Engine::Error::Ok);
-	}
+    }
+
 }

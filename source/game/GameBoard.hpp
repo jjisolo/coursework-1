@@ -39,10 +39,10 @@ namespace Game
 	CARD_OWNER_PLAYER2,
 	CARD_OWNER_PLAYER3,
 	CARD_OWNER_PLAYER4,
-	CARD_OWNER_DECKHEAP,
-	CARD_OWNER_BOARD,
+	CARD_OWNER_HEAP,
 	CARD_OWNER_DECK,
-  }
+	CARD_OWNER_BOARD,
+  };
 
   struct Card
   {
@@ -61,6 +61,13 @@ namespace Game
 	~Board();
 
   public:
+	inline std::vector<Card>& getCards(void)
+	{
+	  return(m_Cards);
+	}
+
+	void transferCard(Card& card, CardOwner newOwner);
+
 	void shuffleDeck(void);
 
 	void generateDeck(void);

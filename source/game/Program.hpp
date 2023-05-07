@@ -21,6 +21,14 @@ namespace Game
 
 		virtual Engine::Error onUserUpdate(GLfloat elapsedTime) override;
 
+
+	private:
+	    void updateGameBoardSprites(glm::ivec2& windowDimensions);
+
+	    void renderGameBoardUI(glm::ivec2& windowDimensions);
+	    
+	    void renderMainMenuUI(glm::ivec2& windowDimensions);
+
 	private:
 	    Game::Board m_gameBoard;
 	    Game::Info  m_gameInfo;
@@ -32,5 +40,6 @@ namespace Game
 		bool m_openCardsMode = false;
 
 		std::vector<Engine::GFX::Sprite> m_mainMenuSprites;
+	    std::vector<Engine::GFX::Sprite> m_gameBoardSprites;
 	};
 }

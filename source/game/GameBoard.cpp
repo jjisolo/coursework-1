@@ -51,12 +51,6 @@ namespace Game
   {
 	Engine::Logger::m_GameLogger->info("Generating card deck");
 	
-	// Load the card reverse side textures.
-	Engine::ResourceManager::loadTexture("data/assets/card-back1.png", true, "card-back-blue");
-    Engine::ResourceManager::loadTexture("data/assets/card-back2.png", true, "card-back-red");
-    Engine::ResourceManager::loadTexture("data/assets/card-back3.png", true, "card-back-green");
-	Engine::ResourceManager::loadTexture("data/assets/card-back4.png", true, "card-back-yellow");
-	
 	// Assign proper texture to each card in the deck.
 	for(int cardRank = Diamonds; cardRank != Hearts; ++cardRank) {
 	  for(int cardSuit = Ace; cardSuit != Six; ++cardSuit) {
