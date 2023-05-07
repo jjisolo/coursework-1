@@ -33,10 +33,22 @@ namespace Game
 	King   = 13,
   };
 
+  enum CardOwner
+  {
+	CARD_OWNER_PLAYER1,
+	CARD_OWNER_PLAYER2,
+	CARD_OWNER_PLAYER3,
+	CARD_OWNER_PLAYER4,
+	CARD_OWNER_DECKHEAP,
+	CARD_OWNER_BOARD,
+	CARD_OWNER_DECK,
+  }
+
   struct Card
   {
-	CardRank cardRank;
-	CardSuit cardSuit;
+	CardRank  cardRank;
+	CardSuit  cardSuit;
+	CardOwner cardOwner;
 
 	std::string textureHandleMain;
 	std::string textureHandleBack;

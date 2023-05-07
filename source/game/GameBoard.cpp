@@ -63,6 +63,7 @@ namespace Game
 		Card dummyCard;
 		dummyCard.cardRank          = static_cast<CardRank>(cardRank);
 		dummyCard.cardSuit          = static_cast<CardSuit>(cardSuit);
+		dummyCard.cardOwner         = CARD_OWNER_DECK;
 		dummyCard.textureHandleMain = loadTextureForCard(cardRank, cardSuit);
 		dummyCard.textureHandleBack = "card-back-green";
 	    
