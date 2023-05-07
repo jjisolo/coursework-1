@@ -35,24 +35,31 @@ namespace Game
 {
 	Engine::Error GameProgram::onUserInitialize()
 	{
-		m_GameState = GameState::Main_Menu;
-	
+	    m_gameBoard.generateDeck();
+		m_gameBoard.shuffleDeck();
+
+	    m_gameInfo.gameState = GameState::Main_Menu;
+		
 		auto windowDimensions  = getWindowDimensions();
 		
+		// Load game background texture
 		Engine::ResourceManager::loadTexture("data/assets/background.jpg", false, "background");
-
+		
+		// Create sprite for the background.
 		Engine::GFX::Sprite backgroundSprite;
-		backgroundSprite.setSpriteSize    ({ windowDimensions.x, windowDimensions.y });
-		backgroundSprite.bindTexture      ("background");
+		backgroundSprite .setSpriteSize    ({ windowDimensions.x, windowDimensions.y });
+		backgroundSprite .bindTexture      ("background");
 
 		m_mainMenuSprites.push_back(backgroundSprite);
+		
+		
 
 		return(Engine::Error::Ok);
 	}
 
 	Engine::Error GameProgram::onUserRelease()
 	{
-		
+
 		return(Engine::Error::Ok);
 	}
 
@@ -60,13 +67,13 @@ namespace Game
 	{
 		auto windowDimensions = getWindowDimensions();
 
-		if (m_GameState == GameState::Main_Menu)
+		if (m_gameInfo.gameState == GameState::Main_Menu)
 		{
 			for (auto& sprite : m_mainMenuSprites)
 				sprite.render(m_SpriteRenderer);
 
 			ImguiCreateNewFrameKHR();
-			ImGui::NewFrame();
+			ImGui::NewFrame(); 
 
 			ImGuiWindowFlags window_flags = 0;
 			window_flags |= ImGuiWindowFlags_NoMove;

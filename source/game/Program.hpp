@@ -3,14 +3,11 @@
 #include "../engine/Application.hpp"
 #include "../engine/Sprite.hpp"
 
+#include "GameInfo.hpp"
+#include "GameBoard.hpp"
+
 namespace Game
 {
-	enum class GameState
-	{
-		Main_Menu,
-		Game_Board,
-	};
-
 	class GameProgram: public One::Application
 	{
 	public:
@@ -25,7 +22,8 @@ namespace Game
 		virtual Engine::Error onUserUpdate(GLfloat elapsedTime) override;
 
 	private:
-		GameState m_GameState;
+	    Game::Board m_gameBoard;
+	    Game::Info  m_gameInfo;
 
 		bool m_showSettingsWindow    = false;
 		bool m_showQuitApproveWindow = false;

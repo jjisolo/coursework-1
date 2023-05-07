@@ -8,7 +8,7 @@ namespace Game
 		Game_Board,
 	};
 
-	struct GameInfo
+	struct Info
 	{
 		GameState gameState;
 	};
