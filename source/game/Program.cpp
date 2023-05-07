@@ -48,8 +48,8 @@ namespace Game
 		
 		// Create sprite for the background.
 		Engine::GFX::Sprite backgroundSprite;
-		backgroundSprite .setSpriteSize    ({ windowDimensions.x, windowDimensions.y });
-		backgroundSprite .bindTexture      ("background");
+		backgroundSprite .setSpriteSize({ windowDimensions.x, windowDimensions.y });
+		backgroundSprite .bindTexture  ("background");
 		
 		// Set up game board
 		m_gameBoard.generateDeck();
