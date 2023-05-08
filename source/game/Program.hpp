@@ -33,6 +33,9 @@ namespace Game
 	    
 	    void renderMainMenuUI(ivec2& windowDimensions);
 
+        void renderPlayerStatUI(CardOwner owner);
+
+        bool spriteCollided(Sprite& sprite, vec2 point) const;
 	private:
 	    Game::Board m_gameBoard;
 	    Game::Info  m_gameInfo;
@@ -40,6 +43,10 @@ namespace Game
 	    bool m_showSettingsWindow    = false;
 		bool m_showQuitApproveWindow = false;
 		bool m_showDebugWindow       = false;
+
+        bool m_ShowPlayer2Stats = false;
+        bool m_ShowPlayer3Stats = false;
+        bool m_ShowPlayer4Stats = false;
 
 		bool m_openCardsMode = false;
 
@@ -49,6 +56,6 @@ namespace Game
         vector<Sprite> m_gameBoardCards;
         vector<Card>   m_gameBoardCardsRef;
 
-        size_t         m_hoveredSpriteIndex;
+        Card m_hoveredCardCopy;
 	};
 }

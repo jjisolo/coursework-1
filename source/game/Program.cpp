@@ -84,61 +84,66 @@ namespace Game
 	Error GameProgram::onUserUpdate(GLfloat elapsedTime)
 	{
 	    auto windowDimensions = getWindowDimensions();
+        
+        // Update mouse cursor position on the current frame.
+        glfwGetCursorPos(getWindowPointer(), &m_mousePositionX, &m_mousePositionY);
 		
 		if(m_gameInfo.gameState == GameState::Game_Board)
 		{
+          // Arrange the cards sprites(split the cards array by the different
+          // rendering ares by the card owner).
       	  updateGameBoardCardSprites(windowDimensions);
-		  
-          auto cursorCollision = [this](Sprite& sprite) -> bool 
+		                  
+          // Find sprite that are corrently hovered by the mouse.
+          // 
+          // We start with index 1 because index 0 is always the background.
+          const auto spriteGroupSize = m_gameBoardCards.size();
+          
+          // E.G. mark the card as the NULL card.
+          m_hoveredCardCopy.cardRank = CardRankLast;
+
+          for(size_t spriteIndex=0; spriteIndex < spriteGroupSize; ++spriteIndex) 
+            if(spriteCollided(m_gameBoardCards[spriteIndex], {m_mousePositionX, m_mousePositionY})) 
+              m_hoveredCardCopy = m_gameBoardCardsRef[spriteIndex]; // We don't call break here because there is stacked card so active sprite will the most low z-index sprite.
+
+          	
+          if(m_hoveredCardCopy.cardRank != CardRankLast)
           {
-            const auto spritePosition = sprite.getSpritePosition();
-            const auto spriteSize     = sprite.getSpriteSize();
-            
-            glfwGetCursorPos(getWindowPointer(), &m_mousePositionX, &m_mousePositionY);
-            
-            return(
-                   ((m_mousePositionX >= spritePosition.x) && (m_mousePositionX <= (spritePosition.x + spriteSize.x))) && 
-                   ((m_mousePositionY >= spritePosition.y) && (m_mousePositionY <= (spritePosition.y + spriteSize.y)))
-            );
-          };
-                
-          if(m_gameInfo.gameState == GameState::Game_Board)
-          {
-            const auto spriteGroupSize = m_gameBoardCards.size();
-                    
-            // Find sprite that are corrently hovered by the mouse.
-            // 
-            // We start with index 1 because index 0 is always the background.
-            for(size_t spriteIndex=0; spriteIndex < spriteGroupSize; ++spriteIndex)
-            {
-              if(cursorCollision(m_gameBoardCards[spriteIndex])) 
-              {
-                spdlog::info("Collision [x: {}, y: {}] with sprite [x: {}, y: {}]", m_mousePositionX, m_mousePositionY, m_gameBoardCards[spriteIndex].getSpritePosition().x, m_gameBoardCards[spriteIndex].getSpritePosition().y);
-                // We don't call break here because there is stacked card persist
-                // so active sprite will the most low z-index sprite.
-                    
-                m_hoveredSpriteIndex = spriteIndex;
-                auto& card = m_gameBoard.getCardRef(m_gameBoardCardsRef[spriteIndex].cardSuit, m_gameBoardCardsRef[spriteIndex].cardRank);
-                card.cardOwner = CARD_OWNER_PLAYER2;
-              }
-            }  
+            // So we're now know the owner of the card. This means we can
+            // determine on what render area the cursor is pointing to.
+
+            // If the cursor pointing to the one of the 3 players deck.
+            m_ShowPlayer2Stats = false;
+            m_ShowPlayer3Stats = false;
+            m_ShowPlayer4Stats = false;
+
+            if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER2)
+              m_ShowPlayer2Stats = true;
+
+            if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER3)
+              m_ShowPlayer3Stats = true;
+
+            if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER4)
+              m_ShowPlayer4Stats = true;
+
           }
-          	 
+            
+
 		  for (auto& sprite : m_gameBoardGeneral)
-			  sprite.render(m_SpriteRenderer);
-
+            sprite.render(m_SpriteRenderer);
+          
 		  for (auto& sprite : m_gameBoardCards)
-			  sprite.render(m_SpriteRenderer);
-
+            sprite.render(m_SpriteRenderer);
+          
           renderGameBoardUI(windowDimensions);
 		}
-
+        
 		if (m_gameInfo.gameState == GameState::Main_Menu)
 		{
-		    for (auto& sprite : m_mainMenuSprites)
-			    sprite.render(m_SpriteRenderer);
-			
-			renderMainMenuUI(windowDimensions);
+          for (auto& sprite : m_mainMenuSprites)
+            sprite.render(m_SpriteRenderer);
+          
+          renderMainMenuUI(windowDimensions);
 		}
 		
 		return(Error::Ok);
@@ -273,11 +278,31 @@ namespace Game
 	  // Render the cards that are on the board.
     }
 
+    void GameProgram::renderPlayerStatUI(CardOwner owner)
+    {
+      ImGuiWindowFlags windowFlags = 0;
+      //windowFlags |= ImGuiWindowFlags_NoMove;
+      //windowFlags |= ImGuiWindowFlags_NoResize;
+      windowFlags |= ImGuiWindowFlags_NoCollapse;
+
+
+      if(!ImGui::Begin("Player Statistics", NULL, windowFlags))
+      {
+        ImGui::End();
+      }
+      else
+      {
+        ImGui::End();
+      }
+    }
+
     void GameProgram::renderGameBoardUI(glm::ivec2& windowDimensions)
     {
 	  ImguiCreateNewFrameKHR();
 	  ImGui::NewFrame(); 
 	  
+      renderPlayerStatUI(CARD_OWNER_PLAYER2);
+
 	  ImGui::EndFrame();
 	  ImGui::Render();
     }
@@ -395,8 +420,19 @@ namespace Game
 					ImGui::End();
 				}
 			}
-
+            
 			ImGui::EndFrame();
 			ImGui::Render();
+    }
+
+    bool GameProgram::spriteCollided(Sprite& sprite, vec2 point) const
+    {
+      const auto spritePosition = sprite.getSpritePosition();
+      const auto spriteSize     = sprite.getSpriteSize();
+            
+      return(
+       ((m_mousePositionX >= spritePosition.x) && (m_mousePositionX <= (spritePosition.x + spriteSize.x))) && 
+       ((m_mousePositionY >= spritePosition.y) && (m_mousePositionY <= (spritePosition.y + spriteSize.y)))
+      );       
     }
 }
