@@ -7,13 +7,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "vendor/stb_image.h"
 
+using namespace std;
+
 // Initialize the static std::unordered_map's that was declared in the `ResourceManager` class.
-std::unordered_map<std::string, Engine::GFX::Core::ShaderWrapper>  Engine::ResourceManager::m_Shaders;
-std::unordered_map<std::string, Engine::GFX::Core::TextureWrapper> Engine::ResourceManager::m_Textures;
+unordered_map<string, Engine::GFX::Core::ShaderWrapper>  Engine::ResourceManager::m_Shaders;
+unordered_map<string, Engine::GFX::Core::TextureWrapper> Engine::ResourceManager::m_Textures;
 
 namespace Engine
 {
-	ResourceManager::ShaderOrError ResourceManager::loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename, const std::string& name) noexcept
+	ResourceManager::ShaderOrError ResourceManager::loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename, const string& name) noexcept
 	{
 		// If the shader in-class container already holds some data by the provided 
 		// descriptor, safely destroy this shader and place the new one in place of
@@ -39,7 +41,7 @@ namespace Engine
 		{
 			Logger::m_ResourceLogger->warn("Shader {} is not assigned due to an error", name);
 		
-			return std::unexpected(Engine::Error::InitializationError);
+			return unexpected(Engine::Error::InitializationError);
 		}
 
 		return(m_Shaders[name]);
@@ -53,14 +55,14 @@ namespace Engine
 		{
 			Logger::m_ResourceLogger->warn("Attempted to get the shader that does not exists in the map({})", name);
 		
-			return(std::unexpected(Engine::Error::InitializationError));
+			return(unexpected(Engine::Error::InitializationError));
 		}
 
 		// If not just return the shader associated with passed descriptor.
 		return(m_Shaders[name]);
 	}
 
-	ResourceManager::TextureOrError ResourceManager::loadTexture(const char* textureFileName, GLboolean alphaChannel, const std::string& name) noexcept
+	ResourceManager::TextureOrError ResourceManager::loadTexture(const char* textureFileName, GLboolean alphaChannel, const string& name) noexcept
 	{
 		// If the texture in-class container already holds some data by the provided 
 		// descriptor, safely destroy this texture and place the new one in place of
@@ -87,7 +89,7 @@ namespace Engine
 		else 
 		{
 			Logger::m_ResourceLogger->warn("Texture {} is not loaded due to an error", name);
-			return(std::unexpected(Engine::Error::InitializationError));
+			return(unexpected(Engine::Error::InitializationError));
 		}
 
 		return(m_Textures[name]);
@@ -101,7 +103,7 @@ namespace Engine
 		{
 			Logger::m_ResourceLogger->warn("Attempted to get the texture that does not exists in the map({})", name);
 		
-			return(std::unexpected(Engine::Error::InitializationError));
+			return(unexpected(Engine::Error::InitializationError));
 		}
 
 		// If not just return the texture associated with passed descriptor.
@@ -134,17 +136,17 @@ namespace Engine
 	ResourceManager::ShaderOrError ResourceManager::loadShaderFromFile(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename) noexcept
 	{
 		// This variables containing the code of the shaders source files.
-		std::string vertexSourceCode;
-		std::string fragmentSourceCode;
-		std::string geometrySourceCode;
+		string vertexSourceCode;
+		string fragmentSourceCode;
+		string geometrySourceCode;
 
 		try {
 			// The file handle associated with shaders.
-			std::ifstream vertexShaderFile(vertShaderFilename);
-			std::ifstream fragmentShaderFile(fragShaderFilename);
+			ifstream vertexShaderFile(vertShaderFilename);
+			ifstream fragmentShaderFile(fragShaderFilename);
 
-			std::stringstream vertexShaderStream;
-			std::stringstream fragmentShaderStream;
+			stringstream vertexShaderStream;
+			stringstream fragmentShaderStream;
 
 			// Read the code for the vertex and fragment shaders.
 			vertexShaderStream   << vertexShaderFile.rdbuf();
@@ -160,8 +162,8 @@ namespace Engine
 
 			// Do the same for the geometry shader(if it is provided).
 			if (geomShaderFilename != nullptr) {
-				std::ifstream     geometryShaderFile(fragShaderFilename);
-				std::stringstream geometryShaderStream;
+				ifstream     geometryShaderFile(fragShaderFilename);
+				stringstream geometryShaderStream;
 
 				geometryShaderStream << geometryShaderFile.rdbuf();
 				geometrySourceCode = geometryShaderStream.str();
@@ -173,7 +175,7 @@ namespace Engine
 		{
 			Logger::m_ResourceLogger->error("Unable to read shader files");
 		
-			return std::unexpected(Engine::Error::InitializationError);
+			return unexpected(Engine::Error::InitializationError);
 		}
 
 		// Convert it to the `const char *` for the compilation function.
@@ -191,7 +193,7 @@ namespace Engine
 		{
 			Logger::m_ResourceLogger->error("Unable to compile shader({}, {}, {})", vertShaderFilename, fragShaderFilename, geomShaderFilename);
 		
-			return std::unexpected(Engine::Error::InitializationError);
+			return(unexpected(Engine::Error::InitializationError));
 		}
 		
 		return(shaderWrapper);
@@ -217,7 +219,7 @@ namespace Engine
 		{
 			Logger::m_ResourceLogger->error("Unable to load texture {}", textureFilename);
 		
-			return(std::unexpected(Engine::Error::InitializationError));
+			return(unexpected(Engine::Error::InitializationError));
 		}
 
 		// Create the texture wrapper from the data retrieved from the image.

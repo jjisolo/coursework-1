@@ -8,7 +8,7 @@
 #include "rendering/ShaderWrapper.hpp"
 #include "rendering/TextureWrapper.hpp"
 
-
+using namespace std;
 
 // This namespace is polluted with code for the game engine
 namespace Engine
@@ -19,21 +19,21 @@ namespace Engine
 	class ResourceManager
 	{
 		// Typedef the std::expected containers for better readability.
-		using ShaderOrError  = std::expected< GFX::Core::ShaderWrapper,  Engine::Error>;
-		using TextureOrError = std::expected< GFX::Core::TextureWrapper, Engine::Error>;
+		using ShaderOrError  = expected< GFX::Core::ShaderWrapper,  Engine::Error>;
+		using TextureOrError = expected< GFX::Core::TextureWrapper, Engine::Error>;
 
 	public:
 		// Load the shader and get either an error or a shader packed into the ::ShaderWrapper class.
-		static ShaderOrError loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename, const std::string& name) noexcept;
+		static ShaderOrError loadShader(const char* vertShaderFilename, const char* fragShaderFilename, const char* geomShaderFilename, const string& name) noexcept;
 
 		// Retrieve the loaded shader and get either an error or a shader packed into the ::ShaderWrapper class.
-		static ShaderOrError getShader(const std::string& shaderName) noexcept;
+		static ShaderOrError getShader(const string& shaderName) noexcept;
 
 		// Load the texture and get either an error or a shader packed into the ::TextureWrapper class.
-		static TextureOrError loadTexture(const char* textureFileName, GLboolean alphaChannel, const std::string& name) noexcept;
+		static TextureOrError loadTexture(const char* textureFileName, GLboolean alphaChannel, const string& name) noexcept;
 
 		// Retrieve the loaded texture and get either an error or a shader packed into the ::TextureWrapper class.
-		static TextureOrError getTexture(const std::string& name) noexcept;
+		static TextureOrError getTexture(const string& name) noexcept;
 
 		// Destroy all the loaded shaders and textures.
 		static void release() noexcept;
@@ -46,7 +46,7 @@ namespace Engine
 		static TextureOrError loadTextureFromFile(const char* textureFilename, bool alpaChannel) noexcept;
 		
 	private:
-		static std::unordered_map<std::string, GFX::Core::ShaderWrapper>  m_Shaders;
-		static std::unordered_map<std::string, GFX::Core::TextureWrapper> m_Textures;
+		static std::unordered_map<string, GFX::Core::ShaderWrapper>  m_Shaders;
+		static std::unordered_map<string, GFX::Core::TextureWrapper> m_Textures;
 	};
 }

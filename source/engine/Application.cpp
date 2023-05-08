@@ -27,6 +27,8 @@ static constexpr const char* _SPRITESHADER_FRAG_RELPATH = "shaders/engine_sprite
 
 static constexpr const char* _IMGUI_DEFAULT_FONT_RELPATH = "data/fonts/roboto_regular.ttf";
 
+using namespace std;
+
 namespace One
 {
 	Engine::Error Application::initializeGameEngine(void) noexcept
@@ -201,7 +203,7 @@ namespace One
 		Engine::Logger::m_ApplicationLogger->info("Creating sprite renderer");
 
 		// Allocate and initialize the class that is used to render Sprites on the screen.
-		m_SpriteRenderer = std::shared_ptr<Engine::GFX::SpriteRenderer>(new Engine::GFX::SpriteRenderer(*shaderWrapperOrError));
+		m_SpriteRenderer = shared_ptr<Engine::GFX::SpriteRenderer>(new Engine::GFX::SpriteRenderer(*shaderWrapperOrError));
  
 		Engine::Logger::m_ApplicationLogger->info("Application is initialized");
 

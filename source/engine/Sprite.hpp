@@ -6,6 +6,8 @@
 #include "rendering/SpriteRenderer.hpp"
 #include "rendering/TextureWrapper.hpp"
 
+using namespace std;
+
 // This namespace is populated with all graphics-related stuff.
 namespace Engine::GFX
 {
@@ -25,6 +27,7 @@ namespace Engine::GFX
 			m_BindedTextureName = textureName;
 		}
 		 
+
 		// Getters and setters for the sprite data.
 		#define __gettersettertype glm::vec2
 		makeGetterAndSetter(m_SpritePosition, SpritePosition);
@@ -38,7 +41,7 @@ namespace Engine::GFX
 		#undef __gettersettertype
 
 		// Render the sprite on the screen using the ::SpriteRenderer tool.
-		void render(std::shared_ptr<Engine::GFX::SpriteRenderer>& spriteRenderer) const noexcept;
+		void render(shared_ptr<Engine::GFX::SpriteRenderer>& spriteRenderer) const noexcept;
 
 	private:
 		glm::vec2 m_SpritePosition;

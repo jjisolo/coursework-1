@@ -6,6 +6,8 @@
 #include "ShaderWrapper.hpp"
 #include "TextureWrapper.hpp"
 
+using namespace std;
+
 // This namespace is polluted with the Internals components of the graphics API.
 namespace Engine::GFX
 {
@@ -21,7 +23,7 @@ namespace Engine::GFX
 
 	public:
 		// Render the sprite on the screen.
-		void renderSprite(const std::string& textureName, glm::vec2 spritePosition, glm::vec2 spriteSize = glm::vec2(10.0f, 10.0f), GLfloat spriteRotation = 0.0f, glm::vec3 spriteColor = glm::vec3(1.0f)) noexcept;
+		void renderSprite(const string& textureName, glm::vec2 spritePosition, glm::vec2 spriteSize = glm::vec2(10.0f, 10.0f), GLfloat spriteRotation = 0.0f, glm::vec3 spriteColor = glm::vec3(1.0f)) noexcept;
 
 	private:
 		// Initialize rendering-related data structures(VAO, VBO), setup vertex

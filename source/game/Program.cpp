@@ -36,6 +36,8 @@ The source code is publicly available under the MIT license, and
 hosted on https://github.com/jjisolo/coursework-1.
 )";
 
+using namespace std;
+
 namespace Game
 {
 	Engine::Error GameProgram::onUserInitialize()
@@ -78,12 +80,12 @@ namespace Game
 		backgroundSprite .bindTexture  ("background");
 
 		if(m_gameInfo.gameState == GameState::Game_Board)
-		{
-		  updateGameBoardSprites(windowDimensions);
-		  
+		{		  
 		  m_gameBoardSprites.clear();
 		  m_gameBoardSprites.push_back(backgroundSprite);
 
+		  updateGameBoardSprites(windowDimensions);
+		 
 		  for (auto& sprite : m_gameBoardSprites)
 			  sprite.render(m_SpriteRenderer);
 
@@ -92,6 +94,9 @@ namespace Game
 
 		if (m_gameInfo.gameState == GameState::Main_Menu)
 		{
+		    m_mainMenuSprites.clear();
+			m_mainMenuSprites.push_back(backgroundSprite);
+
 		    for (auto& sprite : m_mainMenuSprites)
 			    sprite.render(m_SpriteRenderer);
 			
@@ -116,11 +121,11 @@ namespace Game
 
     void GameProgram::updateGameBoardSprites(glm::ivec2& windowDimensions)
     { 
-	  std::vector<Card>& cards = m_gameBoard.getCards();
+	  vector<Card>& cards = m_gameBoard.getCards();
 	  
 	  // Create a card group based on the card owner.
 	  auto search = [](std::vector<Card>& cards, CardOwner owner) -> std::vector<Card> {
-		std::vector<Card> ownerGroup;
+		vector<Card> ownerGroup;
 		
 		// Iterate through each card and if the card owner mathces with the
 		// requested owner add it to the result group(that contains only
@@ -133,8 +138,8 @@ namespace Game
 	  };	 
 	  
 	  // Create owner groups for each CardOwner
-	  std::vector<Card> ownerHeap    = search(cards, CARD_OWNER_DECK);
-	  std::vector<Card> ownerBoard   = search(cards, CARD_OWNER_BOARD);
+	  vector<Card> ownerHeap  = search(cards, CARD_OWNER_DECK);
+	  vector<Card> ownerBoard = search(cards, CARD_OWNER_BOARD);
 	  
 	  auto renderPlayerCards = [&](glm::vec2 renderAreaStart, glm::vec2 renderAreaEnd, CardOwner cardOwner)
 	  {

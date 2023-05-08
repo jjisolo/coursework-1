@@ -3,6 +3,8 @@
 #include "../ResourseManager.hpp"
 #include "../Logger.hpp"
 
+using namespace std;
+
 namespace Engine::GFX
 {
     SpriteRenderer::SpriteRenderer(Core::ShaderWrapper& shaderWrapper)
@@ -47,7 +49,7 @@ namespace Engine::GFX
 		glBindVertexArray        (GL_ZERO);
 	}
 
-	void SpriteRenderer::renderSprite(const std::string& textureName, glm::vec2 spritePosition, glm::vec2 spriteSize, GLfloat spriteRotation, glm::vec3 spriteColor) noexcept
+	void SpriteRenderer::renderSprite(const string& textureName, glm::vec2 spritePosition, glm::vec2 spriteSize, GLfloat spriteRotation, glm::vec3 spriteColor) noexcept
 	{
 		// Try to retrieve the texture.
 		auto textureOrError = Engine::ResourceManager::getTexture(textureName);

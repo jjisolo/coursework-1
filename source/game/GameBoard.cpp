@@ -1,5 +1,6 @@
 #include "GameBoard.hpp"
 
+using namespace std;
 using namespace Engine;
 
 namespace Game
@@ -15,19 +16,19 @@ namespace Game
 
   std::string Board::loadTextureForCard(int cardRank, int cardSuit)
   {
-	auto createTexturePath = [&](const std::string& sCardRank) -> std::string 
+	auto createTexturePath = [&](const string& sCardRank) -> string 
     {
-	  std::string result = "data/assets/";
+	  string result = "data/assets/";
 	  result += sCardRank + "/";
 	  result += "card-" + sCardRank + "-";
-	  result += std::to_string((int)cardSuit);
+	  result += to_string((int)cardSuit);
 	  result += ".png";
 	  return(result);
 	};
 
-	auto loadTextureA = [&](const std::string& cardRank) -> std::string
+	auto loadTextureA = [&](const string& cardRank) -> string
 	{
-	  std::string texturePath = createTexturePath(cardRank);
+	  string texturePath = createTexturePath(cardRank);
 	  Engine::ResourceManager::loadTexture(texturePath.c_str(), true, texturePath);
 
 	  return(texturePath);
@@ -88,9 +89,9 @@ namespace Game
   {
 	Engine::Logger::m_GameLogger->info("Shuffling game board");
 
-	std::random_device randomDevice;
-	std::mt19937       randomGenerator(randomDevice());
+	random_device randomDevice;
+	mt19937       randomGenerator(randomDevice());
 	
-	std::shuffle(m_Cards.begin(), m_Cards.end(), randomGenerator);
+	shuffle(m_Cards.begin(), m_Cards.end(), randomGenerator);
   }
 }

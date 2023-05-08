@@ -6,6 +6,8 @@
 #include "GameInfo.hpp"
 #include "GameBoard.hpp"
 
+using namespace std;
+
 namespace Game
 {
 	class GameProgram: public One::Application
@@ -44,7 +46,7 @@ namespace Game
 
 		bool m_openCardsMode = false;
 
-		std::vector<Engine::GFX::Sprite> m_mainMenuSprites;
-	    std::vector<Engine::GFX::Sprite> m_gameBoardSprites;
+		vector<Engine::GFX::Sprite> m_mainMenuSprites;
+	    vector<Engine::GFX::Sprite> m_gameBoardSprites;
 	};
 }
