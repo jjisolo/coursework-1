@@ -50,21 +50,12 @@ namespace Game
         Engine::ResourceManager::loadTexture("data/assets/card-back2.png", true, "card-back-red");
         Engine::ResourceManager::loadTexture("data/assets/card-back3.png", true, "card-back-green");
 	    Engine::ResourceManager::loadTexture("data/assets/card-back4.png", true, "card-back-yellow");	
-		
-		// Create sprite for the background.
-		Engine::GFX::Sprite backgroundSprite;
-		backgroundSprite .setSpriteSize({ windowDimensions.x, windowDimensions.y });
-		backgroundSprite .bindTexture  ("background");
-		
+				
 		// Set up game board
 		m_gameBoard.generateDeck();
 		m_gameBoard.shuffleDeck();
 	    m_gameBoard.assignCardsToThePlayers();
 
-		// Set background for all the groups
-		m_mainMenuSprites .push_back(backgroundSprite);		
-		m_gameBoardSprites.push_back(backgroundSprite);
-		
 		// The entry point of the game is main menu.
 		m_gameInfo.gameState = GameState::Main_Menu;
 		
@@ -81,16 +72,23 @@ namespace Game
 	{
 	    auto windowDimensions = getWindowDimensions();
 		
+		// Create sprite for the background.
+		Engine::GFX::Sprite backgroundSprite;
+		backgroundSprite .setSpriteSize({ windowDimensions.x, windowDimensions.y });
+		backgroundSprite .bindTexture  ("background");
+
 		if(m_gameInfo.gameState == GameState::Game_Board)
 		{
 		  updateGameBoardSprites(windowDimensions);
+		  
+		  m_gameBoardSprites.clear();
+		  m_gameBoardSprites.push_back(backgroundSprite);
 
 		  for (auto& sprite : m_gameBoardSprites)
 			  sprite.render(m_SpriteRenderer);
 
           renderGameBoardUI(windowDimensions);
 		}
-
 
 		if (m_gameInfo.gameState == GameState::Main_Menu)
 		{
@@ -102,6 +100,19 @@ namespace Game
 		
 		return(Engine::Error::Ok);
 	}
+
+    Engine::Error GameProgram::onMousePress(int button, int action)
+    {
+
+	  return(Engine::Error::Ok);
+    }
+
+    Engine::Error GameProgram::onMouseMove(double positionX, double positionY)
+    {
+	  m_cursorPosition = {positionX, positionY};
+
+	  return(Engine::Error::Ok);
+    }
 
     void GameProgram::updateGameBoardSprites(glm::ivec2& windowDimensions)
     { 
@@ -119,12 +130,8 @@ namespace Game
 			ownerGroup.push_back(card);
 	    
 		return(std::move(ownerGroup));
-	  };
+	  };	 
 	  
-
-	  // Clear the previous vector no to redraw sprites.
-	  m_gameBoardSprites.clear();
-
 	  // Create owner groups for each CardOwner
 	  std::vector<Card> ownerHeap    = search(cards, CARD_OWNER_DECK);
 	  std::vector<Card> ownerBoard   = search(cards, CARD_OWNER_BOARD);
@@ -148,12 +155,12 @@ namespace Game
 		  m_gameBoardSprites.push_back(playerCard);		  
 		}
 	  };
-	
+
 	  glm::vec2 renderAreaStart, renderAreaEnd;
 
 	  // Player 1
 	  renderAreaStart.x = windowDimensions.x * 0.30f;
-	  renderAreaStart.y = windowDimensions.y * 0.76sf;
+	  renderAreaStart.y = windowDimensions.y * 0.76;
 	  renderAreaEnd.x   = windowDimensions.x * 0.70f;
 	  renderAreaEnd.y   = renderAreaStart.y;
 	  renderPlayerCards(renderAreaStart, renderAreaEnd, CARD_OWNER_PLAYER1);
@@ -358,5 +365,4 @@ namespace Game
 			ImGui::EndFrame();
 			ImGui::Render();
     }
-
 }
