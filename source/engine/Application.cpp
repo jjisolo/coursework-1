@@ -348,6 +348,9 @@ namespace One
     // Default mouse move callback 
     Engine::Error Application::onMouseMove(double positionX, double positionY)
     {
+      m_mousePositionX = positionX;
+      m_mousePositionY = positionY;
+
 	  return(Engine::Error::Ok);
     }
 

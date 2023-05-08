@@ -21,13 +21,6 @@ namespace Engine::GFX
 		{
 		}
 
-		// Bind the ::TextureWrapper descriptor to this sprite.
-		void inline bindTexture(const std::string& textureName) noexcept
-		{
-			m_BindedTextureName = textureName;
-		}
-		 
-
 		// Getters and setters for the sprite data.
 		#define __gettersettertype glm::vec2
 		makeGetterAndSetter(m_SpritePosition, SpritePosition);
@@ -42,6 +35,9 @@ namespace Engine::GFX
 
 		// Render the sprite on the screen using the ::SpriteRenderer tool.
 		void render(shared_ptr<Engine::GFX::SpriteRenderer>& spriteRenderer) const noexcept;
+      
+        // Bind the ::TextureWrapper descriptor to this sprite.
+        void bindTexture(const string& textureName) noexcept;
 
 	private:
 		glm::vec2 m_SpritePosition;

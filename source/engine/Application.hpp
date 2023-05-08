@@ -100,10 +100,10 @@ namespace One
 		virtual Engine::Error onUserUpdate(GLfloat elapsedTime);
 	  
 	    // Called upon every time whenever the user moves the mouse. 
-	    virtual Engine::Error onMouseMove(double positionX, double positionY);
+	    Engine::Error onMouseMove(double positionX, double positionY);
 	  
 	    // Called every time user presses button on the mouse. 
-	    virtual Engine::Error onMousePress(int button, int action);
+	    Engine::Error onMousePress(int button, int action);
 		
 	    // Execute the engine main loop, in which the user code combined with
 		// code executing the actual game. 
@@ -127,6 +127,9 @@ namespace One
 
 	protected:
 		GLfloat m_monitorHighDPIScaleFactor;
+      
+        double m_mousePositionX;
+        double m_mousePositionY;
 
 		std::shared_ptr<Engine::GFX::SpriteRenderer> m_SpriteRenderer;
 	};

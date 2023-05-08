@@ -94,4 +94,11 @@ namespace Game
 	
 	shuffle(m_Cards.begin(), m_Cards.end(), randomGenerator);
   }
+
+  Card& Board::getCardRef(CardSuit cardSuit, CardRank cardRank)
+  {
+    for(auto& card: m_Cards)
+      if(card.cardRank == cardRank && card.cardSuit == cardSuit)
+        return(card);
+  }
 }

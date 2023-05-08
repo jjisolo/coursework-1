@@ -37,6 +37,9 @@ hosted on https://github.com/jjisolo/coursework-1.
 )";
 
 using namespace std;
+using namespace glm;
+using namespace Engine;
+using namespace Engine::GFX;
 
 namespace Game
 {
@@ -45,14 +48,22 @@ namespace Game
         auto windowDimensions  = getWindowDimensions();
 		
 		// Load game background texture
-  		Engine::ResourceManager::loadTexture("data/assets/background.jpg", false, "background");
+  		ResourceManager::loadTexture("data/assets/background.jpg", false, "background");
 		
         // Load the card reverse side textures.
-	    Engine::ResourceManager::loadTexture("data/assets/card-back1.png", true, "card-back-blue");
-        Engine::ResourceManager::loadTexture("data/assets/card-back2.png", true, "card-back-red");
-        Engine::ResourceManager::loadTexture("data/assets/card-back3.png", true, "card-back-green");
-	    Engine::ResourceManager::loadTexture("data/assets/card-back4.png", true, "card-back-yellow");	
-				
+	    ResourceManager::loadTexture("data/assets/card-back1.png", true, "card-back-blue");
+        ResourceManager::loadTexture("data/assets/card-back2.png", true, "card-back-red");
+        ResourceManager::loadTexture("data/assets/card-back3.png", true, "card-back-green");
+	    ResourceManager::loadTexture("data/assets/card-back4.png", true, "card-back-yellow");	
+		
+		// Create and set sprite for the background.
+		Sprite backgroundSprite;
+		backgroundSprite .setSpriteSize({ windowDimensions.x, windowDimensions.y });
+		backgroundSprite .bindTexture  ("background");
+
+		m_mainMenuSprites .push_back(backgroundSprite);
+        m_gameBoardGeneral.push_back(backgroundSprite);
+		
 		// Set up game board
 		m_gameBoard.generateDeck();
 		m_gameBoard.shuffleDeck();
@@ -61,32 +72,62 @@ namespace Game
 		// The entry point of the game is main menu.
 		m_gameInfo.gameState = GameState::Main_Menu;
 		
-		return(Engine::Error::Ok);
+		return(Error::Ok);
 	}
 
-	Engine::Error GameProgram::onUserRelease()
+	Error GameProgram::onUserRelease()
 	{
 
-		return(Engine::Error::Ok);
+		return(Error::Ok);
 	}
 
-	Engine::Error GameProgram::onUserUpdate(GLfloat elapsedTime)
+	Error GameProgram::onUserUpdate(GLfloat elapsedTime)
 	{
 	    auto windowDimensions = getWindowDimensions();
 		
-		// Create sprite for the background.
-		Engine::GFX::Sprite backgroundSprite;
-		backgroundSprite .setSpriteSize({ windowDimensions.x, windowDimensions.y });
-		backgroundSprite .bindTexture  ("background");
-
 		if(m_gameInfo.gameState == GameState::Game_Board)
-		{		  
-		  m_gameBoardSprites.clear();
-		  m_gameBoardSprites.push_back(backgroundSprite);
+		{
+      	  updateGameBoardCardSprites(windowDimensions);
+		  
+          auto cursorCollision = [this](Sprite& sprite) -> bool 
+          {
+            const auto spritePosition = sprite.getSpritePosition();
+            const auto spriteSize     = sprite.getSpriteSize();
+            
+            glfwGetCursorPos(getWindowPointer(), &m_mousePositionX, &m_mousePositionY);
+            
+            return(
+                   ((m_mousePositionX >= spritePosition.x) && (m_mousePositionX <= (spritePosition.x + spriteSize.x))) && 
+                   ((m_mousePositionY >= spritePosition.y) && (m_mousePositionY <= (spritePosition.y + spriteSize.y)))
+            );
+          };
+                
+          if(m_gameInfo.gameState == GameState::Game_Board)
+          {
+            const auto spriteGroupSize = m_gameBoardCards.size();
+                    
+            // Find sprite that are corrently hovered by the mouse.
+            // 
+            // We start with index 1 because index 0 is always the background.
+            for(size_t spriteIndex=0; spriteIndex < spriteGroupSize; ++spriteIndex)
+            {
+              if(cursorCollision(m_gameBoardCards[spriteIndex])) 
+              {
+                spdlog::info("Collision [x: {}, y: {}] with sprite [x: {}, y: {}]", m_mousePositionX, m_mousePositionY, m_gameBoardCards[spriteIndex].getSpritePosition().x, m_gameBoardCards[spriteIndex].getSpritePosition().y);
+                // We don't call break here because there is stacked card persist
+                // so active sprite will the most low z-index sprite.
+                    
+                m_hoveredSpriteIndex = spriteIndex;
+                auto& card = m_gameBoard.getCardRef(m_gameBoardCardsRef[spriteIndex].cardSuit, m_gameBoardCardsRef[spriteIndex].cardRank);
+                card.cardOwner = CARD_OWNER_PLAYER2;
+              }
+            }  
+          }
+          	 
+		  for (auto& sprite : m_gameBoardGeneral)
+			  sprite.render(m_SpriteRenderer);
 
-		  updateGameBoardSprites(windowDimensions);
-		 
-		  for (auto& sprite : m_gameBoardSprites)
+		  for (auto& sprite : m_gameBoardCards)
 			  sprite.render(m_SpriteRenderer);
 
           renderGameBoardUI(windowDimensions);
@@ -94,37 +135,21 @@ namespace Game
 
 		if (m_gameInfo.gameState == GameState::Main_Menu)
 		{
-		    m_mainMenuSprites.clear();
-			m_mainMenuSprites.push_back(backgroundSprite);
-
 		    for (auto& sprite : m_mainMenuSprites)
 			    sprite.render(m_SpriteRenderer);
 			
 			renderMainMenuUI(windowDimensions);
 		}
 		
-		return(Engine::Error::Ok);
+		return(Error::Ok);
 	}
 
-    Engine::Error GameProgram::onMousePress(int button, int action)
-    {
-
-	  return(Engine::Error::Ok);
-    }
-
-    Engine::Error GameProgram::onMouseMove(double positionX, double positionY)
-    {
-	  m_cursorPosition = {positionX, positionY};
-
-	  return(Engine::Error::Ok);
-    }
-
-    void GameProgram::updateGameBoardSprites(glm::ivec2& windowDimensions)
+    void GameProgram::updateGameBoardCardSprites(ivec2& windowDimensions)
     { 
 	  vector<Card>& cards = m_gameBoard.getCards();
 	  
 	  // Create a card group based on the card owner.
-	  auto search = [](std::vector<Card>& cards, CardOwner owner) -> std::vector<Card> {
+	  auto search = [](vector<Card>& cards, CardOwner owner) -> vector<Card> {
 		vector<Card> ownerGroup;
 		
 		// Iterate through each card and if the card owner mathces with the
@@ -134,9 +159,12 @@ namespace Game
 		  if(card.cardOwner == owner)
 			ownerGroup.push_back(card);
 	    
-		return(std::move(ownerGroup));
+		return(move(ownerGroup));
 	  };	 
 	  
+      // Clear the previous sprites.
+      m_gameBoardCards.clear();
+
 	  // Create owner groups for each CardOwner
 	  vector<Card> ownerHeap  = search(cards, CARD_OWNER_DECK);
 	  vector<Card> ownerBoard = search(cards, CARD_OWNER_BOARD);
@@ -152,12 +180,13 @@ namespace Game
 		// Generate the sprite for each card in the card group.
 	    for(size_t cardIndex=0; cardIndex < ownerGroupSize; ++cardIndex)
 		{
-		  Engine::GFX::Sprite playerCard;
+		  Sprite playerCard;
 	      playerCard.setSpritePosition({renderAreaStart.x + cardOffset*cardIndex, renderAreaStart.y});
 	      playerCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
 	      playerCard.bindTexture      (ownerGroup[cardIndex].textureHandleMain);
 	 
-		  m_gameBoardSprites.push_back(playerCard);		  
+		  m_gameBoardCards   .push_back(playerCard);
+          m_gameBoardCardsRef.push_back(ownerGroup[cardIndex]);
 		}
 	  };
 
@@ -193,7 +222,7 @@ namespace Game
 
 	  // Render the cards that are in the deck.
 	  {
-		auto ownerGroup     = search(cards, CARD_OWNER_DECK);\
+		auto ownerGroup     = search(cards, CARD_OWNER_DECK);
 		auto ownerGroupSize = ownerGroup.size();
 
 		// The position of the deck is in middle right corner of
@@ -207,35 +236,35 @@ namespace Game
 		// there are some cards went out of the deck.
 		if(ownerGroupSize >= 3)
 		{
-			Engine::GFX::Sprite veryTintedCard;
+			Sprite veryTintedCard;
 			veryTintedCard.setSpritePosition(deckPosition);
 			veryTintedCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
 			veryTintedCard.setSpriteRotation(25.0f);		
 			veryTintedCard.bindTexture      (ownerGroup[2].textureHandleBack);
 			
-			m_gameBoardSprites.push_back(veryTintedCard);		  
+			m_gameBoardCards.push_back(veryTintedCard);		  
 		}
 		
 		if(ownerGroupSize >= 2)
 		{
-			Engine::GFX::Sprite slightlyTintedCard;
+			Sprite slightlyTintedCard;
 			slightlyTintedCard.setSpritePosition(deckPosition);
 			slightlyTintedCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
 			slightlyTintedCard.setSpriteRotation(15.0f);		
 			slightlyTintedCard.bindTexture      (ownerGroup[1].textureHandleBack);		
 			
-			m_gameBoardSprites.push_back(slightlyTintedCard);	  
+			m_gameBoardCards.push_back(slightlyTintedCard);	  
 		}
 		
 		if(ownerGroupSize >= 1)
 		{
-			Engine::GFX::Sprite regularCard;
+			Sprite regularCard;
 			regularCard.setSpritePosition(deckPosition);
 			regularCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
 			regularCard.setSpriteRotation(3.0f);		
 			regularCard.bindTexture      (ownerGroup[0].textureHandleBack);
 			
-			m_gameBoardSprites.push_back(regularCard);
+			m_gameBoardCards.push_back(regularCard);
 		}
 	  }
 	  	  

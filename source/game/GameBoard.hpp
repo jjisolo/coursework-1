@@ -10,6 +10,8 @@
 #include "../engine/Logger.hpp"
 #include "../engine/ResourseManager.hpp"
 
+using namespace std;
+
 namespace Game
 {
   enum CardRank
@@ -52,8 +54,8 @@ namespace Game
 	CardSuit  cardSuit;
 	CardOwner cardOwner;
 
-	std::string textureHandleMain;
-	std::string textureHandleBack;
+	string textureHandleMain;
+	string textureHandleBack;
   };
 
   class Board
@@ -63,10 +65,12 @@ namespace Game
 	~Board();
 
   public:
-	inline std::vector<Card>& getCards(void)
+	inline vector<Card>& getCards(void)
 	{
 	  return(m_Cards);
 	}
+
+    Card& getCardRef(CardSuit cardSuit, CardRank cardRank);
 
 	void assignCardsToThePlayers(void);
 
@@ -75,10 +79,10 @@ namespace Game
 	void generateDeck(void);
 
   private:
-	std::string loadTextureForCard(int cardRank, int cardSuit);
+	string loadTextureForCard(int cardRank, int cardSuit);
 
   private:
-	std::vector<Card> m_Cards;
+	vector<Card> m_Cards;
   };
 
 }

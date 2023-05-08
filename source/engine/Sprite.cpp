@@ -3,9 +3,11 @@
 #include "Logger.hpp"
 #include "ResourseManager.hpp"
 
+using namespace std;
+
 namespace Engine::GFX
 {
-	void Sprite::render(std::shared_ptr<Engine::GFX::SpriteRenderer>& spriteRenderer) const noexcept
+	void Sprite::render(shared_ptr<Engine::GFX::SpriteRenderer>& spriteRenderer) const noexcept
 	{
 		// Use the sprite shader that is compiled only for rendering sprites.
 		auto shaderOrError = Engine::ResourceManager::getShader("spriteShader");
@@ -24,5 +26,11 @@ namespace Engine::GFX
 
 		// And finally, render the sprite!
 		spriteRenderer->renderSprite(m_BindedTextureName, m_SpritePosition, m_SpriteSize, m_SpriteRotation, m_SpriteColor);
+	}
+
+    // Bind the ::TextureWrapper descriptor to this sprite.
+    void Sprite::bindTexture(const string& textureName) noexcept
+	{
+		m_BindedTextureName = textureName;
 	}
 }
