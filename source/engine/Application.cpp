@@ -65,7 +65,7 @@ namespace One
 		// Try to initialize the window abstraction.
 		auto& windowInstance = Engine::Window::instance();
 
-		if (windowInstance.make() == Engine::Error::Ok)
+		if (FunctionSuccess(windowInstance.make))
 		{
 			Engine::Logger::m_ApplicationLogger->debug("Binding GLFW context");
 			
@@ -182,7 +182,6 @@ namespace One
 			// Set this matrix as a uniform value for the shader.
 			(*shaderWrapperOrError).useShader().setInteger("image", 0);
 			(*shaderWrapperOrError).setMatrix4("projectionMatrix", projectionMatrix);
-
 		}
 		else 
 		{
