@@ -71,6 +71,10 @@ namespace One
 			
 			// Bind the context of the window, so all OpenGL functions are gonna affect this window instance
 			glfwMakeContextCurrent(Engine::Window::instance().getWindowPointerKHR());
+			
+			// Set the callback on the mouse move action and press action.
+			glfwSetCursorPosCallback  (Engine::Window::instance().getWindowPointerKHR(), Application::setCursorPosCallback);
+			glfwSetMouseButtonCallback(Engine::Window::instance().getWindowPointerKHR(), Application::mouseButtonCallback);
 		} else
 		{
 			Engine::Logger::m_ApplicationLogger->error("Encountered error on window creation");
@@ -339,6 +343,18 @@ namespace One
 	{
 		return(Engine::Error::InitializationError);
 	}
+  
+    // Default mouse move callback 
+    Engine::Error Application::onMouseMove(double positionX, double positionY)
+    {
+	  return(Engine::Error::Ok);
+    }
+
+     // Default Mouse press callback
+    Engine::Error Application::onMousePress(int button, int action)
+    {
+	  return(Engine::Error::Ok);
+    }
 
 	void Application::applyImGuiStyles()
 	{

@@ -40,6 +40,25 @@ namespace One
 			return(_instance);
 		}
 
+		// The formal(by the parameters) callback that is used for the GLFW window callbacks.
+		// This function(static formal function, that is calling an internal function) is kinda
+		// workaround about the C background of the GLFW library.
+	    static void setCursorPosCallback(GLFWwindow* window, double positionX, double positionY)
+	    {
+		  UnreferencedParameter(window);
+
+		  // Call the internal calllback function(that has access to the class members).
+		  instance().onMouseMove(positionX, positionY);
+	    }
+
+	    static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+	    {
+		  UnreferencedParameter(window);
+		  
+		  // Call the internal calllback function(that has access to the class members).
+		  instance().onMousePress(button, action);
+	    }
+
 	public:
 		// Clear the screen with solid color.
 		inline void ClearScreen(GLfloat r, GLfloat g, GLfloat b)
@@ -79,8 +98,14 @@ namespace One
 		// Called upon every frame, and provides the a time per frame
 		// value(typically used for the animations physics etc.).
 		virtual Engine::Error onUserUpdate(GLfloat elapsedTime);
-
-		// Execute the engine main loop, in which the user code combined with
+	  
+	    // Called upon every time whenever the user moves the mouse. 
+	    virtual Engine::Error onMouseMove(double positionX, double positionY);
+	  
+	    // Called every time user presses button on the mouse. 
+	    virtual Engine::Error onMousePress(int button, int action);
+		
+	    // Execute the engine main loop, in which the user code combined with
 		// code executing the actual game. 
 		Engine::Error execute();
 
