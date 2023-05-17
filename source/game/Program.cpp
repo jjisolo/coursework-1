@@ -2,6 +2,11 @@
 
 #include "../engine/Sprite.hpp"
 
+using namespace std;
+using namespace glm;
+using namespace Engine;
+using namespace Engine::GFX;
+
 static constexpr const glm::vec2  CARD_ASSET_RATIO                = {1.f,    1.5f};
 static constexpr const glm::vec2  CARD_ASSET_SIZE_NON_NORMALIZED  = {150.0f, 150.0f};
 static constexpr const glm::ivec2 CARD_ASSET_SIZE_NORMALIZED      = CARD_ASSET_SIZE_NON_NORMALIZED*CARD_ASSET_RATIO;
@@ -35,11 +40,6 @@ R"(This game was create as a subject of my university coursework.
 The source code is publicly available under the MIT license, and
 hosted on https://github.com/jjisolo/coursework-1.
 )";
-
-using namespace std;
-using namespace glm;
-using namespace Engine;
-using namespace Engine::GFX;
 
 namespace Game
 {
@@ -101,11 +101,11 @@ namespace Game
           
           // E.G. mark the card as the NULL card.
           m_hoveredCardCopy.cardRank = CardRankLast;
-
+          
+          // If the mouse collided with the sprite, mark this sprite as an active
           for(size_t spriteIndex=0; spriteIndex < spriteGroupSize; ++spriteIndex) 
             if(spriteCollided(m_gameBoardCards[spriteIndex], {m_mousePositionX, m_mousePositionY})) 
               m_hoveredCardCopy = m_gameBoardCardsRef[spriteIndex]; // We don't call break here because there is stacked card so active sprite will the most low z-index sprite.
-
           	
           if(m_hoveredCardCopy.cardRank != CardRankLast)
           {
@@ -125,7 +125,6 @@ namespace Game
 
             if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER4)
               m_ShowPlayer4Stats = true;
-
           }
             
 
@@ -174,7 +173,7 @@ namespace Game
 	  vector<Card> ownerHeap  = search(cards, CARD_OWNER_DECK);
 	  vector<Card> ownerBoard = search(cards, CARD_OWNER_BOARD);
 	  
-	  auto renderPlayerCards = [&](glm::vec2 renderAreaStart, glm::vec2 renderAreaEnd, CardOwner cardOwner)
+	  auto renderPlayerCards = [&](vec2 renderAreaStart, vec2 renderAreaEnd, CardOwner cardOwner)
 	  {
 		auto ownerGroup     = search(cards, cardOwner);
 	    auto ownerGroupSize = ownerGroup.size();
@@ -195,7 +194,8 @@ namespace Game
 		}
 	  };
 
-	  glm::vec2 renderAreaStart, renderAreaEnd;
+	  vec2 renderAreaStart;
+      vec2 renderAreaEnd;
 
 	  // Player 1
 	  renderAreaStart.x = windowDimensions.x * 0.30f;
@@ -232,7 +232,7 @@ namespace Game
 
 		// The position of the deck is in middle right corner of
 		// the screen.
-		glm::vec2 deckPosition;
+		vec2 deckPosition;
 		deckPosition.x = windowDimensions.x * 0.85f;
 		deckPosition.y = windowDimensions.y * 0.40f;
 		
@@ -296,7 +296,7 @@ namespace Game
       }
     }
 
-    void GameProgram::renderGameBoardUI(glm::ivec2& windowDimensions)
+    void GameProgram::renderGameBoardUI(ivec2& windowDimensions)
     {
 	  ImguiCreateNewFrameKHR();
 	  ImGui::NewFrame(); 
@@ -307,7 +307,7 @@ namespace Game
 	  ImGui::Render();
     }
 
-    void GameProgram::renderMainMenuUI(glm::ivec2& windowDimensions)
+    void GameProgram::renderMainMenuUI(ivec2& windowDimensions)
     {
 			ImguiCreateNewFrameKHR();
 			ImGui::NewFrame(); 
