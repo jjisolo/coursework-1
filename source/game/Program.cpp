@@ -138,7 +138,6 @@ namespace Game
             
           }
             
-
 		  for (auto& sprite : m_gameBoardGeneral)
             sprite.render(m_SpriteRenderer);
           

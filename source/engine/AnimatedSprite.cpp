@@ -20,18 +20,16 @@ void Engine::GFX::AnimatedSprite::move(vec2 spriteDestination) {
 }
 
 void Engine::GFX::AnimatedSprite::animate(GLfloat elapsedTime) {
-  auto spritePosition = getSpritePosition();
-  
-  if(!APPROX(spritePosition.x, m_TargetDestination.x, 1.0f) && !APPROX(spritePosition.y, m_TargetDestination.y, 1.0f)) {
-    float spritePositionX = spritePosition.x + (m_MoveSpeed.x * elapsedTime)*m_MoveVector.x;
-    float spritePositionY = spritePosition.y + (m_MoveSpeed.y * elapsedTime)*m_MoveVector.y;
+  auto spritePosition   = getSpritePosition();
+  float spritePositionX = spritePosition.x;
+  float spritePositionY = spritePosition.y;
 
-    setSpritePosition({spritePositionX, spritePositionY});
-  } else {
-    m_MoveSpeed = {0.0f, 0.0f};
-  }
-
-  //printf("%f;%f\n", spritePosition.x, spritePosition.y);
+  if(!APPROX(spritePosition.x, m_TargetDestination.x, 1.0f))
+     spritePositionX = spritePosition.x + (m_MoveSpeed.x * elapsedTime)*m_MoveVector.x;
+  if(!APPROX(spritePosition.y, m_TargetDestination.y, 1.0f))
+     spritePositionY = spritePosition.y + (m_MoveSpeed.y * elapsedTime)*m_MoveVector.y;
+     
+  setSpritePosition({spritePositionX, spritePositionY}); 
 }
 
 
