@@ -212,8 +212,6 @@ namespace One
 
 	Engine::Error One::Application::updateGameEngine(void) noexcept
 	{
-		//glfwMakeContextCurrent(Engine::Window::instance().getWindowPointerKHR());
-
 		// Get the reference to the window instance, and GLFW window instance pointer, so
 		// not to call the singleton ::instance() function every loop iteration.
 		auto& windowInstance = Engine::Window::instance();
@@ -300,8 +298,16 @@ namespace One
 
 		// Continue the program execution until the user presses the quit button on the window
 		// (in his window manager), or press the quit hotkey.
+        double lastTimeStamp    = glfwGetTime();
+        double currentTimeStamp = lastTimeStamp;
+
 		while (!glfwWindowShouldClose(windowPointer))
 		{
+            // Get elapsed time.
+            currentTimeStamp = glfwGetTime();
+            m_elapsedTime    = lastTimeStamp - currentTimeStamp;
+            lastTimeStamp    = currentTimeStamp;
+
 			// Try initialize update.
 			const Engine::Error userUpdateResult = onUserUpdate(1.0f);
 

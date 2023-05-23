@@ -130,6 +130,7 @@ namespace One
       
         double m_mousePositionX;
         double m_mousePositionY;
+        double m_elapsedTime;
 
 		std::shared_ptr<Engine::GFX::SpriteRenderer> m_SpriteRenderer;
 	};

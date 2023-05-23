@@ -46,7 +46,7 @@ namespace Game
 	Engine::Error GameProgram::onUserInitialize()
 	{
         auto windowDimensions  = getWindowDimensions();
-		
+
 		// Load game background texture
   		ResourceManager::loadTexture("data/assets/background.jpg", false, "background");
 		
@@ -69,6 +69,11 @@ namespace Game
 		m_gameBoard.shuffleDeck();
 	    m_gameBoard.assignCardsToThePlayers();
 
+	    m_animSprite.setSpritePosition({500.0f, 500.0f});
+	    m_animSprite.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
+	    m_animSprite.bindTexture      ("card-back-yellow");
+        m_animSprite.move({700.0f, 700.0f});
+
 		// The entry point of the game is main menu.
 		m_gameInfo.gameState = GameState::Main_Menu;
 		
@@ -85,6 +90,8 @@ namespace Game
 	{
 	    auto windowDimensions = getWindowDimensions();
         
+        m_animSprite.animate(m_elapsedTime);
+
         // Update mouse cursor position on the current frame.
         glfwGetCursorPos(getWindowPointer(), &m_mousePositionX, &m_mousePositionY);
 		
@@ -117,14 +124,18 @@ namespace Game
             m_ShowPlayer3Stats = false;
             m_ShowPlayer4Stats = false;
 
-            if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER2)
+            if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER2) {
               m_ShowPlayer2Stats = true;
+            }
 
-            if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER3)
+            if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER3) {
               m_ShowPlayer3Stats = true;
+            }
 
-            if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER4)
+            if(m_hoveredCardCopy.cardOwner == CARD_OWNER_PLAYER4) {
               m_ShowPlayer4Stats = true;
+            }
+            
           }
             
 
@@ -141,7 +152,8 @@ namespace Game
 		{
           for (auto& sprite : m_mainMenuSprites)
             sprite.render(m_SpriteRenderer);
-          
+
+        m_animSprite.render(m_SpriteRenderer);          
           renderMainMenuUI(windowDimensions);
 		}
 		
@@ -196,7 +208,7 @@ namespace Game
 
 	  vec2 renderAreaStart;
       vec2 renderAreaEnd;
-
+      
 	  // Player 1
 	  renderAreaStart.x = windowDimensions.x * 0.30f;
 	  renderAreaStart.y = windowDimensions.y * 0.76;
@@ -284,7 +296,6 @@ namespace Game
       //windowFlags |= ImGuiWindowFlags_NoMove;
       //windowFlags |= ImGuiWindowFlags_NoResize;
       windowFlags |= ImGuiWindowFlags_NoCollapse;
-
 
       if(!ImGui::Begin("Player Statistics", NULL, windowFlags))
       {

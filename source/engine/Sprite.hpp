@@ -7,6 +7,7 @@
 #include "rendering/TextureWrapper.hpp"
 
 using namespace std;
+using namespace glm;
 
 // This namespace is populated with all graphics-related stuff.
 namespace Engine::GFX
@@ -35,16 +36,16 @@ namespace Engine::GFX
 
 		// Render the sprite on the screen using the ::SpriteRenderer tool.
 		void render(shared_ptr<Engine::GFX::SpriteRenderer>& spriteRenderer) const noexcept;
-      
+
         // Bind the ::TextureWrapper descriptor to this sprite.
         void bindTexture(const string& textureName) noexcept;
 
-	private:
-		glm::vec2 m_SpritePosition;
-		glm::vec2 m_SpriteSize;
-		glm::vec3 m_SpriteColor;
+	protected:
+		vec2      m_SpritePosition;
+        vec2      m_SpriteSize;
+		vec3      m_SpriteColor;
 		GLfloat   m_SpriteRotation;
 
-		std::string m_BindedTextureName;
+		string m_BindedTextureName;
 	};
 }

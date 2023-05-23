@@ -14,6 +14,7 @@
 #include "fstream"
 #include "string"
 #include "memory"
+#include "cmath"
 
 // Logging related
 #include "spdlog/sinks/basic_file_sink.h"

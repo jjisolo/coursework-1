@@ -2,6 +2,7 @@
 
 #include "../engine/Application.hpp"
 #include "../engine/Sprite.hpp"
+#include "../engine/AnimatedSprite.hpp"
 
 #include "GameInfo.hpp"
 #include "GameBoard.hpp"
@@ -55,6 +56,8 @@ namespace Game
 
         vector<Sprite> m_gameBoardCards;
         vector<Card>   m_gameBoardCardsRef;
+
+        AnimatedSprite m_animSprite;
 
         Card m_hoveredCardCopy;
 	};

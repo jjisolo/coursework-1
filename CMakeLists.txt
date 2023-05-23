@@ -30,6 +30,7 @@ add_executable(101
     "source/engine/ResourceManager.cpp"
     "source/engine/Logger.cpp"
     "source/engine/Sprite.cpp"
+    "source/engine/AnimatedSprite.cpp"
     "source/game/Program.cpp"
 	"source/game/GameBoard.cpp"
 )
