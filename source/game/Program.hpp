@@ -51,13 +51,11 @@ namespace Game
 
 		bool m_openCardsMode = false;
 
-		vector<Sprite> m_mainMenuSprites;
+        vector<Sprite> m_mainMenuSprites;
 	    vector<Sprite> m_gameBoardGeneral;
 
-        vector<Sprite> m_gameBoardCards;
-        vector<Card>   m_gameBoardCardsRef;
-
-        AnimatedSprite m_animSprite;
+        vector<AnimatedSprite> m_gameBoardCards;
+        vector<Card>           m_gameBoardCardsRef;
 
         Card m_hoveredCardCopy;
 	};

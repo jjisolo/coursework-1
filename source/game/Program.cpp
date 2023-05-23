@@ -69,11 +69,6 @@ namespace Game
 		m_gameBoard.shuffleDeck();
 	    m_gameBoard.assignCardsToThePlayers();
 
-	    m_animSprite.setSpritePosition({500.0f, 500.0f});
-	    m_animSprite.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
-	    m_animSprite.bindTexture      ("card-back-yellow");
-        m_animSprite.move({700.0f, 700.0f});
-
 		// The entry point of the game is main menu.
 		m_gameInfo.gameState = GameState::Main_Menu;
 		
@@ -90,8 +85,6 @@ namespace Game
 	{
 	    auto windowDimensions = getWindowDimensions();
         
-        m_animSprite.animate(m_elapsedTime);
-
         // Update mouse cursor position on the current frame.
         glfwGetCursorPos(getWindowPointer(), &m_mousePositionX, &m_mousePositionY);
 		
@@ -138,11 +131,14 @@ namespace Game
             
           }
             
-		  for (auto& sprite : m_gameBoardGeneral)
+		  for (auto& sprite : m_gameBoardGeneral) {
             sprite.render(m_SpriteRenderer);
+          }
           
-		  for (auto& sprite : m_gameBoardCards)
+		  for (auto& sprite : m_gameBoardCards) {
+            //sprite.animate(m_elapsedTime);
             sprite.render(m_SpriteRenderer);
+          }
           
           renderGameBoardUI(windowDimensions);
 		}
@@ -152,7 +148,6 @@ namespace Game
           for (auto& sprite : m_mainMenuSprites)
             sprite.render(m_SpriteRenderer);
 
-        m_animSprite.render(m_SpriteRenderer);          
           renderMainMenuUI(windowDimensions);
 		}
 		
@@ -195,10 +190,12 @@ namespace Game
 		// Generate the sprite for each card in the card group.
 	    for(size_t cardIndex=0; cardIndex < ownerGroupSize; ++cardIndex)
 		{
-		  Sprite playerCard;
+		  AnimatedSprite playerCard;
 	      playerCard.setSpritePosition({renderAreaStart.x + cardOffset*cardIndex, renderAreaStart.y});
 	      playerCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
 	      playerCard.bindTexture      (ownerGroup[cardIndex].textureHandleMain);
+          playerCard.move             ({renderAreaStart.x + cardOffset*cardIndex, renderAreaStart.y});
+          playerCard.setMoveSpeed     ({50.0f, 50.0f});
 	 
 		  m_gameBoardCards   .push_back(playerCard);
           m_gameBoardCardsRef.push_back(ownerGroup[cardIndex]);
@@ -252,34 +249,37 @@ namespace Game
 		// there are some cards went out of the deck.
 		if(ownerGroupSize >= 3)
 		{
-			Sprite veryTintedCard;
+			AnimatedSprite veryTintedCard;
 			veryTintedCard.setSpritePosition(deckPosition);
 			veryTintedCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
 			veryTintedCard.setSpriteRotation(25.0f);		
 			veryTintedCard.bindTexture      (ownerGroup[2].textureHandleBack);
+            veryTintedCard.move             (deckPosition); // No move, the sprite is static.
 			
 			m_gameBoardCards.push_back(veryTintedCard);		  
 		}
 		
 		if(ownerGroupSize >= 2)
 		{
-			Sprite slightlyTintedCard;
+			AnimatedSprite slightlyTintedCard;
 			slightlyTintedCard.setSpritePosition(deckPosition);
 			slightlyTintedCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
 			slightlyTintedCard.setSpriteRotation(15.0f);		
 			slightlyTintedCard.bindTexture      (ownerGroup[1].textureHandleBack);		
-			
+            slightlyTintedCard.move             (deckPosition); // No move, the sprite is static.			
+
 			m_gameBoardCards.push_back(slightlyTintedCard);	  
 		}
 		
 		if(ownerGroupSize >= 1)
 		{
-			Sprite regularCard;
+			AnimatedSprite regularCard;
 			regularCard.setSpritePosition(deckPosition);
 			regularCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
 			regularCard.setSpriteRotation(3.0f);		
 			regularCard.bindTexture      (ownerGroup[0].textureHandleBack);
-			
+            regularCard.move             (deckPosition); // No move, the sprite is static.			
+
 			m_gameBoardCards.push_back(regularCard);
 		}
 	  }
