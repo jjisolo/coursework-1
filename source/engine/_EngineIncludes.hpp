@@ -44,3 +44,8 @@
 
 #define ValidationError(x) x == Engine::Error::ValidationError
 #define InitializationError(x) x == Engine::Error::InitializationError
+
+// The value is approximatelly equals the target
+#define APPROX(value, target, range) \
+  ((value <= (target + range)) && (value >= (target - range)))
+

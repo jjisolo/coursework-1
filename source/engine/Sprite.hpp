@@ -30,6 +30,9 @@ namespace Engine::GFX
 		#define __gettersettertype glm::vec3
 		makeGetterAndSetter(m_SpriteColor, SpriteColor);
 		
+		#define __gettersettertype GLuint
+		makeGetterAndSetter(m_RenderFlag, RenderFlag);
+
 		#define __gettersettertype GLfloat		
 		makeGetterAndSetter(m_SpriteRotation,    SpriteRotation);
 		#undef __gettersettertype
@@ -40,12 +43,16 @@ namespace Engine::GFX
         // Bind the ::TextureWrapper descriptor to this sprite.
         void bindTexture(const string& textureName) noexcept;
 
+        // Find out if the sprite is hovered by the mouse.
+        bool isHovered(vec2 mousePosition, vec2 range) const;
+
 	protected:
 		vec2      m_SpritePosition;
         vec2      m_SpriteSize;
 		vec3      m_SpriteColor;
 		GLfloat   m_SpriteRotation;
 
+		GLuint m_RenderFlag;
 		string m_BindedTextureName;
 	};
 }

@@ -36,7 +36,6 @@ namespace Game
 
         void renderPlayerStatUI(CardOwner owner);
 
-        bool spriteCollided(Sprite& sprite, vec2 point) const;
 	private:
 	    Game::Board m_gameBoard;
 	    Game::Info  m_gameInfo;

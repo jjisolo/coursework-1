@@ -1,9 +1,5 @@
 #include "AnimatedSprite.hpp"
 
-// The value is approximatelly equals the target
-#define APPROX(value, target, range) \
-  ((value <= (target + range)) && (value >= (target - range)))
-
 void Engine::GFX::AnimatedSprite::move(vec2 spriteDestination) {
   auto spritePosition = getSpritePosition();
   m_TargetDestination = spriteDestination; 
