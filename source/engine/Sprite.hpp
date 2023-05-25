@@ -33,6 +33,9 @@ namespace Engine::GFX
 		#define __gettersettertype GLuint
 		makeGetterAndSetter(m_RenderFlag, RenderFlag);
 
+		#define __gettersettertype string
+		makeGetter(m_BindedTextureName, BindedTexture);
+
 		#define __gettersettertype GLfloat		
 		makeGetterAndSetter(m_SpriteRotation,    SpriteRotation);
 		#undef __gettersettertype

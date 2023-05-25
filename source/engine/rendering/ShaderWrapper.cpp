@@ -20,7 +20,7 @@ namespace Engine::GFX::Core
 		if (checkCompilationErrors(vertexShader, false) != Error::Ok)
 		{
 			Engine::Logger::m_GraphicsLogger->error("Compilation stopped because of an error");
-		
+				
 			return(Error::ValidationError);
 		}
 
@@ -169,10 +169,10 @@ namespace Engine::GFX::Core
 			if (!success) 
 			{
 				// Allocate the space for the shader error message.
-				GLchar infoBuffer[1024];
+				GLchar infoBuffer[2048];
 
 				// Get the shader compilation error message.
-				glGetShaderInfoLog(object, 1024, nullptr, infoBuffer);
+				glGetShaderInfoLog(object, 2048, nullptr, infoBuffer);
 				
 				// And pipe it into the graphics+global logging sink.
 				Engine::Logger::m_GraphicsLogger->error("Compile-Time error(program): {}", infoBuffer);

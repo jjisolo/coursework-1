@@ -4,9 +4,10 @@
 
 #define isValidShader(shader) shader.has_value()
 
-#define SPRITE_MOUSE_AWAY    0
-#define SPRITE_MOUSE_HOVERED 1
-#define SPRITE_MOUSE_CLICKED 2
+#define SPRITE_APPLY_NONE_EFFECTS         0
+#define SPRITE_APPLY_HOVER_GOOD_EFFECT    1
+#define SPRITE_APPLY_HOVER_BAD_EFFECT     2
+#define SPRITE_APPLY_GAUSSIAN_BLUR_EFFECT 4
 
 using namespace std;
 using namespace glm;
@@ -18,15 +19,15 @@ static constexpr const glm::vec2  CARD_ASSET_SIZE_NON_NORMALIZED  = {150.0f, 150
 static constexpr const glm::ivec2 CARD_ASSET_SIZE_NORMALIZED      = CARD_ASSET_SIZE_NON_NORMALIZED*CARD_ASSET_RATIO;
 static constexpr const float      CARDS_ROW_OTHER_PLAYERS_Y_COORD = 0.02f;
 
-static constexpr const vec3  CARD_INTENCITY_MASK_VALID   = {0.9, 0.8, 0.8};
-static constexpr const vec3  CARD_INTENCITY_MASK_INVALID = {0.9, 0.8, 0.8};
+static constexpr const vec3  CARD_INTENCITY_MASK_BAD   = {0.9, 0.8, 0.8};
+static constexpr const vec3  CARD_INTENCITY_MASK_GOOD  = {0.9, 0.8, 0.8};
 
 static constexpr auto GAME_DESCRIPTION =
 R"(The goal of the game is to score the least number of points. In order to play, you need a 
 deck of 36 cards and from 2 to 4 players.The first card dealer in the game is determined by
 lot, in  the following games, players deal cards in turn. The deck is carefully shuffled, 
 removed and 5 cards are dealt to each player.
-
+	
 The deliverer deals himself 4 cards, and the fifth card is put on the line.The remaining
 deck is placed in the center of the table in a closed form.The player to the left of the
 deliverer continues the game. He must put a card of the same suit or a card of the same 
@@ -49,6 +50,8 @@ R"(This game was create as a subject of my university coursework.
 The source code is publicly available under the MIT license, and
 hosted on https://github.com/jjisolo/coursework-1.
 )";
+
+#include <iostream>
 
 namespace Game
 {
@@ -99,13 +102,24 @@ namespace Game
 		
 		if (m_gameInfo.gameState == GameState::Game_Board)
 		{
+			bool waitAnimations = false;
+
+			for (auto& animatedSprite : m_gameBoardCards)
+				if (animatedSprite.getIsAnimated()) waitAnimations = true;
+
 			// Arrange the cards sprites(split the cards array by the different
 			// rendering ares by the card owner).
-			updateGameBoardCardSprites(windowDimensions);
+			if(!waitAnimations)
+				updateGameBoardCardSprites(windowDimensions);
 
 			// Try to get the shaders from the global shader/texture storage, if the get request fails
 			// exit the program.
 			auto shaderWrapperOrError = Engine::ResourceManager::getShader("spriteShader");
+			if (shaderWrapperOrError.has_value())
+			{
+				(*shaderWrapperOrError).setFloat   ("elapsedTime", glfwGetTime() * 6);
+				(*shaderWrapperOrError).setVector2f("screenResolution", (ivec2)Engine::Window::instance().getWindowDimensionsKHR());
+			}
 
 			// Animate individual sprite that is on gameboard group.
 			for (auto& sprite : m_gameBoardGeneral) {
@@ -119,17 +133,56 @@ namespace Game
 			for (auto& sprite : m_gameBoardCards) {
 				sprite.animate(m_elapsedTime);
 
-				if (sprite.getBindedFlag() == SPRITE_MOUSE_HOVERED) {
-					(*shaderWrapperOrError).setInteger("applyGlowingEffect", 1, true);
-					(*shaderWrapperOrError).setVector3f("intencityMask", CARD_INTENCITY_MASK_INVALID);
-					(*shaderWrapperOrError).setFloat("elapsedTime", glfwGetTime() * 6);
+				const bool applyBadEffect  = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_BAD_EFFECT)     == SPRITE_APPLY_HOVER_BAD_EFFECT;
+				const bool applyGoodEffect = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_GOOD_EFFECT)    == SPRITE_APPLY_HOVER_GOOD_EFFECT;
+				const bool applyBlurEffect = (sprite.getRenderFlag() & SPRITE_APPLY_GAUSSIAN_BLUR_EFFECT) == SPRITE_APPLY_GAUSSIAN_BLUR_EFFECT;
+
+				if (applyBlurEffect)
+				{
+					(*shaderWrapperOrError).setInteger("applyGlowingEffect", 0, true);
+					const float offsetX = 2.6f;
+					const float offsetY = 2.6f;
+
+					const auto   size     = sprite.getSpriteSize();
+					const auto   color    = sprite.getSpriteColor();
+					const auto   position = sprite.getSpritePosition();
+					const auto   rotation = sprite.getSpriteRotation();
 
 					sprite.render(m_SpriteRenderer);
-					(*shaderWrapperOrError).setInteger("applyGlowingEffect", 0, true);
+
+					(*shaderWrapperOrError).setInteger("applyMotionEffect", 1, true);
+					for (auto x = 0; x < 3; ++x)
+					{
+						for (auto y = 0; y < 3; ++y)
+						{
+							AnimatedSprite spriteCopy;
+							spriteCopy.setSpriteColor({ color.x, color.y, color.z });
+							spriteCopy.setSpriteRotation(rotation);
+							spriteCopy.setSpriteSize(size);
+							spriteCopy.bindTexture(sprite.getBindedTexture());
+
+							spriteCopy.setSpritePosition({ position.x + offsetX * x, position.y + offsetY * y });
+							spriteCopy.render(m_SpriteRenderer);
+							spriteCopy.setSpritePosition({ position.x - offsetX * x, position.y - offsetY * y });
+							spriteCopy.render(m_SpriteRenderer);
+						}
+					}
+					(*shaderWrapperOrError).setInteger("applyMotionEffect", 0, true);
 				}
-				else {
+				else if (applyBadEffect || applyGoodEffect)
+				{
+					(*shaderWrapperOrError).setVector3f("intencityMask", applyBadEffect ? CARD_INTENCITY_MASK_BAD : CARD_INTENCITY_MASK_GOOD);
+					(*shaderWrapperOrError).setInteger("applyGlowingEffect", 1, true);
+
 					sprite.render(m_SpriteRenderer);
 				}
+				else
+				{
+					sprite.render(m_SpriteRenderer);
+				}
+				
+				(*shaderWrapperOrError).setInteger("applyGlowingEffect", 0, true);
+				(*shaderWrapperOrError).setInteger("applyBlurEffect",    0, true);
 			}
         
 			renderGameBoardUI(windowDimensions);
@@ -171,6 +224,62 @@ namespace Game
 	  vector<Card> ownerHeap  = search(cards, CARD_OWNER_DECK);
 	  vector<Card> ownerBoard = search(cards, CARD_OWNER_BOARD);
 	  
+	  // Render the cards that are in the heap.
+	  // Render the cards that are in the deck.
+	  auto deckOwnerGroup     = search(cards, CARD_OWNER_DECK);
+	  auto deckOwnerGroupSize = deckOwnerGroup.size();
+
+	  // The position of the deck is in middle right corner of
+	  // the screen.
+	  vec2 deckPosition;
+	  deckPosition.x = windowDimensions.x * 0.85f;
+	  deckPosition.y = windowDimensions.y * 0.40f;
+
+	  // The idea is to render the deck like it is not aligned
+	  // perfectly(not each card stacked on each other). Like	  
+	  // there are some cards went out of the deck.
+	  if (deckOwnerGroupSize >= 3)
+	  {
+		  AnimatedSprite veryTintedCard;
+		  veryTintedCard.setSpritePosition(deckPosition);
+		  veryTintedCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
+		  veryTintedCard.setSpriteRotation(25.0f);
+		  veryTintedCard.bindTexture(deckOwnerGroup[2].textureHandleBack);
+		  veryTintedCard.move(deckPosition); // No move, the sprite is static.
+		  veryTintedCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+
+		  m_gameBoardCards.push_back(veryTintedCard);
+	  }
+
+	  if (deckOwnerGroupSize >= 2)
+	  {
+		  AnimatedSprite slightlyTintedCard;
+		  slightlyTintedCard.setSpritePosition(deckPosition);
+		  slightlyTintedCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
+		  slightlyTintedCard.setSpriteRotation(15.0f);
+		  slightlyTintedCard.bindTexture(deckOwnerGroup[1].textureHandleBack);
+		  slightlyTintedCard.move(deckPosition); // No move, the sprite is static.			
+		  slightlyTintedCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+
+		  m_gameBoardCards.push_back(slightlyTintedCard);
+	  }
+
+	  if (deckOwnerGroupSize >= 1)
+	  {
+		  AnimatedSprite regularCard;
+		  regularCard.setSpritePosition(deckPosition);
+		  regularCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
+		  regularCard.setSpriteRotation(3.0f);
+		  regularCard.bindTexture(deckOwnerGroup[0].textureHandleBack);
+		  regularCard.move(deckPosition); // No move, the sprite is static.			
+		  regularCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+
+		  m_gameBoardCards.push_back(regularCard);
+	  }
+
+
+	  // Render the cards that are on the board.
+
 	  auto renderPlayerCards = [&](vec2 renderAreaStart, vec2 renderAreaEnd, CardOwner cardOwner)
 	  {
 		auto ownerGroup     = search(cards, cardOwner);
@@ -183,17 +292,37 @@ namespace Game
 	    for(size_t cardIndex=0; cardIndex < ownerGroupSize; ++cardIndex)
 		{
 		  AnimatedSprite playerCard;
-	      playerCard.setSpritePosition({renderAreaStart.x + cardOffset*cardIndex, renderAreaStart.y});
 	      playerCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
 	      playerCard.bindTexture      (ownerGroup[cardIndex].textureHandleMain);
-          playerCard.move             ({renderAreaStart.x + cardOffset*cardIndex, renderAreaStart.y});
-          playerCard.setMoveSpeed     ({50.0f, 50.0f});
-			
-		  if (cardOwner == CARD_OWNER_PLAYER1 && playerCard.isHovered({ m_mousePositionX, m_mousePositionY }, { 1.0f, 1.0f }))
-			  playerCard.setRenderFlag(SPRITE_MOUSE_HOVERED);
-		  else
-			  playerCard.setRenderFlag(SPRITE_MOUSE_AWAY);
+		  //playerCard.setSpritePosition({renderAreaStart.x + cardOffset * cardIndex, renderAreaStart.y });
+		  playerCard.setSpritePosition(deckPosition);
+		  playerCard.move             ({renderAreaStart.x + cardOffset * cardIndex, renderAreaStart.y});
+		  playerCard.setMoveSpeed     ({450.0f, 450.0f});
 
+		  if (playerCard.getIsAnimated())
+			  playerCard.setRenderFlag(playerCard.getRenderFlag() | SPRITE_APPLY_GAUSSIAN_BLUR_EFFECT);
+
+		  if (cardOwner == CARD_OWNER_PLAYER1)
+		  {
+			  if (playerCard.isHovered({ m_mousePositionX, m_mousePositionY }, { 1.0f, 1.0f }))
+			  {
+				  playerCard.setRenderFlag(SPRITE_APPLY_HOVER_BAD_EFFECT);
+					
+				  if (m_mouseButtonPressed)
+				  {
+					  playerCard.move({ 100.0f, 100.0f });
+				  }
+			  }  
+			  else
+			  {
+				  playerCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+			  }
+		  }
+		  else
+		  {
+			  playerCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+		  }
+			  		  
 		  m_gameBoardCards   .push_back(playerCard);
           m_gameBoardCardsRef.push_back(ownerGroup[cardIndex]);
 		}
@@ -229,61 +358,6 @@ namespace Game
 	  renderAreaEnd.x   = windowDimensions.x * 0.95f;
 	  renderAreaEnd.y   = renderAreaStart.y;
 	  renderPlayerCards(renderAreaStart, renderAreaEnd, CARD_OWNER_PLAYER4);
-
-	  // Render the cards that are in the deck.
-	  {
-		auto ownerGroup     = search(cards, CARD_OWNER_DECK);
-		auto ownerGroupSize = ownerGroup.size();
-
-		// The position of the deck is in middle right corner of
-		// the screen.
-		vec2 deckPosition;
-		deckPosition.x = windowDimensions.x * 0.85f;
-		deckPosition.y = windowDimensions.y * 0.40f;
-		
-		// The idea is to render the deck like it is not aligned
-		// perfectly(not each card stacked on each other). Like	  
-		// there are some cards went out of the deck.
-		if(ownerGroupSize >= 3)
-		{
-			AnimatedSprite veryTintedCard;
-			veryTintedCard.setSpritePosition(deckPosition);
-			veryTintedCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
-			veryTintedCard.setSpriteRotation(25.0f);		
-			veryTintedCard.bindTexture      (ownerGroup[2].textureHandleBack);
-            veryTintedCard.move             (deckPosition); // No move, the sprite is static.
-			
-			m_gameBoardCards.push_back(veryTintedCard);		  
-		}
-		
-		if(ownerGroupSize >= 2)
-		{
-			AnimatedSprite slightlyTintedCard;
-			slightlyTintedCard.setSpritePosition(deckPosition);
-			slightlyTintedCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
-			slightlyTintedCard.setSpriteRotation(15.0f);		
-			slightlyTintedCard.bindTexture      (ownerGroup[1].textureHandleBack);		
-            slightlyTintedCard.move             (deckPosition); // No move, the sprite is static.			
-
-			m_gameBoardCards.push_back(slightlyTintedCard);	  
-		}
-		
-		if(ownerGroupSize >= 1)
-		{
-			AnimatedSprite regularCard;
-			regularCard.setSpritePosition(deckPosition);
-			regularCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
-			regularCard.setSpriteRotation(3.0f);		
-			regularCard.bindTexture      (ownerGroup[0].textureHandleBack);
-            regularCard.move             (deckPosition); // No move, the sprite is static.			
-
-			m_gameBoardCards.push_back(regularCard);
-		}
-	  }
-	  	  
-	  // Render the cards that are in the heap.
-
-	  // Render the cards that are on the board.
     }
 
     void GameProgram::renderPlayerStatUI(CardOwner owner)

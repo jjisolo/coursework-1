@@ -28,16 +28,22 @@ namespace Engine::GFX
 
     // Getter and setter for the move speed class attribute.
     #define __gettersettertype glm::vec2
-    makeGetterAndSetter(m_MoveSpeed, MoveSpeed);
+    makeGetterAndSetter(m_MoveSpeed,  MoveSpeed);
+    makeGetterAndSetter(m_MoveVector, MoveVector);
+
+    #define __gettersettertype bool
+    makeGetter(m_IsAnimated, IsAnimated);
     #undef  __gettersettertype
 
     // Actually set the move direction to the sprite.
     void move(vec2 spriteDesination);
     
-    // Perfrom move step for the sprite
+    // Perform move step for the sprite
     void animate(GLfloat elapsedTime);
 
   protected:
+    bool m_IsAnimated;
+
     vec2 m_TargetDestination;
     vec2 m_MoveVector;
     vec2 m_MoveSpeed;

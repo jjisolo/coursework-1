@@ -3,6 +3,7 @@
 void Engine::GFX::AnimatedSprite::move(vec2 spriteDestination) {
   auto spritePosition = getSpritePosition();
   m_TargetDestination = spriteDestination; 
+  m_IsAnimated        = true;
 
   if(m_TargetDestination.x > spritePosition.x)
     m_MoveVector.x = -1.0f;
@@ -20,12 +21,27 @@ void Engine::GFX::AnimatedSprite::animate(GLfloat elapsedTime) {
   float spritePositionX = spritePosition.x;
   float spritePositionY = spritePosition.y;
 
-  if(!APPROX(spritePosition.x, m_TargetDestination.x, 1.0f))
-     spritePositionX = spritePosition.x + (m_MoveSpeed.x * elapsedTime)*m_MoveVector.x;
-  if(!APPROX(spritePosition.y, m_TargetDestination.y, 1.0f))
-     spritePositionY = spritePosition.y + (m_MoveSpeed.y * elapsedTime)*m_MoveVector.y;
+  const bool finishedX = APPROX(spritePosition.x, m_TargetDestination.x, 1.0f);
+  const bool finishedY = APPROX(spritePosition.y, m_TargetDestination.y, 1.0f);
+
+  const float deltaX = spritePositionX / m_TargetDestination.x;
+  const float deltaY = spritePositionY / m_TargetDestination.y;
+
+  float stepX = (m_MoveSpeed.x * elapsedTime) * m_MoveVector.x;
+  float stepY = (m_MoveSpeed.y * elapsedTime) * m_MoveVector.y;
+
+  stepX = deltaX * stepX;
+  stepY = deltaY * stepY;
+  
+  if (!finishedX)
+      spritePositionX = spritePosition.x + stepX;
+  if (!finishedY)
+      spritePositionY = spritePosition.y + stepY;
      
-  setSpritePosition({spritePositionX, spritePositionY}); 
+  if (finishedX && finishedY)
+      m_IsAnimated = false;
+
+  setSpritePosition({ spritePositionX, spritePositionY });
 }
 
 

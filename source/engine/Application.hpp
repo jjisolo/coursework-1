@@ -47,16 +47,8 @@ namespace One
 	    {
 		  UnreferencedParameter(window);
 
-		  // Call the internal calllback function(that has access to the class members).
+		  // Call the internal callback function(that has access to the class members).
 		  instance().onMouseMove(positionX, positionY);
-	    }
-
-	    static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-	    {
-		  UnreferencedParameter(window);
-		  
-		  // Call the internal calllback function(that has access to the class members).
-		  instance().onMousePress(button, action);
 	    }
 
 	public:
@@ -102,9 +94,6 @@ namespace One
 	    // Called upon every time whenever the user moves the mouse. 
 	    Engine::Error onMouseMove(double positionX, double positionY);
 	  
-	    // Called every time user presses button on the mouse. 
-	    Engine::Error onMousePress(int button, int action);
-		
 	    // Execute the engine main loop, in which the user code combined with
 		// code executing the actual game. 
 		Engine::Error execute();
@@ -127,9 +116,11 @@ namespace One
 
 	protected:
 		GLfloat m_monitorHighDPIScaleFactor;
-      
+
+		bool   m_mouseButtonPressed=false;
         double m_mousePositionX;
         double m_mousePositionY;
+
         double m_elapsedTime;
 
 		std::shared_ptr<Engine::GFX::SpriteRenderer> m_SpriteRenderer;

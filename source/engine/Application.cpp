@@ -75,8 +75,8 @@ namespace One
 			glfwMakeContextCurrent(Engine::Window::instance().getWindowPointerKHR());
 			
 			// Set the callback on the mouse move action and press action.
+			glfwSetInputMode          (Engine::Window::instance().getWindowPointerKHR(), GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
 			glfwSetCursorPosCallback  (Engine::Window::instance().getWindowPointerKHR(), Application::setCursorPosCallback);
-			glfwSetMouseButtonCallback(Engine::Window::instance().getWindowPointerKHR(), Application::mouseButtonCallback);
 		} else
 		{
 			Engine::Logger::m_ApplicationLogger->error("Encountered error on window creation");
@@ -220,14 +220,14 @@ namespace One
 		// Catch and process keyboard input from the user.
 		processInput(windowPointer);
 
+		// Process events and trigger theirs binded callbacks
+		glfwPollEvents();
+
 		// Render ImGui elements.
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// Swap the front and back buffers of the current window.
 		glfwSwapBuffers(windowPointer);
-
-		// Process events and trigger theirs binded callbacks
-		glfwPollEvents();
 
 		return(Engine::Error::Ok);
 	}
@@ -237,6 +237,11 @@ namespace One
 		// Handle the exit key binding
 		if (glfwGetKey(windowPointer, GLFW_KEY_ESCAPE) == GLFW_PRESS) 
 			glfwSetWindowShouldClose(windowPointer, true);
+
+		if (glfwGetMouseButton(windowPointer, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			m_mouseButtonPressed = true;
+		else
+			m_mouseButtonPressed = false;
 	}
 
 	Engine::Error One::Application::destroyGameEngine(void) noexcept
@@ -309,7 +314,7 @@ namespace One
             lastTimeStamp    = currentTimeStamp;
 
 			// Try initialize update.
-			const Engine::Error userUpdateResult = onUserUpdate(1.0f);
+			const Engine::Error userUpdateResult = onUserUpdate(m_elapsedTime);
 
 			// If the functions encountered an error break the program and report an error.
 			if(ValidationError(userUpdateResult) || InitializationError(userUpdateResult))
@@ -357,12 +362,6 @@ namespace One
       m_mousePositionX = positionX;
       m_mousePositionY = positionY;
 
-	  return(Engine::Error::Ok);
-    }
-
-     // Default Mouse press callback
-    Engine::Error Application::onMousePress(int button, int action)
-    {
 	  return(Engine::Error::Ok);
     }
 

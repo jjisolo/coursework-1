@@ -39,9 +39,6 @@ namespace Engine::GFX
       bool crossX = mousePosition.x >= m_SpritePosition.x - range.x && mousePosition.x <= m_SpritePosition.x + m_SpriteSize.x + range.x;
       bool crossY = mousePosition.y >= m_SpritePosition.y - range.x && mousePosition.y <= m_SpritePosition.y + m_SpriteSize.y + range.y;
       
-      if(crossX && crossY)
-        printf("Comparing mouse(%f, %f) with coords(%f, %f) and range(%f, %f)\n",
-             mousePosition.x, mousePosition.y, m_SpritePosition.x, m_SpritePosition.y, range.x, range.y);
       return (crossX && crossY);
     }
 }
