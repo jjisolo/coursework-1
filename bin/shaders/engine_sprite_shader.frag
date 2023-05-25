@@ -12,6 +12,7 @@ uniform vec3 spriteColor;
 // Effects accessors
 uniform int applyGlowingEffect = 0;
 uniform int applyMotionEffect  = 0;
+uniform int applyShadowEffect  = 0;
 
 uniform float elapsedTime        = 0.0;
 uniform vec3  intencityMask      = vec3(0.6, 0.8, 0.8);
@@ -20,6 +21,8 @@ void main()
 {
     vec4  _spriteColor   = vec4(spriteColor, 1.0); 
     float intencity      = sin(elapsedTime);
+    
+    color = _spriteColor * texture(image, textureCoordinates);
 
     if(applyGlowingEffect == 1)
     {
@@ -34,8 +37,11 @@ void main()
 
       color = _spriteColor * texture(image, textureCoordinates);
     }
-    
-    color = _spriteColor * texture(image, textureCoordinates);
+
+    if(applyShadowEffect == 1)
+    {
+      color = vec4(0.0, 0.0, 0.0, 0.2);
+    }
 
     if(applyMotionEffect == 1)
     {

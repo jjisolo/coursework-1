@@ -7,7 +7,7 @@
 #define SPRITE_APPLY_NONE_EFFECTS         0
 #define SPRITE_APPLY_HOVER_GOOD_EFFECT    1
 #define SPRITE_APPLY_HOVER_BAD_EFFECT     2
-#define SPRITE_APPLY_GAUSSIAN_BLUR_EFFECT 4
+#define SPRITE_APPLY_MOTION_BLUR_EFFECT   4
 
 using namespace std;
 using namespace glm;
@@ -135,18 +135,29 @@ namespace Game
 
 				const bool applyBadEffect  = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_BAD_EFFECT)     == SPRITE_APPLY_HOVER_BAD_EFFECT;
 				const bool applyGoodEffect = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_GOOD_EFFECT)    == SPRITE_APPLY_HOVER_GOOD_EFFECT;
-				const bool applyBlurEffect = (sprite.getRenderFlag() & SPRITE_APPLY_GAUSSIAN_BLUR_EFFECT) == SPRITE_APPLY_GAUSSIAN_BLUR_EFFECT;
+				const bool applyBlurEffect = (sprite.getRenderFlag() & SPRITE_APPLY_MOTION_BLUR_EFFECT)   == SPRITE_APPLY_MOTION_BLUR_EFFECT;
+
+				const auto   size     = sprite.getSpriteSize();
+				const auto   color    = sprite.getSpriteColor();
+				const auto   position = sprite.getSpritePosition();
+				const auto   rotation = sprite.getSpriteRotation();
+				
+				AnimatedSprite shadowSprite;
+				shadowSprite.setSpriteSize    (size);
+				shadowSprite.setMoveSpeed     (sprite.getMoveSpeed());
+				shadowSprite.setSpriteRotation(sprite.getSpriteRotation());
+				shadowSprite.bindTexture      (sprite.getBindedTexture());
+				shadowSprite.setSpritePosition({ position.x + size.x / 14, position.y + size.y / 14 });
+
+				(*shaderWrapperOrError).setInteger("applyShadowEffect", 1);
+				shadowSprite.render(m_SpriteRenderer);
+				(*shaderWrapperOrError).setInteger("applyShadowEffect", 0);
 
 				if (applyBlurEffect)
 				{
 					(*shaderWrapperOrError).setInteger("applyGlowingEffect", 0, true);
 					const float offsetX = 2.6f;
 					const float offsetY = 2.6f;
-
-					const auto   size     = sprite.getSpriteSize();
-					const auto   color    = sprite.getSpriteColor();
-					const auto   position = sprite.getSpritePosition();
-					const auto   rotation = sprite.getSpriteRotation();
 
 					sprite.render(m_SpriteRenderer);
 
@@ -279,7 +290,6 @@ namespace Game
 
 
 	  // Render the cards that are on the board.
-
 	  auto renderPlayerCards = [&](vec2 renderAreaStart, vec2 renderAreaEnd, CardOwner cardOwner)
 	  {
 		auto ownerGroup     = search(cards, cardOwner);
@@ -293,14 +303,18 @@ namespace Game
 		{
 		  AnimatedSprite playerCard;
 	      playerCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
-	      playerCard.bindTexture      (ownerGroup[cardIndex].textureHandleMain);
-		  //playerCard.setSpritePosition({renderAreaStart.x + cardOffset * cardIndex, renderAreaStart.y });
-		  playerCard.setSpritePosition(deckPosition);
-		  playerCard.move             ({renderAreaStart.x + cardOffset * cardIndex, renderAreaStart.y});
 		  playerCard.setMoveSpeed     ({450.0f, 450.0f});
+		  playerCard.setSpritePosition({renderAreaStart.x + cardOffset * cardIndex, renderAreaStart.y });
+		  //playerCard.setSpritePosition(deckPosition);
+		  playerCard.move({ renderAreaStart.x + cardOffset * cardIndex, renderAreaStart.y });
+
+		  if((cardOwner == CARD_OWNER_PLAYER1 || cardOwner == CARD_OWNER_HEAP) || m_openCardsMode)
+			playerCard.bindTexture(ownerGroup[cardIndex].textureHandleMain);
+		  else
+			playerCard.bindTexture(ownerGroup[cardIndex].textureHandleBack);
 
 		  if (playerCard.getIsAnimated())
-			  playerCard.setRenderFlag(playerCard.getRenderFlag() | SPRITE_APPLY_GAUSSIAN_BLUR_EFFECT);
+			  playerCard.setRenderFlag(playerCard.getRenderFlag() | SPRITE_APPLY_MOTION_BLUR_EFFECT);
 
 		  if (cardOwner == CARD_OWNER_PLAYER1)
 		  {
