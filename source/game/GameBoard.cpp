@@ -7,6 +7,8 @@ namespace Game
 {
   Game::Board::Board()
   {
+	  m_RandomGenerator = mt19937(m_RandomDevice());
+	  m_GameStep        = 0;
   }
 
   Game::Board::~Board()
@@ -49,6 +51,8 @@ namespace Game
 
   void Board::assignCardsToThePlayers(void)
   {
+    Engine::Logger::m_GameLogger->info("Assigning starting card to the players!");
+
 	// Player 1
 	for(size_t i=0; i < 5; ++i)
 	  m_Cards[i].cardOwner = CARD_OWNER_PLAYER1;
@@ -70,6 +74,10 @@ namespace Game
   {
 	Engine::Logger::m_GameLogger->info("Generating card deck");
 	
+	// Determine card deliverer
+	uniform_int_distribution<mt19937::result_type> distribution(0, 3);
+	m_Deliverer = CardPlayerOwners[distribution(m_RandomGenerator)];
+
 	// Assign proper texture to each card in the deck.
 	for(int cardRank = Diamonds; cardRank != CardRankLast; ++cardRank) {
 	  for(int cardSuit = Ace; cardSuit != CardSuitLast; ++cardSuit) {
@@ -79,26 +87,105 @@ namespace Game
 		dummyCard.cardOwner         = CARD_OWNER_DECK;
 		dummyCard.textureHandleMain = loadTextureForCard(cardRank, cardSuit);
 		dummyCard.textureHandleBack = "card-back-green";
-	    
+
 		m_Cards.push_back(dummyCard);
 	  }
 	}
   }
 
+  void Board::step(void)
+  {
+	  // Save the card state snapshot
+	  //copy(m_Cards.begin(), m_Cards.end(), back_inserter(m_CardsSnapshot));
+	  m_CardsSnapshot = m_Cards;
+	  switch(m_GameStep)
+	  {
+	  case 0: {
+		  // First move: Shuffle the deck
+		  shuffleDeck();
+	  } break;
+
+	  case 1: {
+		  // Second move: Assign the cards to the players
+		  assignCardsToThePlayers();
+	  } break;
+
+	  case 2: {
+		  // Third move: Make deliverer move
+		  //getCardRefByOwner(CARD_OWNER_PLAYER1, true).cardOwner = CARD_OWNER_PLAYER2;
+		  assignNextDeliverer();
+	  } break;
+
+	  default: {
+
+	  } break;
+
+	  }
+
+	  assignNextDeliverer();
+
+	  Engine::Logger::m_GameLogger->info("Current step game is {}", m_GameStep);
+
+	  m_GameStep++;
+  }
+
+  void Board::assignNextDeliverer(void)
+  {
+	  switch (m_Deliverer)
+	  {
+	  case CARD_OWNER_PLAYER1:
+		  m_Deliverer = CARD_OWNER_PLAYER2;
+	  case CARD_OWNER_PLAYER2:
+		  m_Deliverer = CARD_OWNER_PLAYER3;
+	  case CARD_OWNER_PLAYER3:
+		  m_Deliverer = CARD_OWNER_PLAYER4;
+	  case CARD_OWNER_PLAYER4:
+		  m_Deliverer = CARD_OWNER_PLAYER1;
+	  default:
+		  m_Deliverer = CARD_OWNER_PLAYER1;
+	  }
+  }
+
   void Board::shuffleDeck(void)
   {
 	Engine::Logger::m_GameLogger->info("Shuffling game board");
-
-	random_device randomDevice;
-	mt19937       randomGenerator(randomDevice());
 	
-	shuffle(m_Cards.begin(), m_Cards.end(), randomGenerator);
+	shuffle(m_Cards.begin(), m_Cards.end(), m_RandomGenerator);
   }
 
-  Card& Board::getCardRef(CardSuit cardSuit, CardRank cardRank)
+  Card& Board::getCardRef(CardSuit cardSuit, CardRank cardRank, bool rewind)
   {
-    for(auto& card: m_Cards)
+    for(auto& card: !rewind ? m_Cards : m_CardsSnapshot)
       if(card.cardRank == cardRank && card.cardSuit == cardSuit)
         return(card);
   }
+
+  Card& Board::getCardRefByOwner(CardOwner cardOwner, bool reverse)
+  {
+	  if (reverse)
+	  {
+		  vector<Card>::reverse_iterator iterator = m_Cards.rbegin();
+		  
+		  while (iterator != m_Cards.rend())
+		  {
+			  if ((*iterator).cardOwner == cardOwner)
+				  return *iterator;
+
+			  iterator++;
+		  }
+	  }
+	  else
+	  {
+		  vector<Card>::iterator iterator = m_Cards.begin();
+
+		  while (iterator != m_Cards.end())
+		  {
+			  if ((*iterator).cardOwner == cardOwner)
+				  return *iterator;
+
+			  iterator++;
+		  }
+	  }
+  }
+
 }

@@ -30,6 +30,15 @@ namespace Game
 	private:
 	    void updateGameBoardCardSprites(ivec2& windowDimensions);
 
+		void calculateRenderAreas();
+
+		void arrangePlayerSprite(CardOwner cardOwner);
+
+		vector<Card> searchCard(CardOwner owner, bool rewind=true);
+
+	private:
+		pair<vec2, vec2> getRenderAreaBasedOnCardOwner(CardOwner cardOwner);
+
 	    void renderGameBoardUI(ivec2& windowDimensions);
 	    
 	    void renderMainMenuUI(ivec2& windowDimensions);
@@ -53,7 +62,21 @@ namespace Game
         bool m_ShowPlayer3Stats = false;
         bool m_ShowPlayer4Stats = false;
 
-		bool m_openCardsMode = false;
+		bool m_openCardsMode    = false;
+
+		bool m_gameBoardPendingUpdate = false;
+
+		vec2 m_playerRenderAreaStart1;
+		vec2 m_playerRenderAreaStart2;
+		vec2 m_playerRenderAreaStart3;
+		vec2 m_playerRenderAreaStart4;
+
+		vec2 m_playerRenderAreaEnd1;
+		vec2 m_playerRenderAreaEnd2;
+		vec2 m_playerRenderAreaEnd3;
+		vec2 m_playerRenderAreaEnd4;
+
+		vec2 m_deckPosition;
 
         vector<Sprite> m_mainMenuSprites;
 	    vector<Sprite> m_gameBoardGeneral;

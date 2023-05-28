@@ -50,6 +50,11 @@ namespace Game
 	CARD_OWNER_BOARD,
   };
 
+  static const CardOwner CardPlayerOwners[] = {
+	  CARD_OWNER_PLAYER1, CARD_OWNER_PLAYER2,
+	  CARD_OWNER_PLAYER3, CARD_OWNER_PLAYER4,
+  };
+
   struct Card
   {
 	CardRank  cardRank;
@@ -71,6 +76,7 @@ namespace Game
   {
   public:
 	 Board();
+
 	~Board();
 
   public:
@@ -79,7 +85,27 @@ namespace Game
 	  return(m_Cards);
 	}
 
-    Card& getCardRef(CardSuit cardSuit, CardRank cardRank);
+	inline vector<Card>& getCardsRewind(void)
+	{
+		return(m_CardsSnapshot);
+	}
+
+	inline long long getCurrentStep() const
+	{
+		return m_GameStep;
+	}
+
+	inline bool isPrepared() const
+	{
+		return (m_GameStep <= 3) ? false : true;
+	}
+
+	CardOwner getDeliverer() const
+	{
+		return m_Deliverer;
+	}
+	
+	Card& getCardRef(CardSuit cardSuit, CardRank cardRank, bool rewind = false);
 
 	void assignCardsToThePlayers(void);
 
@@ -87,11 +113,23 @@ namespace Game
 
 	void generateDeck(void);
 
+	void step(void);
+
   private:
+	Card& getCardRefByOwner(CardOwner cardOwner, bool reverse = false);
+
 	string loadTextureForCard(int cardRank, int cardSuit);
 
+	void assignNextDeliverer(void);
+
   private:
-	vector<Card> m_Cards;
+	vector<Card>  m_Cards;
+	vector<Card>  m_CardsSnapshot; // the cards state on previous move
+
+	CardOwner     m_Deliverer;
+	random_device m_RandomDevice;
+	mt19937       m_RandomGenerator;
+	long long     m_GameStep;
   };
 
-}
+}	
