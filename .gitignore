@@ -45,3 +45,10 @@ bin/**
 source/_old
 imgui/**
 logs/*
+source/game/GameBoard.cpp~
+
+*.hpp~
+
+todo.txt
+
+todo.txt~
