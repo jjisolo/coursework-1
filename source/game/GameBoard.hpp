@@ -10,6 +10,8 @@
 #include "../engine/Logger.hpp"
 #include "../engine/ResourseManager.hpp"
 
+#include "GameInfo.hpp"
+
 using namespace std;
 
 namespace Game
@@ -56,6 +58,13 @@ namespace Game
 
 	string textureHandleMain;
 	string textureHandleBack;
+  };
+
+  struct SaveData
+  {
+	  GameState gameState;
+
+	  vector<Card> cards;
   };
 
   class Board

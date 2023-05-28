@@ -117,7 +117,9 @@ namespace One
 	protected:
 		GLfloat m_monitorHighDPIScaleFactor;
 
-		bool   m_mouseButtonPressed=false;
+		bool   m_mouseButtonPressed  = false;
+		bool   m_escapeButtonPressed = false;
+
         double m_mousePositionX;
         double m_mousePositionY;
 

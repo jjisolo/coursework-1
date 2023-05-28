@@ -34,7 +34,11 @@ namespace Game
 	    
 	    void renderMainMenuUI(ivec2& windowDimensions);
 
-        void renderPlayerStatUI(CardOwner owner);
+		void renderQuitApproveUI();
+
+		void renderSettingsUI();
+
+		void renderPlayerStatUI(CardOwner owner);
 
 	private:
 	    Game::Board m_gameBoard;
@@ -43,6 +47,7 @@ namespace Game
 	    bool m_showSettingsWindow    = false;
 		bool m_showQuitApproveWindow = false;
 		bool m_showDebugWindow       = false;
+		bool m_showBoardMenuWindow   = false;
 
         bool m_ShowPlayer2Stats = false;
         bool m_ShowPlayer3Stats = false;

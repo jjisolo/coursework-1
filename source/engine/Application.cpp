@@ -235,8 +235,10 @@ namespace One
 	void One::Application::processInput(GLFWwindow* windowPointer) noexcept
 	{		
 		// Handle the exit key binding
-		if (glfwGetKey(windowPointer, GLFW_KEY_ESCAPE) == GLFW_PRESS) 
-			glfwSetWindowShouldClose(windowPointer, true);
+		if (glfwGetKey(windowPointer, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			m_escapeButtonPressed = true;
+		else
+			m_escapeButtonPressed = false;
 
 		if (glfwGetMouseButton(windowPointer, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 			m_mouseButtonPressed = true;

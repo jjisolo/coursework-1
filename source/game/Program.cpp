@@ -1,4 +1,4 @@
-#include "Program.hpp"
+﻿#include "Program.hpp"
 
 #include "../engine/Sprite.hpp"
 
@@ -97,6 +97,9 @@ namespace Game
 	{
 	    auto windowDimensions = getWindowDimensions();
         
+		if (m_escapeButtonPressed == true)
+			m_showBoardMenuWindow = true;
+
         // Update mouse cursor position on the current frame.
         glfwGetCursorPos(getWindowPointer(), &m_mousePositionX, &m_mousePositionY);
 		
@@ -142,6 +145,7 @@ namespace Game
 				const auto   position = sprite.getSpritePosition();
 				const auto   rotation = sprite.getSpriteRotation();
 				
+				// Apply shadows
 				AnimatedSprite shadowSprite;
 				shadowSprite.setSpriteSize    (size);
 				shadowSprite.setMoveSpeed     (sprite.getMoveSpeed());
@@ -153,7 +157,7 @@ namespace Game
 				shadowSprite.render(m_SpriteRenderer);
 				(*shaderWrapperOrError).setInteger("applyShadowEffect", 0);
 
-				if (applyBlurEffect)
+				if (applyBlurEffect) // Apply motion blur
 				{
 					(*shaderWrapperOrError).setInteger("applyGlowingEffect", 0, true);
 					const float offsetX = 2.6f;
@@ -180,7 +184,7 @@ namespace Game
 					}
 					(*shaderWrapperOrError).setInteger("applyMotionEffect", 0, true);
 				}
-				else if (applyBadEffect || applyGoodEffect)
+				else if (applyBadEffect || applyGoodEffect) // Apply glowing effect
 				{
 					(*shaderWrapperOrError).setVector3f("intencityMask", applyBadEffect ? CARD_INTENCITY_MASK_BAD : CARD_INTENCITY_MASK_GOOD);
 					(*shaderWrapperOrError).setInteger("applyGlowingEffect", 1, true);
@@ -396,11 +400,137 @@ namespace Game
 	  ImguiCreateNewFrameKHR();
 	  ImGui::NewFrame(); 
 	  
-      renderPlayerStatUI(CARD_OWNER_PLAYER2);
+	  ImGuiWindowFlags window_flags = 0;
+	  window_flags |= ImGuiWindowFlags_NoResize;
+	  window_flags |= ImGuiWindowFlags_NoCollapse;
+	  window_flags |= ImGuiWindowFlags_NoMove;
+
+	  if (m_showBoardMenuWindow)
+	  {
+		  if (!ImGui::Begin("101 Menu", &m_showBoardMenuWindow, window_flags))
+		  {
+			  ImGui::End();
+		  }
+		  else
+		  {
+			  if (ImGui::Button("\t\t\tContinue\t\t\t"))
+			  {
+				  m_showSettingsWindow = !m_showSettingsWindow;
+			  } ImGui::SameLine();
+
+			  
+			  if (ImGui::Button("\t\t\tSave\t\t\t"))
+			  {
+				  
+			  } ImGui::SameLine();
+
+			  if (ImGui::Button("\t\t\tSettings\t\t\t"))
+			  {
+				  m_showSettingsWindow = true;
+			  } ImGui::SameLine();
+
+			  if (ImGui::Button("\t\t\tQuit\t\t\t"))
+			  {
+				  m_showQuitApproveWindow = !m_showQuitApproveWindow;
+			  } ImGui::SameLine();
+
+			  ImGui::End();
+		  }
+	  }
+
+	  renderSettingsUI();
+	  renderQuitApproveUI();
 
 	  ImGui::EndFrame();
 	  ImGui::Render();
     }
+
+	void GameProgram::renderQuitApproveUI()
+	{
+		if (m_showQuitApproveWindow)
+		{
+			auto windowDimensions = getWindowDimensions();
+
+			ImGuiWindowFlags window_flags = 0;
+			window_flags |= ImGuiWindowFlags_NoResize;
+			window_flags |= ImGuiWindowFlags_NoCollapse;
+
+			ImGui::SetNextWindowPos(ImVec2(windowDimensions.x / 2.5, windowDimensions.y / 3.5), ImGuiCond_FirstUseEver);
+
+			if (!ImGui::Begin("Do you really want to quit?", &m_showQuitApproveWindow, window_flags))
+			{
+				ImGui::End();
+			}
+			else
+			{
+				if (ImGui::Button("\t\t\tYes\t\t\t"))
+				{
+					glfwSetWindowShouldClose(getWindowPointer(), true);
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("\t\tNo\t\t\t"))
+				{
+					m_showQuitApproveWindow = false;
+				}
+
+				ImGui::End();
+			}
+		}
+	}
+
+	void GameProgram::renderSettingsUI()
+	{
+		if (m_showSettingsWindow)
+		{
+			auto windowDimensions = getWindowDimensions();
+
+			ImGuiWindowFlags window_flags = 0;
+			window_flags |= ImGuiWindowFlags_NoCollapse;
+
+			ImGui::SetNextWindowPos(ImVec2(windowDimensions.x / 4, windowDimensions.y / 4), ImGuiCond_FirstUseEver);
+
+			if (!ImGui::Begin("Settings", &m_showSettingsWindow, window_flags))
+			{
+				ImGui::End();
+			}
+			else
+			{
+				if (ImGui::CollapsingHeader("Game Rules"))
+				{
+					ImGui::Text(GAME_DESCRIPTION);
+				}
+
+				if (ImGui::CollapsingHeader("Game specification"))
+				{
+					ImGui::Text(GAME_SPECIFICATION);
+				}
+
+				if (ImGui::CollapsingHeader("ImGui User Manual"))
+				{
+					ImGui::ShowUserGuide();
+				}
+
+				if (ImGui::CollapsingHeader("Author Credits"))
+				{
+					ImGui::Text(GAME_CREDITS);
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::BeginMenu("Developer Tools"))
+				{
+					ImGui::MenuItem("Show Debug Window", NULL, &m_showDebugWindow);
+					ImGui::MenuItem("Show Enemy Card Faces", NULL, &m_openCardsMode);
+
+					ImGui::EndMenu();
+				}
+
+				ImGui::End();
+			}
+		}
+	}
 
     void GameProgram::renderMainMenuUI(ivec2& windowDimensions)
     {
@@ -439,82 +569,8 @@ namespace Game
 			ImGui::Text(GAME_DESCRIPTION);
 			ImGui::End();
 			
-			if (m_showQuitApproveWindow)
-			{
-				window_flags  = 0;
-				window_flags |= ImGuiWindowFlags_NoResize;
-				window_flags |= ImGuiWindowFlags_NoCollapse;
-
-				ImGui::SetNextWindowPos(ImVec2(windowDimensions.x / 2.5, windowDimensions.y / 3.5), ImGuiCond_FirstUseEver);
-
-				if (!ImGui::Begin("Do you really want to quit?", &m_showQuitApproveWindow, window_flags))
-				{			
-					ImGui::End();
-				}
-				else
-				{
-					if (ImGui::Button("\t\t\tYes\t\t\t"))
-					{
-						glfwSetWindowShouldClose(getWindowPointer(), true);
-					}
-
-					ImGui::SameLine();
-
-					if (ImGui::Button("\t\tNo\t\t\t"))
-					{
-						m_showQuitApproveWindow = false;
-					}
-
-					ImGui::End();
-				}
-			}
-
-			if (m_showSettingsWindow)
-			{
-				window_flags = 0;
-				window_flags |= ImGuiWindowFlags_NoCollapse;
-
-				ImGui::SetNextWindowPos(ImVec2(windowDimensions.x / 4, windowDimensions.y / 4), ImGuiCond_FirstUseEver);
-
-				if (!ImGui::Begin("Settings", &m_showSettingsWindow, window_flags))
-				{
-					ImGui::End();
-				}
-				else
-				{
-					if (ImGui::CollapsingHeader("Game Rules"))
-					{
-						ImGui::Text(GAME_DESCRIPTION);
-					}
-
-					if (ImGui::CollapsingHeader("Game specification"))
-					{
-						ImGui::Text(GAME_SPECIFICATION);
-					}
-
-					if (ImGui::CollapsingHeader("ImGui User Manual"))
-					{
-						ImGui::ShowUserGuide();
-					}
-
-					if (ImGui::CollapsingHeader("Author Credits"))
-					{
-						ImGui::Text(GAME_CREDITS);
-					}
-
-					ImGui::Separator();
-
-					if (ImGui::BeginMenu("Developer Tools"))
-					{
-						ImGui::MenuItem("Show Debug Window",     NULL, &m_showDebugWindow);
-						ImGui::MenuItem("Show Enemy Card Faces", NULL, &m_openCardsMode);
-
-						ImGui::EndMenu();
-					}
-
-					ImGui::End();
-				}
-			}
+			renderQuitApproveUI();
+			renderSettingsUI();
             
 			ImGui::EndFrame();
 			ImGui::Render();

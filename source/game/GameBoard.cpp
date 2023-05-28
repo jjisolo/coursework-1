@@ -50,19 +50,19 @@ namespace Game
   void Board::assignCardsToThePlayers(void)
   {
 	// Player 1
-	for(size_t i=0; i < 4; ++i)
+	for(size_t i=0; i < 5; ++i)
 	  m_Cards[i].cardOwner = CARD_OWNER_PLAYER1;
 
 	// Player 2
-	for(size_t i=4; i < 8; ++i)
+	for(size_t i=5; i < 10; ++i)
 	  m_Cards[i].cardOwner = CARD_OWNER_PLAYER2;
 
 	// Player 3
-	for(size_t i=8; i < 12; ++i)
+	for(size_t i=10; i < 15; ++i)
 	  m_Cards[i].cardOwner = CARD_OWNER_PLAYER3;
 
 	// Player 4
-	for(size_t i=12; i < 16; ++i)
+	for(size_t i=15; i < 20; ++i)
 	  m_Cards[i].cardOwner = CARD_OWNER_PLAYER4;
   }
 
