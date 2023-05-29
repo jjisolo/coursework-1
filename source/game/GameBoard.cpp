@@ -93,6 +93,36 @@ namespace Game
 		}
 	}
 
+	void Board::moveCardAI(CardOwner cardOwner)
+	{
+		// Get all cards of this owner
+		vector<Card> playerCards;
+
+		for (auto card : m_Cards)
+		{
+			if (card.cardOwner == cardOwner && moveIsValid(card))
+			{
+				move(card);
+				return;
+			}
+		}
+
+		// Get the card if we found none
+		getDeckCard(cardOwner);
+	}
+
+	void Board::getDeckCard(CardOwner cardOwner)
+	{
+		for (auto card : m_Cards)
+		{
+			if (card.cardOwner == CARD_OWNER_DECK) 
+			{
+				getCardRef(card).cardOwner = cardOwner;
+				return;
+			}
+		}
+	}
+
 	void Board::step(void)
 	{
 		// Save the card state snapshot
@@ -103,25 +133,57 @@ namespace Game
 		case 0: {
 			// First move: Shuffle the deck
 			shuffleDeck();
+			m_GameStep++;
+			return;
 		} break;
 
 		case 1: {
 			// Second move: Assign the cards to the players
 			assignCardsToThePlayers();
+			m_GameStep++;
+			return;
 		} break;
 
 		case 2: {
 			// Third move: Make deliverer move
 			move(getCardRefByOwner(m_Deliverer, true));
-			assignNextDeliverer();
+			return;
 		} break;
+
 		}
 
-		assignNextDeliverer();
+		// If the main player is not the deliverer make the AI)))))))))))) move the card
+		if (m_Deliverer != CARD_OWNER_PLAYER1 && m_GameStep > 2)
+		{
+			moveCardAI(m_Deliverer);
+		}
 
-		Engine::Logger::m_GameLogger->info("Current step game is {}", m_GameStep);
+		// Check if the main player has no valid moves, if so give him the card
+		if (m_Deliverer == CARD_OWNER_PLAYER1)
+		{
+			bool found = false;
 
-		m_GameStep++;
+			for (auto card : m_Cards)
+			{
+				if (card.cardOwner == CARD_OWNER_PLAYER1)
+				{
+					if (moveIsValid(card))
+					{
+						found = true;
+					}
+				}
+			}
+
+			if (!found)
+			{
+				getDeckCard(CARD_OWNER_PLAYER1);
+
+				assignNextDeliverer();
+				m_GameStep++;
+
+				moveCardAI(m_Deliverer);
+			}
+		}
 	}
 
 	void Board::assignNextDeliverer(void)
@@ -129,15 +191,20 @@ namespace Game
 		switch (m_Deliverer)
 		{
 		case CARD_OWNER_PLAYER1:
-			m_Deliverer = CARD_OWNER_PLAYER2;
-		case CARD_OWNER_PLAYER2:
-			m_Deliverer = CARD_OWNER_PLAYER3;
-		case CARD_OWNER_PLAYER3:
 			m_Deliverer = CARD_OWNER_PLAYER4;
-		case CARD_OWNER_PLAYER4:
+			break;
+		case CARD_OWNER_PLAYER2:
 			m_Deliverer = CARD_OWNER_PLAYER1;
+			break;
+		case CARD_OWNER_PLAYER3:
+			m_Deliverer = CARD_OWNER_PLAYER2;
+			break;
+		case CARD_OWNER_PLAYER4:
+			m_Deliverer = CARD_OWNER_PLAYER3;
+			break;
 		default:
 			m_Deliverer = CARD_OWNER_PLAYER1;
+			break;
 		}
 	}
 
@@ -176,8 +243,22 @@ namespace Game
   {
 	  if (moveIsValid(card))
 	  {
+		  Engine::Logger::m_GameLogger->info("Move card");
+			  
 		  m_Deck.push_back(getCard(card));
 		  getCardRef(card).cardOwner = CARD_OWNER_BOARD;
+
+		  assignNextDeliverer();
+		  m_GameStep++;
+
+		  if (m_Deliverer == CARD_OWNER_PLAYER1)
+		  {
+			  m_PendingAutoMove = false;
+		  }
+		  else
+		  {
+			  m_PendingAutoMove = true;
+		  }
 	  }
   }
 

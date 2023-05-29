@@ -17,7 +17,7 @@ void Engine::GFX::AnimatedSprite::move(vec2 spriteDestination) {
 }
 
 void Engine::GFX::AnimatedSprite::animate(GLfloat elapsedTime) {
-  auto spritePosition   = getSpritePosition();
+  auto  spritePosition  = getSpritePosition();
   float spritePositionX = spritePosition.x;
   float spritePositionY = spritePosition.y;
 

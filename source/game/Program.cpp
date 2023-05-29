@@ -122,12 +122,7 @@ namespace Game
 
 			if (!waitAnimations)
 			{
-				if (m_gameBoardPendingUpdate || !m_gameBoard.isPrepared())
-				{
-					m_gameBoard.step();
-					m_gameBoardPendingUpdate = false;
-
-				}
+				m_gameBoard.step();
 
 				// Arrange the cards sprites(split the cards array by the different rendering ares by the card owner).
 				updateGameBoardCardSprites(windowDimensions);
@@ -152,7 +147,7 @@ namespace Game
 			m_hoveredCardCopy.cardRank = CardRankLast;
 
 			for (auto& sprite : m_gameBoardCards) {
-				sprite.animate(m_elapsedTime);
+				sprite.animate(m_elapsedTime*2);
 
 				const bool applyBadEffect  = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_BAD_EFFECT)     == SPRITE_APPLY_HOVER_BAD_EFFECT;
 				const bool applyGoodEffect = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_GOOD_EFFECT)    == SPRITE_APPLY_HOVER_GOOD_EFFECT;
@@ -339,10 +334,11 @@ namespace Game
 			if (playerCard.getIsAnimated())
 				playerCard.setRenderFlag(playerCard.getRenderFlag() | SPRITE_APPLY_MOTION_BLUR_EFFECT);
 
+			// Main player card controls
 			if (cardOwner == CARD_OWNER_PLAYER1)
 			{
 				// If the current player is deliverer, track its move
-				if ((int)m_gameBoard.getDeliverer() == (int)CARD_OWNER_PLAYER1)
+				if (m_gameBoard.getDeliverer() == CARD_OWNER_PLAYER1)
 				{
 					if (playerCard.isHovered({ m_mousePositionX, m_mousePositionY }, { 1.0f, 1.0f }))
 					{
@@ -353,8 +349,6 @@ namespace Game
 							if (m_mouseButtonPressed)
 							{
 								m_gameBoard.move(ownerGroup[cardIndex]);
-								m_gameBoardPendingUpdate = true;
-
 								playerCard.move(m_boardPosition);
 							}
 						}
@@ -367,6 +361,10 @@ namespace Game
 					{
 						playerCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
 					}
+				}
+				else
+				{
+					playerCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
 				}
 			}
 			else
@@ -445,9 +443,9 @@ namespace Game
 
 	void GameProgram::arrangeBoardSprites()
 	{
-		auto boardOwnerGroup       = searchCard(CARD_OWNER_BOARD);
-		auto boardOwnerGroupSize   = boardOwnerGroup.size();
-		ptrdiff_t cardsRenderTotal = 0;
+		auto      boardOwnerGroup       = searchCard(CARD_OWNER_BOARD);
+		auto      boardOwnerGroupSize   = boardOwnerGroup.size();
+		ptrdiff_t cardsRenderTotal      = 0;
 
 		for (ptrdiff_t cardIndex = 1; cardIndex < boardOwnerGroupSize+1; ++cardIndex)
 			if ((cardIndex % 4) == 0)
@@ -457,29 +455,33 @@ namespace Game
 
 		for (ptrdiff_t boardSpriteIndex = boardOwnerGroupSize; boardSpriteIndex --> 0;)
 		{
+			// Card previous position in the deck
+			auto& rewindedCard = m_gameBoard.getCardRef(boardOwnerGroup[boardSpriteIndex].cardSuit, boardOwnerGroup[boardSpriteIndex].cardRank, true);
+
 			AnimatedSprite boardCard;
-			boardCard.setSpritePosition(m_boardPosition);
 			boardCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
-			boardCard.setSpriteRotation(5.0f * boardSpriteIndex);
 			boardCard.bindTexture      (boardOwnerGroup[boardSpriteIndex].textureHandleMain);
+			boardCard.setMoveSpeed     ({ 450.0f, 450.0f });
 			boardCard.setRenderFlag    (SPRITE_APPLY_NONE_EFFECTS);
 
-			// The card can only direction that the board can move is from player hand
-			if (boardOwnerGroup[boardSpriteIndex].cardOwner == CARD_OWNER_BOARD)
+			//if (boardOwnerGroup[boardSpriteIndex].cardOwner == CARD_OWNER_BOARD)
+			if (rewindedCard.cardOwner == CARD_OWNER_BOARD)
 			{
 				boardCard.setSpritePosition(m_boardPosition);
-				boardCard.move             (m_boardPosition); // No move, the sprite is static.			
 			}
 			else
 			{
-				auto renderArea      = getRenderAreaBasedOnCardOwner(boardOwnerGroup[boardSpriteIndex].cardOwner);
-				auto renderAreaStart = renderArea.first;
-				auto renderAreaEnd   = renderArea.second;
+				auto renderAreaRewind      = getRenderAreaBasedOnCardOwner(rewindedCard.cardOwner);
+				auto renderAreaRewindStart = renderAreaRewind.first;
+				auto renderAreaRewindEnd   = renderAreaRewind.second;
 
-				boardCard.setSpritePosition({(renderAreaStart.x - renderAreaEnd.x) / 2, renderAreaEnd.y });
-				boardCard.move             (m_deckPosition);
+				boardCard.setSpritePosition({
+					renderAreaRewindStart.x + ((renderAreaRewindEnd.x - renderAreaRewindStart.x) / boardOwnerGroupSize),
+					renderAreaRewindStart.y
+				});
 			}
 
+			boardCard.move(m_boardPosition);
 			m_gameBoardCards.push_back(boardCard);
 		}
 	}
@@ -490,7 +492,6 @@ namespace Game
       m_gameBoardCards.clear();
 	 
 	  // Adjust the sprite positions for the different game rendering areas
-	  arrangeHeapSprites();
 	  arrangeDeckSprites();
 	  arrangeBoardSprites();
 	 

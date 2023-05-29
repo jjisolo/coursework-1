@@ -80,6 +80,11 @@ namespace Game
 	~Board();
 
   public:
+	inline bool isPendingAutoMove()
+	{
+		  return m_PendingAutoMove;
+	}
+
 	inline vector<Card>& getCards(void)
 	{
 	    return(m_Cards);
@@ -124,6 +129,10 @@ namespace Game
 	void move(Card& card);
 
   private:
+	void moveCardAI(CardOwner cardOwner);
+	  
+	void getDeckCard(CardOwner cardOwner);
+
 	Card& getCardRefByOwner(CardOwner cardOwner, bool reverse = false);
 	Card  getCardByOwner   (CardOwner cardOwner, bool reverse = false);
 	Card& getCardRef       (Card card);
@@ -134,9 +143,10 @@ namespace Game
 	void assignNextDeliverer(void);
 
   private:
+	bool          m_PendingAutoMove;
+
 	vector<Card>  m_Cards;
 	vector<Card>  m_CardsSnapshot; // the cards state on previous move
-
 	vector<Card>  m_Deck;
 
 	CardOwner     m_Deliverer;
