@@ -34,6 +34,10 @@ namespace Game
 
 		void arrangePlayerSprite(CardOwner cardOwner);
 
+		void arrangeDeckSprites();
+
+		void arrangeBoardSprites();
+
 		vector<Card> searchCard(CardOwner owner, bool rewind=true);
 
 	private:
@@ -76,6 +80,7 @@ namespace Game
 		vec2 m_playerRenderAreaEnd3;
 		vec2 m_playerRenderAreaEnd4;
 
+		vec2 m_boardPosition;
 		vec2 m_deckPosition;
 
         vector<Sprite> m_mainMenuSprites;

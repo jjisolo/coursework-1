@@ -22,7 +22,7 @@ static constexpr const glm::ivec2 CARD_ASSET_SIZE_NORMALIZED      = CARD_ASSET_S
 static constexpr const float      CARDS_ROW_OTHER_PLAYERS_Y_COORD = 0.02f;
 
 static constexpr const vec3  CARD_INTENCITY_MASK_BAD   = {0.9, 0.8, 0.8};
-static constexpr const vec3  CARD_INTENCITY_MASK_GOOD  = {0.9, 0.8, 0.8};
+static constexpr const vec3  CARD_INTENCITY_MASK_GOOD  = {0.8, 0.9, 0.8};
 
 static constexpr auto GAME_DESCRIPTION =
 R"(The goal of the game is to score the least number of points. In order to play, you need a 
@@ -122,11 +122,9 @@ namespace Game
 
 			if (!waitAnimations)
 			{
-				if (m_gameBoardPendingUpdate)
+				if (m_gameBoardPendingUpdate || !m_gameBoard.isPrepared())
 				{
 					m_gameBoard.step();
-					m_gameBoard.step();
-
 					m_gameBoardPendingUpdate = false;
 
 				}
@@ -278,6 +276,10 @@ namespace Game
 		m_playerRenderAreaEnd4.x   = windowDimensions.x * 0.95f;
 		m_playerRenderAreaEnd4.y   = m_playerRenderAreaStart4.y;
 
+		// Board
+		m_boardPosition.x = windowDimensions.x * 0.4f;
+		m_boardPosition.y = windowDimensions.y * 0.4f;
+
 		// Deck
 		m_deckPosition.x = windowDimensions.x * 0.85f;
 		m_deckPosition.y = windowDimensions.y * 0.40f;
@@ -302,6 +304,10 @@ namespace Game
 			{
 				playerCard.setSpritePosition(m_deckPosition);
 			}
+			else if (rewindedCard.cardOwner == CARD_OWNER_BOARD)
+			{
+				playerCard.setSpritePosition(m_boardPosition);
+			}
 			else
 			{
 				auto renderAreaRewind      = getRenderAreaBasedOnCardOwner(rewindedCard.cardOwner);
@@ -312,11 +318,9 @@ namespace Game
 					renderAreaRewindStart.x + ((renderAreaRewindEnd.x - renderAreaRewindStart.x) / ownerGroupSize) * cardIndex,
 					renderAreaRewindStart.y
 				});
-
-				//playerCard.setSpritePosition(m_deckPosition);
 			}
 
-			// Set the current postiion relating on the current card owner
+			// Set the current position relating on the current card owner
 			auto renderArea      = getRenderAreaBasedOnCardOwner(ownerGroup[cardIndex].cardOwner);
 			auto renderAreaStart = renderArea.first;
 			auto renderAreaEnd   = renderArea.second;
@@ -325,9 +329,9 @@ namespace Game
 				renderAreaStart.x + ((renderAreaEnd.x - renderAreaStart.x) / ownerGroupSize) * cardIndex,
 				renderAreaStart.y
 			});
-
+			
 			// Hide card faces of the opponents
-			if ((cardOwner == CARD_OWNER_PLAYER1 || cardOwner == CARD_OWNER_HEAP) || m_openCardsMode)
+			if ((cardOwner == CARD_OWNER_PLAYER1 || cardOwner == CARD_OWNER_BOARD) || m_openCardsMode)
 				playerCard.bindTexture(ownerGroup[cardIndex].textureHandleMain);
 			else
 				playerCard.bindTexture(ownerGroup[cardIndex].textureHandleBack);
@@ -342,13 +346,21 @@ namespace Game
 				{
 					if (playerCard.isHovered({ m_mousePositionX, m_mousePositionY }, { 1.0f, 1.0f }))
 					{
-						playerCard.setRenderFlag(SPRITE_APPLY_HOVER_BAD_EFFECT);
-
-						if (m_mouseButtonPressed)
+						if (m_gameBoard.moveIsValid(ownerGroup[cardIndex]))
 						{
-							m_gameBoardPendingUpdate = true;
+							playerCard.setRenderFlag(SPRITE_APPLY_HOVER_GOOD_EFFECT);
 
-							playerCard.move({ 100.0f, 100.0f });
+							if (m_mouseButtonPressed)
+							{
+								m_gameBoard.move(ownerGroup[cardIndex]);
+								m_gameBoardPendingUpdate = true;
+
+								playerCard.move(m_boardPosition);
+							}
+						}
+						else
+						{
+							playerCard.setRenderFlag(SPRITE_APPLY_HOVER_BAD_EFFECT);
 						}
 					}
 					else
@@ -362,7 +374,7 @@ namespace Game
 				playerCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
 			}
 
-			m_gameBoardCards.push_back(playerCard);
+			m_gameBoardCards   .push_back(playerCard);
 			m_gameBoardCardsRef.push_back(ownerGroup[cardIndex]);
 		}
 	}
@@ -382,62 +394,106 @@ namespace Game
 	}
 
 
+	void GameProgram::arrangeDeckSprites()
+	{
+		auto deckOwnerGroup     = searchCard(CARD_OWNER_DECK);
+		auto deckOwnerGroupSize = deckOwnerGroup.size();
+
+		// The idea is to render the deck like it is not aligned
+		// perfectly(not each card stacked on each other). Like	  
+		// there are some cards went out of the deck.
+		if (deckOwnerGroupSize >= 3)
+		{
+			AnimatedSprite veryTintedCard;
+			veryTintedCard.setSpritePosition(m_deckPosition);
+			veryTintedCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
+			veryTintedCard.setSpriteRotation(25.0f);
+			veryTintedCard.bindTexture(deckOwnerGroup[2].textureHandleBack);
+			veryTintedCard.move(m_deckPosition); // No move, the sprite is static.
+			veryTintedCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+
+			m_gameBoardCards.push_back(veryTintedCard);
+		}
+
+		if (deckOwnerGroupSize >= 2)
+		{
+			AnimatedSprite slightlyTintedCard;
+			slightlyTintedCard.setSpritePosition(m_deckPosition);
+			slightlyTintedCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
+			slightlyTintedCard.setSpriteRotation(15.0f);
+			slightlyTintedCard.bindTexture(deckOwnerGroup[1].textureHandleBack);
+			slightlyTintedCard.move(m_deckPosition); // No move, the sprite is static.			
+			slightlyTintedCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+
+			m_gameBoardCards.push_back(slightlyTintedCard);
+		}
+
+		if (deckOwnerGroupSize >= 1)
+		{
+			AnimatedSprite regularCard;
+			regularCard.setSpritePosition(m_deckPosition);
+			regularCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
+			regularCard.setSpriteRotation(3.0f);
+			regularCard.bindTexture(deckOwnerGroup[0].textureHandleBack);
+			regularCard.move(m_deckPosition); // No move, the sprite is static.			
+			regularCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+
+			m_gameBoardCards.push_back(regularCard);
+		}
+
+	}
+
+	void GameProgram::arrangeBoardSprites()
+	{
+		auto boardOwnerGroup       = searchCard(CARD_OWNER_BOARD);
+		auto boardOwnerGroupSize   = boardOwnerGroup.size();
+		ptrdiff_t cardsRenderTotal = 0;
+
+		for (ptrdiff_t cardIndex = 1; cardIndex < boardOwnerGroupSize+1; ++cardIndex)
+			if ((cardIndex % 4) == 0)
+				break;
+			else
+				cardsRenderTotal++;
+
+		for (ptrdiff_t boardSpriteIndex = boardOwnerGroupSize; boardSpriteIndex --> 0;)
+		{
+			AnimatedSprite boardCard;
+			boardCard.setSpritePosition(m_boardPosition);
+			boardCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
+			boardCard.setSpriteRotation(5.0f * boardSpriteIndex);
+			boardCard.bindTexture      (boardOwnerGroup[boardSpriteIndex].textureHandleMain);
+			boardCard.setRenderFlag    (SPRITE_APPLY_NONE_EFFECTS);
+
+			// The card can only direction that the board can move is from player hand
+			if (boardOwnerGroup[boardSpriteIndex].cardOwner == CARD_OWNER_BOARD)
+			{
+				boardCard.setSpritePosition(m_boardPosition);
+				boardCard.move             (m_boardPosition); // No move, the sprite is static.			
+			}
+			else
+			{
+				auto renderArea      = getRenderAreaBasedOnCardOwner(boardOwnerGroup[boardSpriteIndex].cardOwner);
+				auto renderAreaStart = renderArea.first;
+				auto renderAreaEnd   = renderArea.second;
+
+				boardCard.setSpritePosition({(renderAreaStart.x - renderAreaEnd.x) / 2, renderAreaEnd.y });
+				boardCard.move             (m_deckPosition);
+			}
+
+			m_gameBoardCards.push_back(boardCard);
+		}
+	}
+
     void GameProgram::updateGameBoardCardSprites(ivec2& windowDimensions)
     { 
       // Clear the previous sprites.
       m_gameBoardCards.clear();
-
-	  // Create owner groups for each CardOwner
-	  vector<Card> ownerHeap  = searchCard(CARD_OWNER_DECK);
-	  vector<Card> ownerBoard = searchCard(CARD_OWNER_BOARD);
-	  
-	  // Render the cards that are in the heap.
-	  // Render the cards that are in the deck.
-	  auto deckOwnerGroup     = searchCard(CARD_OWNER_DECK);
-	  auto deckOwnerGroupSize = deckOwnerGroup.size();
-
-	  // The idea is to render the deck like it is not aligned
-	  // perfectly(not each card stacked on each other). Like	  
-	  // there are some cards went out of the deck.
-	  if (deckOwnerGroupSize >= 3)
-	  {
-		  AnimatedSprite veryTintedCard;
-		  veryTintedCard.setSpritePosition(m_deckPosition);
-		  veryTintedCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
-		  veryTintedCard.setSpriteRotation(25.0f);
-		  veryTintedCard.bindTexture(deckOwnerGroup[2].textureHandleBack);
-		  veryTintedCard.move(m_deckPosition); // No move, the sprite is static.
-		  veryTintedCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
-
-		  m_gameBoardCards.push_back(veryTintedCard);
-	  }
-
-	  if (deckOwnerGroupSize >= 2)
-	  {
-		  AnimatedSprite slightlyTintedCard;
-		  slightlyTintedCard.setSpritePosition(m_deckPosition);
-		  slightlyTintedCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
-		  slightlyTintedCard.setSpriteRotation(15.0f);
-		  slightlyTintedCard.bindTexture(deckOwnerGroup[1].textureHandleBack);
-		  slightlyTintedCard.move(m_deckPosition); // No move, the sprite is static.			
-		  slightlyTintedCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
-
-		  m_gameBoardCards.push_back(slightlyTintedCard);
-	  }
-
-	  if (deckOwnerGroupSize >= 1)
-	  {
-		  AnimatedSprite regularCard;
-		  regularCard.setSpritePosition(m_deckPosition);
-		  regularCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
-		  regularCard.setSpriteRotation(3.0f);
-		  regularCard.bindTexture(deckOwnerGroup[0].textureHandleBack);
-		  regularCard.move(m_deckPosition); // No move, the sprite is static.			
-		  regularCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
-
-		  m_gameBoardCards.push_back(regularCard);
-	  }
-      
+	 
+	  // Adjust the sprite positions for the different game rendering areas
+	  arrangeHeapSprites();
+	  arrangeDeckSprites();
+	  arrangeBoardSprites();
+	 
 	  // Adjust the sprite positions for the each player
 	  arrangePlayerSprite(CARD_OWNER_PLAYER1);
 	  arrangePlayerSprite(CARD_OWNER_PLAYER2);

@@ -82,7 +82,7 @@ namespace Game
   public:
 	inline vector<Card>& getCards(void)
 	{
-	  return(m_Cards);
+	    return(m_Cards);
 	}
 
 	inline vector<Card>& getCardsRewind(void)
@@ -107,16 +107,27 @@ namespace Game
 	
 	Card& getCardRef(CardSuit cardSuit, CardRank cardRank, bool rewind = false);
 
+
 	void assignCardsToThePlayers(void);
+
 
 	void shuffleDeck(void);
 
 	void generateDeck(void);
 
+
 	void step(void);
+
+
+	bool moveIsValid(Card& card);
+
+	void move(Card& card);
 
   private:
 	Card& getCardRefByOwner(CardOwner cardOwner, bool reverse = false);
+	Card  getCardByOwner   (CardOwner cardOwner, bool reverse = false);
+	Card& getCardRef       (Card card);
+	Card  getCard          (Card card);
 
 	string loadTextureForCard(int cardRank, int cardSuit);
 
@@ -125,6 +136,8 @@ namespace Game
   private:
 	vector<Card>  m_Cards;
 	vector<Card>  m_CardsSnapshot; // the cards state on previous move
+
+	vector<Card>  m_Deck;
 
 	CardOwner     m_Deliverer;
 	random_device m_RandomDevice;
