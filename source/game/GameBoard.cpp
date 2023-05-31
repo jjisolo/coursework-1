@@ -238,6 +238,8 @@ namespace Game
 
 	  // Get the card if we found none
 	  getDeckCard(cardOwner);
+	  assignNextDeliverer();
+	  m_GameStep++;
   }
 
   void Board::move(Card& card)

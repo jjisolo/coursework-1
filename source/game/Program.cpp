@@ -148,7 +148,6 @@ namespace Game
 				}
 			}
 
-			
 			if (m_gameBoard.getDeck().size() > 0)
 			{
 				// Render the last card that is in the deck
@@ -201,7 +200,7 @@ namespace Game
 		for (auto& sprite : spriteGroup) {
 			sprite.animate(m_elapsedTime);
 
-			const bool applyBadEffect = (sprite.getRenderFlag()  & SPRITE_APPLY_HOVER_BAD_EFFECT)   == SPRITE_APPLY_HOVER_BAD_EFFECT;
+			const bool applyBadEffect  = (sprite.getRenderFlag()  & SPRITE_APPLY_HOVER_BAD_EFFECT)   == SPRITE_APPLY_HOVER_BAD_EFFECT;
 			const bool applyGoodEffect = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_GOOD_EFFECT)  == SPRITE_APPLY_HOVER_GOOD_EFFECT;
 			const bool applyBlurEffect = (sprite.getRenderFlag() & SPRITE_APPLY_MOTION_BLUR_EFFECT) == SPRITE_APPLY_MOTION_BLUR_EFFECT;
 
