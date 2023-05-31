@@ -8,7 +8,10 @@ namespace Game
 	Game::Board::Board()
 	{
 		m_RandomGenerator = mt19937(m_RandomDevice());
-		m_GameStep = 0;
+		
+		m_GameStep        = 0;
+		m_PendingAutoMove = false;
+		m_GameEnded       = false;
 	}
 
 	Game::Board::~Board()
@@ -191,23 +194,36 @@ namespace Game
 		}
 	}
 
-	bool Board::moveIsValid(Card& card)
+  bool Board::moveIsValid(Card& card)
+  {
+	if (m_Deck.size() > 0)
 	{
-		if (m_Deck.size() > 0)
+		if (card.cardSuit == m_Deck.back().cardSuit || card.cardRank == m_Deck.back().cardRank)
 		{
-			if (card.cardSuit == m_Deck.back().cardSuit || card.cardRank == m_Deck.back().cardRank)
-			{
-				return true;
-			}
-
-			return false;
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
-  Card& Board::getCardRef(Card card)
-  {
+	return true;
+  }
+
+ bool Board::deckIsEmpty()
+ {
+	 if (getCardRefByOwner(CARD_OWNER_DECK).cardRank == CardRankLast)
+	 {
+		 return true;
+	 }
+	 else
+	 {
+		 return false;
+	 }
+ }
+
+
+ Card& Board::getCardRef(Card card)
+ {
 	for (auto& it : m_Cards)
 	{
 		if (it.cardSuit == card.cardSuit && it.cardRank == card.cardRank)
@@ -237,14 +253,25 @@ namespace Game
 	  }
 
 	  // Get the card if we found none
-	  getDeckCard(cardOwner);
-	  assignNextDeliverer();
-	  m_GameStep++;
+	  if (!deckIsEmpty())
+	  {
+		  getDeckCard(cardOwner);
+		  assignNextDeliverer();
+		  m_GameStep++;
+	  }
+	  else
+	  {
+		  m_GameEnded = true;
+	  }
   }
 
   void Board::move(Card& card)
   {
-	  if (moveIsValid(card))
+	  if (deckIsEmpty())
+	  {
+		  m_GameEnded = true;
+	  }
+	  else if(moveIsValid(card))
 	  {			  
 		  m_Deck.push_back(getCard(card));
 		  getCardRef(card).cardOwner = CARD_OWNER_BOARD;
@@ -308,6 +335,11 @@ namespace Game
 			  iterator++;
 		  }
 	  }
+
+	  Card invalidCard;
+	  invalidCard.cardRank = CardRankLast;
+	  invalidCard.cardSuit = CardSuitLast;
+	  return invalidCard;
   }
 
 }

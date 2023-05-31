@@ -110,11 +110,16 @@ namespace Game
 		return (m_GameStep <= 3) ? false : true;
 	}
 
+	inline bool isEnded() const
+	{
+		return m_GameEnded;
+	}
+
 	CardOwner getDeliverer() const
 	{
 		return m_Deliverer;
 	}
-	
+
 	Card& getCardRef(CardSuit cardSuit, CardRank cardRank, bool rewind = false);
 
 
@@ -134,9 +139,10 @@ namespace Game
 	void move(Card& card);
 
   private:
-	void moveCardAI(CardOwner cardOwner);
-	  
+	void moveCardAI(CardOwner cardOwner);	  
+	
 	void getDeckCard(CardOwner cardOwner);
+	bool deckIsEmpty();
 
 	Card& getCardRefByOwner(CardOwner cardOwner, bool reverse = false);
 	Card  getCardByOwner   (CardOwner cardOwner, bool reverse = false);
@@ -149,6 +155,7 @@ namespace Game
 
   private:
 	bool          m_PendingAutoMove;
+	bool          m_GameEnded;
 
 	vector<Card>  m_Cards;
 	vector<Card>  m_CardsSnapshot; // the cards state on previous move
@@ -158,6 +165,7 @@ namespace Game
 	random_device m_RandomDevice;
 	mt19937       m_RandomGenerator;
 	long long     m_GameStep;
+
   };
 
 }	

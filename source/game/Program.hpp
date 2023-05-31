@@ -53,6 +53,8 @@ namespace Game
 
 		void renderSettingsUI();
 
+		void renderFinalUI();
+
 		void renderPlayerStatUI(CardOwner owner);
 
 	private:

@@ -107,75 +107,89 @@ namespace Game
         // Update mouse cursor position on the current frame.
         glfwGetCursorPos(getWindowPointer(), &m_mousePositionX, &m_mousePositionY);
 		
-		if (m_gameInfo.gameState == GameState::Game_Board)
+		switch (m_gameInfo.gameState)
 		{
-			bool waitAnimations = false;
-
-			for (auto& animatedSprite : m_gameBoardCards)
+			case GameState::Main_Menu
 			{
-				if (animatedSprite.getIsAnimated())
+				for (auto& sprite : m_mainMenuSprites)
+					sprite.render(m_SpriteRenderer);
+
+				 renderMainMenuUI(windowDimensions);
+			} break;
+
+			case GameState::Game_Ended:
+			{
+				renderFinalUI();
+			} break;
+
+			case GameState::Game_Board:
+			{
+				bool waitAnimations = false;
+
+				for (auto& animatedSprite : m_gameBoardCards)
 				{
-					waitAnimations = true;
-					break;
+					if (animatedSprite.getIsAnimated())
+					{
+						waitAnimations = true;
+						break;
+					}
 				}
-			}
 
-			if (!waitAnimations)
-			{
+				if (!waitAnimations)
+				{
+					if (m_gameBoard.getDeck().size() > 0)
+						m_lastCardCopy = m_gameBoard.getDeck().back();
+
+					m_gameBoard.step();
+
+					// Arrange the cards sprites(split the cards array by the different rendering ares by the card owner).
+					updateGameBoardCardSprites(windowDimensions);
+
+					if (m_gameBoard.isEnded())
+					{
+						m_gameInfo.gameState = GameState::Game_Ended;
+					}
+				}
+
+				// Animate individual sprite that is on gameboard group.
+				for (auto& sprite : m_gameBoardGeneral)
+				{
+					sprite.render(m_SpriteRenderer);
+				}
+
+				// Find all sprites that are animating and render each of them
+				vector<AnimatedSprite> animatedCards;
+
+				for (ptrdiff_t spriteIndex = 0; spriteIndex < m_gameBoardCards.size(); spriteIndex++)
+				{
+					if (m_gameBoardCards[spriteIndex].getIsAnimated())
+					{
+						animatedCards.push_back(m_gameBoardCards[spriteIndex]);
+					}
+				}
+
 				if (m_gameBoard.getDeck().size() > 0)
-					m_lastCardCopy = m_gameBoard.getDeck().back();
-
-				m_gameBoard.step();
-
-				// Arrange the cards sprites(split the cards array by the different rendering ares by the card owner).
-				updateGameBoardCardSprites(windowDimensions);
-			}
-
-			// Animate individual sprite that is on gameboard group.
-			for (auto& sprite : m_gameBoardGeneral)
-			{
-				sprite.render(m_SpriteRenderer);
-			}
-
-			// Find all sprites that are animating and render each of them
-			vector<AnimatedSprite> animatedCards;
-
-			for (ptrdiff_t spriteIndex = 0; spriteIndex < m_gameBoardCards.size(); spriteIndex++)
-			{
-				if (m_gameBoardCards[spriteIndex].getIsAnimated())
 				{
-					animatedCards.push_back(m_gameBoardCards[spriteIndex]);
+					// Render the last card that is in the deck
+					AnimatedSprite lastBoardCard;
+					lastBoardCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
+					lastBoardCard.bindTexture(m_lastCardCopy.textureHandleMain);
+					lastBoardCard.setMoveSpeed({ 450.0f, 450.0f });
+					lastBoardCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+					lastBoardCard.setSpritePosition(m_boardPosition);
+					lastBoardCard.move(m_boardPosition);
+
+					// The last rendered sprite is now the last deck sprite
+					animatedCards.push_back(lastBoardCard);
+
+					if ((animatedCards.size() - 2) >= 0)
+						iter_swap(animatedCards.rbegin(), animatedCards.rbegin() + 1);
 				}
-			}
 
-			if (m_gameBoard.getDeck().size() > 0)
-			{
-				// Render the last card that is in the deck
-				AnimatedSprite lastBoardCard;
-				lastBoardCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
-				lastBoardCard.bindTexture      (m_lastCardCopy.textureHandleMain);
-				lastBoardCard.setMoveSpeed     ({ 450.0f, 450.0f });
-				lastBoardCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
-				lastBoardCard.setSpritePosition(m_boardPosition);
-				lastBoardCard.move             (m_boardPosition);
+				renderSpriteGroup(m_gameBoardCards);
+				renderSpriteGroup(animatedCards);
+			} break;
 
-				// The last rendered sprite is now the last deck sprite
-				animatedCards.push_back(lastBoardCard);
-				
-				if ((animatedCards.size() - 2) >= 0)
-					iter_swap(animatedCards.rbegin(), animatedCards.rbegin() + 1);
-			}
-
-			renderSpriteGroup(m_gameBoardCards);
-			renderSpriteGroup(animatedCards);
-        }
-          
-		if (m_gameInfo.gameState == GameState::Main_Menu)
-		{
-          for (auto& sprite : m_mainMenuSprites)
-            sprite.render(m_SpriteRenderer);
-
-          renderMainMenuUI(windowDimensions);
 		}
 		
 		return(Error::Ok);
@@ -485,19 +499,13 @@ namespace Game
 	{
 		vector<AnimatedSprite> animatedSprites;
 
-		auto      boardOwnerGroup       = searchCard(CARD_OWNER_BOARD);
-		auto      boardOwnerGroupSize   = boardOwnerGroup.size();
-		ptrdiff_t cardsRenderTotal      = 0;
+		auto      boardOwnerGroup         = searchCard(CARD_OWNER_BOARD);
+		auto      boardOwnerGroupSize     = boardOwnerGroup.size();
+		ptrdiff_t cardsRotatedRenderTotal = 0;
 
 		bool somethingIsAnimating = false;
 
-		for (ptrdiff_t cardIndex = 1; cardIndex < boardOwnerGroupSize+1; ++cardIndex)
-			if ((cardIndex % 4) == 0)
-				break;
-			else
-				cardsRenderTotal++;
-
-		for (ptrdiff_t boardSpriteIndex = boardOwnerGroupSize; boardSpriteIndex-- > 0;)
+		for (ptrdiff_t boardSpriteIndex = boardOwnerGroupSize; boardSpriteIndex--> 0;)
 		{
 			// Card previous position in the deck
 			auto& rewindedCard = m_gameBoard.getCardRef(boardOwnerGroup[boardSpriteIndex].cardSuit, boardOwnerGroup[boardSpriteIndex].cardRank, true);
@@ -510,7 +518,19 @@ namespace Game
 
 			if (rewindedCard.cardOwner == CARD_OWNER_BOARD)
 			{
-				boardCard.setSpritePosition(m_boardPosition);
+				// Render the slightly rotated cards so it is like
+				// that the deck is fullfilling.
+				if (cardsRotatedRenderTotal <= 3)
+				{
+					boardCard.setSpritePosition(m_boardPosition);
+					boardCard.setSpriteRotation(3.2f * cardsRotatedRenderTotal);
+					++cardsRotatedRenderTotal;
+				}
+				else
+				{
+					continue;
+				}
+				
 			}
 			else if(rewindedCard.cardOwner != CARD_OWNER_PLAYER1)
 			{
@@ -543,7 +563,10 @@ namespace Game
 
 		for(auto sprite: animatedSprites)
 			m_gameBoardCards.push_back(sprite);
+	}
 
+	void GameProgram::renderFinalUI()
+	{
 
 	}
 

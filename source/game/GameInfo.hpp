@@ -6,6 +6,7 @@ namespace Game
 	{
 		Main_Menu,
 		Game_Board,
+		Game_Ended,
 	};
 
 	struct Info
