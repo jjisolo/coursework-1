@@ -43,6 +43,8 @@ namespace Game
 	private:
 		pair<vec2, vec2> getRenderAreaBasedOnCardOwner(CardOwner cardOwner);
 
+		void renderSpriteGroup(vector<AnimatedSprite>& spriteGroup);
+
 	    void renderGameBoardUI(ivec2& windowDimensions);
 	    
 	    void renderMainMenuUI(ivec2& windowDimensions);
@@ -90,5 +92,6 @@ namespace Game
         vector<Card>           m_gameBoardCardsRef;
 
         Card m_hoveredCardCopy;
+		Card m_lastCardCopy;
 	};
 }

@@ -1,5 +1,8 @@
 #include "AnimatedSprite.hpp"
 
+#define MIN(x, y) (x) > (y) ? (x) : (y)
+#define MAX(x, y) MIN(y, x)
+
 void Engine::GFX::AnimatedSprite::move(vec2 spriteDestination) {
   auto spritePosition = getSpritePosition();
   m_TargetDestination = spriteDestination; 

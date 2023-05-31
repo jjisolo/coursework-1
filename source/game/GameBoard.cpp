@@ -93,24 +93,6 @@ namespace Game
 		}
 	}
 
-	void Board::moveCardAI(CardOwner cardOwner)
-	{
-		// Get all cards of this owner
-		vector<Card> playerCards;
-
-		for (auto card : m_Cards)
-		{
-			if (card.cardOwner == cardOwner && moveIsValid(card))
-			{
-				move(card);
-				return;
-			}
-		}
-
-		// Get the card if we found none
-		getDeckCard(cardOwner);
-	}
-
 	void Board::getDeckCard(CardOwner cardOwner)
 	{
 		for (auto card : m_Cards)
@@ -156,6 +138,7 @@ namespace Game
 		if (m_Deliverer != CARD_OWNER_PLAYER1 && m_GameStep > 2)
 		{
 			moveCardAI(m_Deliverer);
+			return;
 		}
 
 		// Check if the main player has no valid moves, if so give him the card
@@ -239,12 +222,28 @@ namespace Game
 	return getCardRef(card);
   }
 
+  void Board::moveCardAI(CardOwner cardOwner)
+  {
+	  // Get all cards of this owner
+	  vector<Card> playerCards;
+
+	  for (auto card : m_Cards)
+	  {
+		  if (card.cardOwner == cardOwner && moveIsValid(card))
+		  {
+			  move(card);
+			  return;
+		  }
+	  }
+
+	  // Get the card if we found none
+	  getDeckCard(cardOwner);
+  }
+
   void Board::move(Card& card)
   {
 	  if (moveIsValid(card))
-	  {
-		  Engine::Logger::m_GameLogger->info("Move card");
-			  
+	  {			  
 		  m_Deck.push_back(getCard(card));
 		  getCardRef(card).cardOwner = CARD_OWNER_BOARD;
 

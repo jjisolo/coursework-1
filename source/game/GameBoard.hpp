@@ -95,6 +95,11 @@ namespace Game
 		return(m_CardsSnapshot);
 	}
 
+	inline vector<Card>& getDeck(void)
+	{
+		return m_Deck;
+	}
+
 	inline long long getCurrentStep() const
 	{
 		return m_GameStep;

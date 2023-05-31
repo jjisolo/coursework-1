@@ -122,98 +122,53 @@ namespace Game
 
 			if (!waitAnimations)
 			{
+				if (m_gameBoard.getDeck().size() > 0)
+					m_lastCardCopy = m_gameBoard.getDeck().back();
+
 				m_gameBoard.step();
 
 				// Arrange the cards sprites(split the cards array by the different rendering ares by the card owner).
 				updateGameBoardCardSprites(windowDimensions);
 			}
 
-			// Try to get the shaders from the global shader/texture storage, if the get request fails
-			// exit the program.
-			auto shaderWrapperOrError = Engine::ResourceManager::getShader("spriteShader");
-			if (shaderWrapperOrError.has_value())
-			{
-				(*shaderWrapperOrError).setFloat   ("elapsedTime", glfwGetTime() * 6);
-				(*shaderWrapperOrError).setVector2f("screenResolution", (ivec2)Engine::Window::instance().getWindowDimensionsKHR());
-			}
-
 			// Animate individual sprite that is on gameboard group.
-			for (auto& sprite : m_gameBoardGeneral) {
+			for (auto& sprite : m_gameBoardGeneral)
+			{
 				sprite.render(m_SpriteRenderer);
 			}
 
-			// Animate and render individual card sprite.
-			const auto spriteGroupSize = m_gameBoardCards.size();
-			m_hoveredCardCopy.cardRank = CardRankLast;
+			// Find all sprites that are animating and render each of them
+			vector<AnimatedSprite> animatedCards;
 
-			for (auto& sprite : m_gameBoardCards) {
-				sprite.animate(m_elapsedTime*2);
-
-				const bool applyBadEffect  = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_BAD_EFFECT)     == SPRITE_APPLY_HOVER_BAD_EFFECT;
-				const bool applyGoodEffect = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_GOOD_EFFECT)    == SPRITE_APPLY_HOVER_GOOD_EFFECT;
-				const bool applyBlurEffect = (sprite.getRenderFlag() & SPRITE_APPLY_MOTION_BLUR_EFFECT)   == SPRITE_APPLY_MOTION_BLUR_EFFECT;
-
-				const auto   size     = sprite.getSpriteSize();
-				const auto   color    = sprite.getSpriteColor();
-				const auto   position = sprite.getSpritePosition();
-				const auto   rotation = sprite.getSpriteRotation();
-				
-				// Apply shadows
-				AnimatedSprite shadowSprite;
-				shadowSprite.setSpriteSize    (size);
-				shadowSprite.setMoveSpeed     (sprite.getMoveSpeed());
-				shadowSprite.setSpriteRotation(sprite.getSpriteRotation());
-				shadowSprite.bindTexture      (sprite.getBindedTexture());
-				shadowSprite.setSpritePosition({ position.x + size.x / 14, position.y + size.y / 14 });
-
-				(*shaderWrapperOrError).setInteger("applyShadowEffect", 1);
-				shadowSprite.render(m_SpriteRenderer);
-				(*shaderWrapperOrError).setInteger("applyShadowEffect", 0);
-
-				if (applyBlurEffect) // Apply motion blur
+			for (ptrdiff_t spriteIndex = 0; spriteIndex < m_gameBoardCards.size(); spriteIndex++)
+			{
+				if (m_gameBoardCards[spriteIndex].getIsAnimated())
 				{
-					(*shaderWrapperOrError).setInteger("applyGlowingEffect", 0, true);
-					const float offsetX = 2.6f;
-					const float offsetY = 2.6f;
-
-					sprite.render(m_SpriteRenderer);
-
-					(*shaderWrapperOrError).setInteger("applyMotionEffect", 1, true);
-					for (auto x = 0; x < 3; ++x)
-					{
-						for (auto y = 0; y < 3; ++y)
-						{
-							AnimatedSprite spriteCopy;
-							spriteCopy.setSpriteColor({ color.x, color.y, color.z });
-							spriteCopy.setSpriteRotation(rotation);
-							spriteCopy.setSpriteSize(size);
-							spriteCopy.bindTexture(sprite.getBindedTexture());
-
-							spriteCopy.setSpritePosition({ position.x + offsetX * x, position.y + offsetY * y });
-							spriteCopy.render(m_SpriteRenderer);
-							spriteCopy.setSpritePosition({ position.x - offsetX * x, position.y - offsetY * y });
-							spriteCopy.render(m_SpriteRenderer);
-						}
-					}
-					(*shaderWrapperOrError).setInteger("applyMotionEffect", 0, true);
+					animatedCards.push_back(m_gameBoardCards[spriteIndex]);
 				}
-				else if (applyBadEffect || applyGoodEffect) // Apply glowing effect
-				{
-					(*shaderWrapperOrError).setVector3f("intencityMask", applyBadEffect ? CARD_INTENCITY_MASK_BAD : CARD_INTENCITY_MASK_GOOD);
-					(*shaderWrapperOrError).setInteger("applyGlowingEffect", 1, true);
-
-					sprite.render(m_SpriteRenderer);
-				}
-				else
-				{
-					sprite.render(m_SpriteRenderer);
-				}
-				
-				(*shaderWrapperOrError).setInteger("applyGlowingEffect", 0, true);
-				(*shaderWrapperOrError).setInteger("applyBlurEffect",    0, true);
 			}
-        
-			renderGameBoardUI(windowDimensions);
+
+			
+			if (m_gameBoard.getDeck().size() > 0)
+			{
+				// Render the last card that is in the deck
+				AnimatedSprite lastBoardCard;
+				lastBoardCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
+				lastBoardCard.bindTexture      (m_lastCardCopy.textureHandleMain);
+				lastBoardCard.setMoveSpeed     ({ 450.0f, 450.0f });
+				lastBoardCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+				lastBoardCard.setSpritePosition(m_boardPosition);
+				lastBoardCard.move             (m_boardPosition);
+
+				// The last rendered sprite is now the last deck sprite
+				animatedCards.push_back(lastBoardCard);
+				
+				if ((animatedCards.size() - 2) >= 0)
+					iter_swap(animatedCards.rbegin(), animatedCards.rbegin() + 1);
+			}
+
+			renderSpriteGroup(m_gameBoardCards);
+			renderSpriteGroup(animatedCards);
         }
           
 		if (m_gameInfo.gameState == GameState::Main_Menu)
@@ -225,6 +180,92 @@ namespace Game
 		}
 		
 		return(Error::Ok);
+	}
+
+	void GameProgram::renderSpriteGroup(vector<AnimatedSprite>& spriteGroup)
+	{
+		auto windowDimensions = getWindowDimensions();
+
+		// Try to get the shaders from the global shader/texture storage, if the get request fails
+		// exit the program.
+		auto shaderWrapperOrError = Engine::ResourceManager::getShader("spriteShader");
+		if (shaderWrapperOrError.has_value())
+		{
+			(*shaderWrapperOrError).setFloat   ("elapsedTime", glfwGetTime() * 6);
+			(*shaderWrapperOrError).setVector2f("screenResolution", (ivec2)Engine::Window::instance().getWindowDimensionsKHR());
+		}
+
+		const auto spriteGroupSize = m_gameBoardCards.size();
+		m_hoveredCardCopy.cardRank = CardRankLast;
+
+		for (auto& sprite : spriteGroup) {
+			sprite.animate(m_elapsedTime);
+
+			const bool applyBadEffect = (sprite.getRenderFlag()  & SPRITE_APPLY_HOVER_BAD_EFFECT)   == SPRITE_APPLY_HOVER_BAD_EFFECT;
+			const bool applyGoodEffect = (sprite.getRenderFlag() & SPRITE_APPLY_HOVER_GOOD_EFFECT)  == SPRITE_APPLY_HOVER_GOOD_EFFECT;
+			const bool applyBlurEffect = (sprite.getRenderFlag() & SPRITE_APPLY_MOTION_BLUR_EFFECT) == SPRITE_APPLY_MOTION_BLUR_EFFECT;
+
+			const auto   size     = sprite.getSpriteSize();
+			const auto   color    = sprite.getSpriteColor();
+			const auto   position = sprite.getSpritePosition();
+			const auto   rotation = sprite.getSpriteRotation();
+
+			// Apply shadows
+			AnimatedSprite shadowSprite;
+			shadowSprite.setSpriteSize    (size);
+			shadowSprite.setMoveSpeed     (sprite.getMoveSpeed());
+			shadowSprite.setSpriteRotation(sprite.getSpriteRotation());
+			shadowSprite.bindTexture      (sprite.getBindedTexture());
+			shadowSprite.setSpritePosition({ position.x + size.x / 14, position.y + size.y / 14 });
+
+			(*shaderWrapperOrError).setInteger("applyShadowEffect", 1);
+			shadowSprite.render(m_SpriteRenderer);
+			(*shaderWrapperOrError).setInteger("applyShadowEffect", 0);
+
+			if (applyBlurEffect) // Apply motion blur
+			{
+				(*shaderWrapperOrError).setInteger("applyGlowingEffect", 0, true);
+				const float offsetX = 2.6f;
+				const float offsetY = 2.6f;
+
+				sprite.render(m_SpriteRenderer);
+
+				(*shaderWrapperOrError).setInteger("applyMotionEffect", 1, true);
+				for (auto x = 0; x < 3; ++x)
+				{
+					for (auto y = 0; y < 3; ++y)
+					{
+						AnimatedSprite spriteCopy;
+						spriteCopy.setSpriteColor({ color.x, color.y, color.z });
+						spriteCopy.setSpriteRotation(rotation);
+						spriteCopy.setSpriteSize(size);
+						spriteCopy.bindTexture(sprite.getBindedTexture());
+
+						spriteCopy.setSpritePosition({ position.x + offsetX * x, position.y + offsetY * y });
+						spriteCopy.render(m_SpriteRenderer);
+						spriteCopy.setSpritePosition({ position.x - offsetX * x, position.y - offsetY * y });
+						spriteCopy.render(m_SpriteRenderer);
+					}
+				}
+				(*shaderWrapperOrError).setInteger("applyMotionEffect", 0, true);
+			}
+			else if (applyBadEffect || applyGoodEffect) // Apply glowing effect
+			{
+				(*shaderWrapperOrError).setVector3f("intencityMask", applyBadEffect ? CARD_INTENCITY_MASK_BAD : CARD_INTENCITY_MASK_GOOD);
+				(*shaderWrapperOrError).setInteger("applyGlowingEffect", 1, true);
+
+				sprite.render(m_SpriteRenderer);
+			}
+			else
+			{
+				sprite.render(m_SpriteRenderer);
+			}
+
+			(*shaderWrapperOrError).setInteger("applyGlowingEffect", 0, true);
+			(*shaderWrapperOrError).setInteger("applyBlurEffect", 0, true);
+		}
+
+		renderGameBoardUI(windowDimensions);
 	}
 
 	pair<vec2, vec2> GameProgram::getRenderAreaBasedOnCardOwner(CardOwner cardOwner)
@@ -443,9 +484,13 @@ namespace Game
 
 	void GameProgram::arrangeBoardSprites()
 	{
+		vector<AnimatedSprite> animatedSprites;
+
 		auto      boardOwnerGroup       = searchCard(CARD_OWNER_BOARD);
 		auto      boardOwnerGroupSize   = boardOwnerGroup.size();
 		ptrdiff_t cardsRenderTotal      = 0;
+
+		bool somethingIsAnimating = false;
 
 		for (ptrdiff_t cardIndex = 1; cardIndex < boardOwnerGroupSize+1; ++cardIndex)
 			if ((cardIndex % 4) == 0)
@@ -453,23 +498,22 @@ namespace Game
 			else
 				cardsRenderTotal++;
 
-		for (ptrdiff_t boardSpriteIndex = boardOwnerGroupSize; boardSpriteIndex --> 0;)
+		for (ptrdiff_t boardSpriteIndex = boardOwnerGroupSize; boardSpriteIndex-- > 0;)
 		{
 			// Card previous position in the deck
 			auto& rewindedCard = m_gameBoard.getCardRef(boardOwnerGroup[boardSpriteIndex].cardSuit, boardOwnerGroup[boardSpriteIndex].cardRank, true);
 
 			AnimatedSprite boardCard;
-			boardCard.setSpriteSize    (CARD_ASSET_SIZE_NORMALIZED);
-			boardCard.bindTexture      (boardOwnerGroup[boardSpriteIndex].textureHandleMain);
-			boardCard.setMoveSpeed     ({ 450.0f, 450.0f });
-			boardCard.setRenderFlag    (SPRITE_APPLY_NONE_EFFECTS);
+			boardCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
+			boardCard.bindTexture(boardOwnerGroup[boardSpriteIndex].textureHandleMain);
+			boardCard.setMoveSpeed({ 450.0f, 450.0f });
+			boardCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
 
-			//if (boardOwnerGroup[boardSpriteIndex].cardOwner == CARD_OWNER_BOARD)
 			if (rewindedCard.cardOwner == CARD_OWNER_BOARD)
 			{
 				boardCard.setSpritePosition(m_boardPosition);
 			}
-			else
+			else if(rewindedCard.cardOwner != CARD_OWNER_PLAYER1)
 			{
 				auto renderAreaRewind      = getRenderAreaBasedOnCardOwner(rewindedCard.cardOwner);
 				auto renderAreaRewindStart = renderAreaRewind.first;
@@ -480,10 +524,28 @@ namespace Game
 					renderAreaRewindStart.y
 				});
 			}
+			else
+			{
+				continue;
+			}
 
-			boardCard.move(m_boardPosition);
-			m_gameBoardCards.push_back(boardCard);
+			boardCard.move   (m_boardPosition);
+			boardCard.animate(m_elapsedTime);
+
+			if (boardCard.getIsAnimated())
+			{			
+				animatedSprites.push_back(boardCard);
+			}
+			else
+			{
+				m_gameBoardCards.push_back(boardCard);
+			}
 		}
+
+		for(auto sprite: animatedSprites)
+			m_gameBoardCards.push_back(sprite);
+
+
 	}
 
     void GameProgram::updateGameBoardCardSprites(ivec2& windowDimensions)
@@ -491,15 +553,15 @@ namespace Game
       // Clear the previous sprites.
       m_gameBoardCards.clear();
 	 
-	  // Adjust the sprite positions for the different game rendering areas
-	  arrangeDeckSprites();
-	  arrangeBoardSprites();
-	 
 	  // Adjust the sprite positions for the each player
 	  arrangePlayerSprite(CARD_OWNER_PLAYER1);
 	  arrangePlayerSprite(CARD_OWNER_PLAYER2);
 	  arrangePlayerSprite(CARD_OWNER_PLAYER3);
 	  arrangePlayerSprite(CARD_OWNER_PLAYER4);
+
+	  // Adjust the sprite positions for the different game rendering areas
+	  arrangeDeckSprites();
+	  arrangeBoardSprites();
     }
 
     void GameProgram::renderPlayerStatUI(CardOwner owner)
