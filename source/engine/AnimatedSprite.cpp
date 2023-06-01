@@ -24,8 +24,8 @@ void Engine::GFX::AnimatedSprite::animate(GLfloat elapsedTime) {
   float spritePositionX = spritePosition.x;
   float spritePositionY = spritePosition.y;
 
-  const bool finishedX = APPROX(spritePosition.x, m_TargetDestination.x, 3.3);
-  const bool finishedY = APPROX(spritePosition.y, m_TargetDestination.y, 3.3f);
+  const bool finishedX = APPROX(spritePosition.x, m_TargetDestination.x, 2.0f);
+  const bool finishedY = APPROX(spritePosition.y, m_TargetDestination.y, 2.0f);
 
   const float deltaX = spritePositionX / m_TargetDestination.x;
   const float deltaY = spritePositionY / m_TargetDestination.y;
@@ -33,8 +33,8 @@ void Engine::GFX::AnimatedSprite::animate(GLfloat elapsedTime) {
   float stepX = (m_MoveSpeed.x * elapsedTime) * m_MoveVector.x;
   float stepY = (m_MoveSpeed.y * elapsedTime) * m_MoveVector.y;
 
-  stepX = deltaX * stepX;
-  stepY = deltaY * stepY;
+  stepX = stepX;
+  stepY = stepY;
   
   if (!finishedX)
       spritePositionX = spritePosition.x + stepX;

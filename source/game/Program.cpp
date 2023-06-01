@@ -93,7 +93,6 @@ namespace Game
 
 	Error GameProgram::onUserRelease()
 	{
-
 		return(Error::Ok);
 	}
 
@@ -166,7 +165,7 @@ namespace Game
 						AnimatedSprite lastBoardCard;
 						lastBoardCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
 						lastBoardCard.bindTexture(m_lastCardCopy.textureHandleMain);
-						lastBoardCard.setMoveSpeed({ 450.0f, 450.0f });
+						lastBoardCard.setMoveSpeed({ 1000.0f, 1000.0f});
 						lastBoardCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
 						lastBoardCard.setSpritePosition(m_boardPosition);
 						lastBoardCard.move(m_boardPosition);
