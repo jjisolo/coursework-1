@@ -36,6 +36,9 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include "vendor/stb_easy_font.h"
+#include "vendor/stb_image.h"
+
 // Defines
 #define UnreferencedParameter(expr) do { (void)(expr); } while (0)
 

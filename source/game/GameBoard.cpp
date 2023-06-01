@@ -108,33 +108,112 @@ namespace Game
 		}
 	}
 
+	void Board::calculatePlayerScore()
+	{
+		// Get the the each player card.
+		auto calculate = [&](CardOwner cardOwner) -> size_t
+		{
+			size_t playerScore = 0;
+
+			for_each(m_Cards.begin(), m_Cards.end(), [&](Card card)
+				{
+					if (card.cardOwner == cardOwner)
+					{
+						switch (card.cardSuit)
+						{
+							case CardSuit::Ace:
+							{
+								playerScore += 11;
+							} break;
+
+							case CardSuit::Ten:
+							{
+								playerScore += 10;
+							} break;
+
+							case CardSuit::Nine:
+							{
+								playerScore += 0;
+							} break;
+
+							case CardSuit::Eight:
+							{
+								playerScore += 8;
+							} break;
+
+							case CardSuit::Seven:
+							{
+								playerScore += 7;
+							} break;
+
+							case CardSuit::Six:
+							{
+								playerScore += 6;
+							} break;
+
+							case CardSuit::King:
+							{
+								playerScore += 4;
+							} break;
+
+							case CardSuit::Queen:
+							{
+								playerScore += 3;
+							} break;
+
+							case CardSuit::Jack:
+							{
+								playerScore += 2;
+							} break;
+						}
+					}
+
+				});
+
+				return playerScore;
+		};
+
+		m_PlayerScores.Player1 = calculate(CARD_OWNER_PLAYER1);
+		m_PlayerScores.Player2 = calculate(CARD_OWNER_PLAYER2);
+		m_PlayerScores.Player3 = calculate(CARD_OWNER_PLAYER3);
+		m_PlayerScores.Player4 = calculate(CARD_OWNER_PLAYER4);
+
+		m_PlayerScores.WinnerIndex = min({ m_PlayerScores.Player1, m_PlayerScores.Player2, m_PlayerScores.Player3, m_PlayerScores.Player4 });
+	}
+
 	void Board::step(void)
 	{
-		// Save the card state snapshot
-		//copy(m_Cards.begin(), m_Cards.end(), back_inserter(m_CardsSnapshot));
+		if (isEnded())
+		{
+			calculatePlayerScore();
+		}
+
+		// Save the card state snapshot, for the animations, basically we save the state
+		// to be able to compare the card source to the card destination move(for instance,
+		// when card changes the owner).
 		m_CardsSnapshot = m_Cards;
+
 		switch (m_GameStep)
 		{
-		case 0: {
-			// First move: Shuffle the deck
-			shuffleDeck();
-			m_GameStep++;
-			return;
-		} break;
+			case 0: {
+				// First move: Shuffle the deck
+				shuffleDeck();
+				m_GameStep++;
+				return;
+			} break;
 
-		case 1: {
-			// Second move: Assign the cards to the players
-			assignCardsToThePlayers();
-			m_GameStep++;
-			return;
-		} break;
+			case 1: {
+				// Second move: Assign the cards to the players
+				assignCardsToThePlayers();
+				m_GameStep++;
+				return;
+			} break;
 
-		case 2: {
-			// Third move: Make deliverer move
-			move(getCardRefByOwner(m_Deliverer, true));
-			return;
-		} break;
-
+			case 2: {
+				// Third move: Make deliverer move
+				move(getCardRefByOwner(m_Deliverer, true));
+				return;
+			} break;
 		}
 
 		// If the main player is not the deliverer make the AI)))))))))))) move the card
@@ -198,7 +277,7 @@ namespace Game
   {
 	if (m_Deck.size() > 0)
 	{
-		if (card.cardSuit == m_Deck.back().cardSuit || card.cardRank == m_Deck.back().cardRank)
+		if (card.cardSuit == m_Deck.back().cardSuit || card.cardRank == m_Deck.back().cardRank || card.cardSuit == Queen)
 		{
 			return true;
 		}
@@ -252,7 +331,7 @@ namespace Game
 		  }
 	  }
 
-	  // Get the card if we found none
+	  // Get the card if there exists oner
 	  if (!deckIsEmpty())
 	  {
 		  getDeckCard(cardOwner);
@@ -262,22 +341,87 @@ namespace Game
 	  else
 	  {
 		  m_GameEnded = true;
-	  }
+	}	  
   }
 
   void Board::move(Card& card)
   {
-	  if (deckIsEmpty())
+	  const bool _deckIsEmpty     = deckIsEmpty();
+	  size_t     playerCardsTotal = 0;
+
+	  for (ptrdiff_t cardIndex = 0; cardIndex < m_Cards.size(); ++cardIndex)
+	  {
+		  if ((card.cardOwner != CARD_OWNER_DECK || card.cardOwner != CARD_OWNER_BOARD) &&
+			  (card.cardOwner == m_Cards[cardIndex].cardOwner))
+		  {
+			  ++playerCardsTotal;
+		  }
+	  }
+
+	  if (_deckIsEmpty)
 	  {
 		  m_GameEnded = true;
 	  }
 	  else if(moveIsValid(card))
-	  {			  
+	  {		
+		  if (playerCardsTotal == 1)
+		  {
+			  m_GameEnded = true;
+		  }
+
 		  m_Deck.push_back(getCard(card));
 		  getCardRef(card).cardOwner = CARD_OWNER_BOARD;
 
-		  assignNextDeliverer();
-		  m_GameStep++;
+		  switch (card.cardSuit)
+		  {
+			  case Ace: // Get 0 cards, skip the turn
+			  {
+				  assignNextDeliverer();
+				  assignNextDeliverer();
+			  } break;
+
+			  case King: // Get 4 cards, skip the turn
+			  {
+				  assignNextDeliverer();
+
+				  for (ptrdiff_t cardNumber = 0; cardNumber < 4; ++cardNumber)
+				  {
+					  getDeckCard(m_Deliverer);
+				  }
+
+				  assignNextDeliverer();
+			  } break;
+
+			  case Seven: // Get 2 cards, skip the turn
+			  {
+				  assignNextDeliverer();
+
+				  if (!_deckIsEmpty)
+				  {
+					  getDeckCard(m_Deliverer);
+					  getDeckCard(m_Deliverer);
+				  }
+
+				  assignNextDeliverer();
+			  } break;
+
+			  case Six: // Get 1 card, skip the turn
+			  {
+				  assignNextDeliverer();
+
+				  if (!_deckIsEmpty)
+				  {
+					  getDeckCard(card.cardOwner);
+				  }
+
+				  assignNextDeliverer();
+			  } break;
+
+			  default:
+			  {
+				  assignNextDeliverer();
+			  } break;
+		  };
 
 		  if (m_Deliverer == CARD_OWNER_PLAYER1)
 		  {
@@ -287,6 +431,8 @@ namespace Game
 		  {
 			  m_PendingAutoMove = true;
 		  }
+
+		  m_GameStep++;
 	  }
   }
 

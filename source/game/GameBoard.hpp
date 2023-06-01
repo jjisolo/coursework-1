@@ -65,6 +65,16 @@ namespace Game
 	string textureHandleBack;
   };
 
+  struct PlayerScore
+  {
+	  size_t Player1 = 0u;
+	  size_t Player2 = 0u;
+	  size_t Player3 = 0u;
+	  size_t Player4 = 0u;
+
+	  size_t WinnerIndex = 0u;
+  };
+
   struct SaveData
   {
 	  GameState gameState;
@@ -115,6 +125,11 @@ namespace Game
 		return m_GameEnded;
 	}
 
+	inline PlayerScore getPlayerScore() const
+	{
+		return m_PlayerScores;
+	}
+
 	CardOwner getDeliverer() const
 	{
 		return m_Deliverer;
@@ -122,17 +137,15 @@ namespace Game
 
 	Card& getCardRef(CardSuit cardSuit, CardRank cardRank, bool rewind = false);
 
+	void calculatePlayerScore();
 
 	void assignCardsToThePlayers(void);
-
 
 	void shuffleDeck(void);
 
 	void generateDeck(void);
 
-
 	void step(void);
-
 
 	bool moveIsValid(Card& card);
 
@@ -140,7 +153,7 @@ namespace Game
 
   private:
 	void moveCardAI(CardOwner cardOwner);	  
-	
+
 	void getDeckCard(CardOwner cardOwner);
 	bool deckIsEmpty();
 
@@ -153,7 +166,7 @@ namespace Game
 
 	void assignNextDeliverer(void);
 
-  private:
+  private:  
 	bool          m_PendingAutoMove;
 	bool          m_GameEnded;
 
@@ -162,10 +175,12 @@ namespace Game
 	vector<Card>  m_Deck;
 
 	CardOwner     m_Deliverer;
+
 	random_device m_RandomDevice;
 	mt19937       m_RandomGenerator;
 	long long     m_GameStep;
 
+	PlayerScore   m_PlayerScores;
   };
 
 }	

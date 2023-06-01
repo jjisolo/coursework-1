@@ -53,7 +53,7 @@ namespace Game
 
 		void renderSettingsUI();
 
-		void renderFinalUI();
+		void renderFinalUI(PlayerScore playerScores);
 
 		void renderPlayerStatUI(CardOwner owner);
 
@@ -65,6 +65,7 @@ namespace Game
 		bool m_showQuitApproveWindow = false;
 		bool m_showDebugWindow       = false;
 		bool m_showBoardMenuWindow   = false;
+		bool m_showScoreBoardMenu    = false;
 
         bool m_ShowPlayer2Stats = false;
         bool m_ShowPlayer3Stats = false;

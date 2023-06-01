@@ -109,7 +109,7 @@ namespace Game
 		
 		switch (m_gameInfo.gameState)
 		{
-			case GameState::Main_Menu
+			case GameState::Main_Menu:
 			{
 				for (auto& sprite : m_mainMenuSprites)
 					sprite.render(m_SpriteRenderer);
@@ -117,79 +117,84 @@ namespace Game
 				 renderMainMenuUI(windowDimensions);
 			} break;
 
-			case GameState::Game_Ended:
-			{
-				renderFinalUI();
-			} break;
-
 			case GameState::Game_Board:
 			{
-				bool waitAnimations = false;
-
-				for (auto& animatedSprite : m_gameBoardCards)
+				if (!m_gameBoard.isEnded())
 				{
-					if (animatedSprite.getIsAnimated())
+					bool waitAnimations = false;
+
+					for (auto& animatedSprite : m_gameBoardCards)
 					{
-						waitAnimations = true;
-						break;
+						if (animatedSprite.getIsAnimated())
+						{
+							waitAnimations = true;
+							break;
+						}
 					}
-				}
 
-				if (!waitAnimations)
-				{
+					if (!waitAnimations)
+					{
+						if (m_gameBoard.getDeck().size() > 0)
+							m_lastCardCopy = m_gameBoard.getDeck().back();
+
+						m_gameBoard.step();
+
+						// Arrange the cards sprites(split the cards array by the different rendering ares by the card owner).
+						updateGameBoardCardSprites(windowDimensions);
+					}
+
+					// Animate individual sprite that is on gameboard group.
+					for (auto& sprite : m_gameBoardGeneral)
+					{
+						sprite.render(m_SpriteRenderer);
+					}
+
+					// Find all sprites that are animating and render each of them
+					vector<AnimatedSprite> animatedCards;
+
+					for (ptrdiff_t spriteIndex = 0; spriteIndex < m_gameBoardCards.size(); spriteIndex++)
+					{
+						if (m_gameBoardCards[spriteIndex].getIsAnimated())
+						{
+							animatedCards.push_back(m_gameBoardCards[spriteIndex]);
+						}
+					}
+
 					if (m_gameBoard.getDeck().size() > 0)
-						m_lastCardCopy = m_gameBoard.getDeck().back();
-
-					m_gameBoard.step();
-
-					// Arrange the cards sprites(split the cards array by the different rendering ares by the card owner).
-					updateGameBoardCardSprites(windowDimensions);
-
-					if (m_gameBoard.isEnded())
 					{
-						m_gameInfo.gameState = GameState::Game_Ended;
+						// Render the last card that is in the deck
+						AnimatedSprite lastBoardCard;
+						lastBoardCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
+						lastBoardCard.bindTexture(m_lastCardCopy.textureHandleMain);
+						lastBoardCard.setMoveSpeed({ 450.0f, 450.0f });
+						lastBoardCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
+						lastBoardCard.setSpritePosition(m_boardPosition);
+						lastBoardCard.move(m_boardPosition);
+
+						// The last rendered sprite is now the last deck sprite
+						animatedCards.push_back(lastBoardCard);
+
+						if (((int)animatedCards.size() - 2) >= 0)
+							iter_swap(animatedCards.rbegin(), animatedCards.rbegin() + 1);
 					}
+
+					renderSpriteGroup(m_gameBoardCards);
+					renderSpriteGroup(animatedCards);
 				}
-
-				// Animate individual sprite that is on gameboard group.
-				for (auto& sprite : m_gameBoardGeneral)
+				else
 				{
-					sprite.render(m_SpriteRenderer);
-				}
+					m_showScoreBoardMenu = true;
 
-				// Find all sprites that are animating and render each of them
-				vector<AnimatedSprite> animatedCards;
-
-				for (ptrdiff_t spriteIndex = 0; spriteIndex < m_gameBoardCards.size(); spriteIndex++)
-				{
-					if (m_gameBoardCards[spriteIndex].getIsAnimated())
+					// Animate individual sprite that is on gameboard group.
+					for (auto& sprite : m_gameBoardGeneral)
 					{
-						animatedCards.push_back(m_gameBoardCards[spriteIndex]);
+						sprite.render(m_SpriteRenderer);
 					}
+
+					m_gameBoard.calculatePlayerScore();
+					renderFinalUI(m_gameBoard.getPlayerScore());
 				}
-
-				if (m_gameBoard.getDeck().size() > 0)
-				{
-					// Render the last card that is in the deck
-					AnimatedSprite lastBoardCard;
-					lastBoardCard.setSpriteSize(CARD_ASSET_SIZE_NORMALIZED);
-					lastBoardCard.bindTexture(m_lastCardCopy.textureHandleMain);
-					lastBoardCard.setMoveSpeed({ 450.0f, 450.0f });
-					lastBoardCard.setRenderFlag(SPRITE_APPLY_NONE_EFFECTS);
-					lastBoardCard.setSpritePosition(m_boardPosition);
-					lastBoardCard.move(m_boardPosition);
-
-					// The last rendered sprite is now the last deck sprite
-					animatedCards.push_back(lastBoardCard);
-
-					if ((animatedCards.size() - 2) >= 0)
-						iter_swap(animatedCards.rbegin(), animatedCards.rbegin() + 1);
-				}
-
-				renderSpriteGroup(m_gameBoardCards);
-				renderSpriteGroup(animatedCards);
 			} break;
-
 		}
 		
 		return(Error::Ok);
@@ -565,9 +570,75 @@ namespace Game
 			m_gameBoardCards.push_back(sprite);
 	}
 
-	void GameProgram::renderFinalUI()
+	void GameProgram::renderFinalUI(PlayerScore playerScores)
 	{
+		ImguiCreateNewFrameKHR();
+		ImGui::NewFrame();
 
+		ImGuiWindowFlags windowFlags = 0;
+		//windowFlags |= ImGuiWindowFlags_NoMove;
+		//windowFlags |= ImGuiWindowFlags_NoResize;
+		windowFlags |= ImGuiWindowFlags_NoCollapse;
+
+		if (m_showScoreBoardMenu)
+		{
+			if (!ImGui::Begin("Player Score", NULL, windowFlags))
+			{
+				ImGui::End();
+			}
+			else
+			{
+				auto tableColor       = 3;
+				auto tableColorBorder = 11;
+
+				ImGui::Text("So the game ended, and it is time to find out who is the winner...");
+				ImGui::Text("\nThe player with the least number of points considered the winner if there more than one player with the same points number ... there's a tie(multiple winners)");
+
+				ImGui::Text("\n\n Player Statics:\n");
+				ImGui::BeginTable("Player scores", tableColor, tableColorBorder);
+				ImGui::TableSetupColumn("Player");
+				ImGui::TableSetupColumn("Score");
+				ImGui::TableSetupColumn("Winner?");
+				
+				ImGui::TableHeadersRow();
+				ImGui::TableNextColumn();
+
+				ImGui::Text("Player 1");
+				ImGui::TableNextColumn();
+				ImGui::Text(to_string(playerScores.Player1).c_str());
+				ImGui::TableNextColumn();
+				ImGui::Text(playerScores.WinnerIndex == playerScores.Player1 ? "YES" : "NO");
+				ImGui::TableNextColumn();
+
+				ImGui::Text("Player 2");
+				ImGui::TableNextColumn();
+				ImGui::Text(to_string(playerScores.Player2).c_str());
+				ImGui::TableNextColumn();
+				ImGui::Text(playerScores.WinnerIndex == playerScores.Player2 ? "YES" : "NO");
+				ImGui::TableNextColumn();
+
+				ImGui::Text("Player 3");
+				ImGui::TableNextColumn();
+				ImGui::Text(to_string(playerScores.Player3).c_str());
+				ImGui::TableNextColumn();
+				ImGui::Text(playerScores.WinnerIndex == playerScores.Player3  ? "YES" : "NO");
+				ImGui::TableNextColumn();
+
+				ImGui::Text("Player 4");
+				ImGui::TableNextColumn();
+				ImGui::Text(to_string(playerScores.Player4).c_str());
+				ImGui::TableNextColumn();
+				ImGui::Text(playerScores.WinnerIndex == playerScores.Player4 ? "YES" : "NO");
+				ImGui::TableNextColumn();
+				ImGui::EndTable();
+				ImGui::Text("\n\n\t\t\t\tThanks for playing!!");
+
+				ImGui::End();
+			}
+		}
+
+		ImGui::EndFrame();
+		ImGui::Render();
 	}
 
     void GameProgram::updateGameBoardCardSprites(ivec2& windowDimensions)
@@ -589,8 +660,8 @@ namespace Game
     void GameProgram::renderPlayerStatUI(CardOwner owner)
     {
       ImGuiWindowFlags windowFlags = 0;
-      //windowFlags |= ImGuiWindowFlags_NoMove;
-      //windowFlags |= ImGuiWindowFlags_NoResize;
+      windowFlags |= ImGuiWindowFlags_NoMove;
+      windowFlags |= ImGuiWindowFlags_NoResize;
       windowFlags |= ImGuiWindowFlags_NoCollapse;
 
       if(!ImGui::Begin("Player Statistics", NULL, windowFlags))
